@@ -216,17 +216,73 @@ scope: frontend, worker, spec, docs
 
 ## Technical Tips
 
-### Project structure — monorepo with shared package
+### Project structure — monorepo with DDD worker
 
 ```
 tcg-matchmaker/
+  pnpm-workspace.yaml
+  package.json                     # Root scripts (dev, test, lint, format) delegating via pnpm -F
+  supabase/
+    config.toml                    # Supabase CLI configuration
+    migrations/                    # Database migrations (PostGIS, schema)
+    seed.sql
   packages/
-    shared/        — Zod schemas, types, constants (shared between frontend + worker)
-    frontend/      — Quasar app
-    worker/        — Hono API
+    shared/                        # Pure TS library — API contracts shared by frontend + worker
+      package.json                 # @tcg/shared
+      tsconfig.json
+      src/
+        schemas/                   # Zod schemas (used by both frontend forms and Worker validation)
+          common.ts                # PaginationSchema, CursorSchema, ApiResponseSchema
+          user.ts                  # SignupSchema, LoginSchema, ProfileSchema, UserSchema
+          event.ts                 # CreateEventSchema, EventSchema, EventType, EventStatus
+          store.ts                 # CreateStoreSchema, StoreSchema, StoreMembershipSchema
+          tournament.ts            # CreateTournamentSchema, BracketSchema, BracketMatchSchema
+          trading.ts               # CreateTradingSessionSchema, TradingSessionSchema
+          notification.ts          # NotificationSchema, PushSubscriptionSchema
+          report.ts                # ReportSchema, etc.
+          geocoding.ts             # GeocodeQuerySchema, GeocodeResultSchema
+        types/                     # Re-exported TS types derived from schemas
+          index.ts
+        constants.ts               # Enums and constants (event types, bracket types, roles, statuses)
+        index.ts                   # Re-exports schemas, types, and constants
+    frontend/                      # Quasar SPA
+      package.json                 # @tcg/frontend — depends on @tcg/shared + @tcg/worker (types)
+      src/
+        pages/
+        components/                # Atomic design (atoms / molecules / organisms / admin)
+        composables/               # useAuth, useMatch, useGeolocation, useTournament, …
+        stores/                    # Pinia: useAuthStore, useAppStore
+        i18n/                      # en-US.ts, pt-BR.ts
+        router/                    # Vue Router routes with auth guards
+        boot/                      # Quasar boot files (supabase, sentry, turnstile)
+    worker/                        # Hono API — organized by domain (DDD)
+      package.json                 # @tcg/worker — depends on @tcg/shared
+      wrangler.jsonc
+      src/
+        index.ts                   # Hono app bootstrap, CORS, error handling, middleware pipeline
+        auth/                      # Signup, login, profile, delete account, data export
+        events/                    # Matches + trading sessions (unified create, list, join, confirm)
+        tournaments/               # Tournaments, brackets (generation, advancement, walkovers)
+        stores/                    # Game stores CRUD, store memberships
+        notifications/             # Notification CRUD, push subscriptions
+        moderation/                # Reports, bans, suspensions, admin promotions
+        geocoding/                 # Nominatim proxy + KV cache
+        tcgs/                      # TCG + format CRUD
+        middleware/                # auth (JWT verify + banned check), rate-limit (KV), logger, …
+        db/                        # Supabase client (secret key for all DB operations)
+        services/                  # Cross-domain business logic (if needed)
+      test/                        # Vitest with @cloudflare/vitest-pool-workers
 ```
 
-Zod schemas for API requests/responses and shared types (Event, Participant, etc.) need to be imported by both frontend and worker. A shared package avoids duplication and keeps contracts in sync.
+**Package dependency graph:**
+
+```
+frontend → shared
+worker   → shared
+frontend → worker (types only — hono/client)
+```
+
+The worker uses **domain-driven design** internally: each domain folder owns its routes, validators (Zod), service layer, and database queries. Cross-domain logic lives in `services/` or is accessed via function calls to another domain's service (no shared state).
 
 ### Hono RPC type sharing
 

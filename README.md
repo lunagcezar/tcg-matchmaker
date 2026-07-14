@@ -17,23 +17,54 @@ Initially focused on **Fortaleza, Ceará, Brasil**.
 | Layer | Technology |
 |-------|------------|
 | Frontend | [Quasar](https://quasar.dev/) (Vue 3 + Vite + TypeScript) |
-| State | Pinia |
+| State | [Pinia](https://pinia.vuejs.org/api/) |
+| Utilities | [VueUse](https://vueuse.org/guide/) (geolocation, storage, debounce) |
+| API client | [Hono RPC](https://hono.dev/docs/guides/rpc) — fully typed client from Worker routes |
 | API | [Hono](https://hono.dev/) on Cloudflare Workers |
 | Database | [Supabase](https://supabase.com/) (PostgreSQL + PostGIS + Auth + Realtime) |
-| Maps | Leaflet + OpenStreetMap |
-| Geocoding | Nominatim (proxied through Hono) |
-| Validation | Zod |
-| Tests | Vitest + @vue/test-utils + MSW |
-| CI/CD | Cloudflare Pages + Workers |
+| Validation | [Zod](https://zod.dev/) |
+| Maps | [Leaflet](https://leafletjs.com/) + OpenStreetMap |
+| Geocoding | [Nominatim](https://nominatim.org/) (proxied through Hono) |
+| Bracket rendering | [D3.js](https://d3js.org/api) |
+| Tests | [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [MSW](https://mswjs.io/) |
+| Date/time | [Luxon](https://moment.github.io/luxon/) |
+| Observability | [Sentry](https://sentry.io/) |
+| CI/CD | Cloudflare Pages (frontend) + Workers (API) |
+| Bot protection | [Turnstile](https://www.cloudflare.com/products/turnstile/) |
+| Email | [Resend](https://resend.com/) (custom SMTP)
 
-The project is a monorepo:
+The project is a monorepo organized with pnpm workspaces. The Hono API uses domain-driven design internally.
 
 ```
 tcg-matchmaker/
+  pnpm-workspace.yaml
+  supabase/
+    config.toml              # Supabase CLI config
+    migrations/              # Database migrations
   packages/
-    shared/     # Zod schemas, types, constants
-    frontend/   # Quasar SPA
-    worker/     # Hono API
+    shared/                  # @tcg/shared — Zod schemas, types, constants
+    frontend/                # @tcg/frontend — Quasar SPA
+      src/
+        pages/               # Page components
+        components/          # Atomic design (atoms/molecules/organisms)
+        composables/         # Vue composables
+        stores/              # Pinia stores
+        i18n/                # Translations (en-US, pt-BR)
+        router/              # Vue Router
+        boot/                # Quasar boot files
+    worker/                  # @tcg/worker — Hono API
+      src/
+        index.ts             # App bootstrap + middleware pipeline
+        auth/                # Signup, login, profile
+        events/              # Matches + trading sessions
+        tournaments/         # Tournaments + brackets
+        stores/              # Game stores + memberships
+        notifications/       # In-app + push notifications
+        moderation/          # Reports, bans, admin actions
+        geocoding/           # Nominatim proxy
+        tcgs/                # TCG + format CRUD
+        middleware/          # Auth, rate-limit, logger
+        db/                  # Supabase client
 ```
 
 ## Prerequisites
@@ -73,13 +104,19 @@ cp packages/worker/.env.example packages/worker/.env
 supabase start
 ```
 
-5. In a separate terminal, start the Worker:
+5. In a separate terminal, generate TypeScript types from the local database:
+
+```bash
+supabase gen types typescript --local > packages/shared/src/database.types.ts
+```
+
+6. Start the Worker:
 
 ```bash
 pnpm dev:worker
 ```
 
-6. In another terminal, start the frontend:
+7. In another terminal, start the frontend:
 
 ```bash
 pnpm dev:frontend
@@ -148,6 +185,7 @@ Frontend env variables are provided at build time by Cloudflare Pages.
 - **File uploads** (avatars, logos) go directly from the frontend to Supabase Storage, not through the Worker.
 - **Real-time updates** use Supabase Realtime subscriptions on the `notifications` table.
 - **Geocoding** is proxied through the Hono Worker to respect Nominatim usage policy and cache results in Cloudflare KV.
+- **Domain-driven design (DDD)** is used inside the Worker. Each domain (`auth`, `events`, `tournaments`, `stores`, `notifications`, `moderation`, `geocoding`, `tcgs`) owns its routes, validators, services, and database queries. Cross-domain logic lives in `src/services/`. See `AGENTS.md` for the full structure.
 
 ## SEO strategy
 

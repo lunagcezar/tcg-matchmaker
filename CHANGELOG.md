@@ -70,3 +70,8 @@ All notable changes to this project will be documented in this file.
 - Added browser push notifications (Web Push API) triggered by Supabase Realtime notification inserts
 - Added event invitations: creators can invite registered users to matches, trading sessions, and tournaments
 - Added SEO & discoverability requirements: semantic HTML, dynamic meta/OpenGraph/Twitter Cards, canonical URLs, `robots.txt`, `sitemap.xml`, JSON-LD, locale-aware `lang` attribute, hybrid approach (Quasar Meta + prerender + dynamic rendering for crawlers)
+- Set pnpm as the default package manager; added `pnpm-workspace.yaml`
+
+### Changed
+
+- Updated project structure in docs and README to reflect full monorepo layout and domain-driven design in the Worker
