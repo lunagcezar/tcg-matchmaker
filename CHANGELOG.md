@@ -39,9 +39,34 @@ All notable changes to this project will be documented in this file.
   - Custom SMTP via **Resend** for transactional emails (avoids Supabase suspension risk)
   - Security: Turnstile CAPTCHA on signup, KV rate limiting, account locking after failed attempts
 - Observability: Sentry for error tracking, centralized structured logger with LGPD sanitization
-- Store registration: self-submit with admin review (status: pending/approved/rejected)
 - Added tools to stack: VueUse, hono/client, Zod, Luxon, @vue/test-utils, MSW
 - Added: Supabase Realtime, Cloudflare KV, ESLint + Prettier + Husky, Supabase CLI
 - Added: Technical tips section in AGENTS.md (monorepo structure, Hono RPC, CORS, direct uploads, PostGIS, notifications, bracket types, env vars, pagination, worker testing)
 - Added: `pool_play` bracket type (5 total: single elim, double elim, round robin, swiss, pool play)
 - Added: D3.js for bracket visualization
+
+### Changed
+
+- Store model: replaced admin pre-approval with free store creation + moderation
+  - Added `store_memberships` table with roles: owner, manager, staff
+  - Store owner can transfer ownership; managers add staff; staff record results
+  - Admin verifies stores (`is_verified`) and can suspend for impersonation
+  - Added generic `reports` table for store/user/event reports
+- Event organizer model: replaced `creator_id`/`creator_type` with `created_by_user_id` + `organizer_user_id` / `organizer_store_id`
+- Participant confirmation flow: join/RSVP/register sets status `pending`; explicit confirmation moves to `confirmed`
+- Tournament bracket advancement: added `next_match_id` and `next_match_player_slot` to `bracket_matches`
+- Tournament walkover (W.O.): `bracket_matches.status` now includes `walkover`
+
+### Added
+
+- `consents` table for LGPD consent recording
+- `notifications` table for Supabase Realtime in-app notifications
+- Match result tracking via `event_participants.score` and `event_participants.placement`
+- Data export returns JSON immediately (removed "within 24h" wording)
+- Updated docs: `docs/data-model.md`, `docs/requirements.md`, `docs/use-cases.md` (now 36 UCs), `docs/pages.md`
+- Added onboarding flow: `/onboarding` creates the first admin when no users exist; hidden once an admin exists
+- Added admin promotion: only admins can promote users to admin
+- Added last-admin deletion protection: the sole admin cannot delete their account until another admin is promoted
+- Added browser push notifications (Web Push API) triggered by Supabase Realtime notification inserts
+- Added event invitations: creators can invite registered users to matches, trading sessions, and tournaments
+- Added SEO & discoverability requirements: semantic HTML, dynamic meta/OpenGraph/Twitter Cards, canonical URLs, `robots.txt`, `sitemap.xml`, JSON-LD, locale-aware `lang` attribute, hybrid approach (Quasar Meta + prerender + dynamic rendering for crawlers)

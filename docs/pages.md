@@ -3,6 +3,7 @@
 ## Route Map
 
 ```
+/onboarding                  First-time setup — creates the first admin (only when no admin exists)
 /                            Home — split view: map (left) + event feed (right), filters on top
 /login                       Sign in
 /signup                      Register
@@ -21,14 +22,17 @@
 /tournaments/:id/manage      Organizer panel — check-in, advance rounds
 
 /stores                      Game store list + map view
-/stores/new                  Submit a new game store (pending approval)
+/stores/new                  Create a new game store
 /stores/:id                  Store details — events at this store
+/stores/:id/settings         Store settings — manage members, transfer ownership
 
 /admin                       Admin dashboard
 /admin/tcgs                  Manage TCGs
 /admin/tcgs/:id/formats      Manage formats for a TCG
-/admin/stores                Manage game stores
-/admin/users                 Manage users — ban/unban
+/admin/stores                Manage game stores — verify/suspend/delete
+/admin/stores/:id            Store detail and membership management
+/admin/users                 Manage users — ban/unban, promote to admin
+/admin/reports               Moderation report queue
 /admin/audit                 Audit log
 ```
 
@@ -123,14 +127,35 @@ The home page (`/`) answers three questions at a glance: where, what, and how to
 
 ## Auth Guards
 
-- **Public**: `/`, `/login`, `/signup`, `/stores`, `/stores/:id`
-- **Authenticated**: `/profile/:username`, `/settings`, `/matches/*`, `/trading/*`, join/RSVP actions
+- **Onboarding**: `/onboarding` — accessible only while no admin exists; redirects to `/` if any admin exists
+- **Public**: `/`, `/login`, `/signup`, `/profile/:username`, `/stores`, `/stores/:id`, `/matches/:id`, `/trading/:id`, `/tournaments/:id`
+- **Authenticated**: `/settings`, `/matches/new`, `/trading/new`, `/matches/:id/join`, `/trading/:id/rsvp`, `/tournaments/:id/register`
 - **Organizer**: `/tournaments/new`, `/tournaments/:id/manage`
+- **Store Member**: `/stores/:id/settings`
 - **Admin**: `/admin/*`
 
 ## Notes
 
+- `/onboarding` redirects to `/` once an admin user exists
 - `/matches/new`, `/trading/new`, `/tournaments/new` redirect unauthenticated users to `/login`
 - `/admin/*` redirects non-admin users to `/`
 - `/tournaments/:id/manage` redirects non-organizer to `/tournaments/:id`
 - All event types (matches, trading, tournaments) share the unified `events` table but have type-specific pages
+
+## SEO & Metadata
+
+Public pages use a **hybrid SEO strategy** (not full SSR):
+
+1. **Quasar Meta plugin** injects `<title>`, `<meta name="description">`, OpenGraph, Twitter Card, and JSON-LD client-side. This works for users and social scrapers that run JavaScript.
+2. **Prerendered static routes** at build time: `/`, `/login`, `/signup`, `/stores`, and legal pages.
+3. **Dynamic rendering for crawlers**: a Cloudflare Worker detects crawler user-agents, fetches data from the Hono API, and returns a minimal HTML shell with the correct meta tags and JSON-LD for detail pages.
+
+**Detail pages** (`/matches/:id`, `/trading/:id`, `/tournaments/:id`, `/stores/:id`, `/profile/:username`) are the highest priority for SEO and get their dynamic meta from the crawler renderer.
+
+- **Canonical URLs**: each page sets its canonical URL to avoid duplicate content.
+- **`/sitemap.xml`** lists all public indexable routes and detail pages.
+- **`/robots.txt`** controls crawler access.
+- **JSON-LD**: injected into `<head>` for events, stores, and the platform organization.
+- **HTML `lang`**: updated via Quasar i18n / Vue Router to match `pt-BR` or `en-US`.
+
+Admin routes, auth routes, and creation forms are `noindex` and disallowed in `robots.txt`.

@@ -12,78 +12,90 @@
 ## 2. Functional Requirements
 
 ### 2.1 Authentication & Profile
-- FR-01: Visitor can sign up with email + password (Supabase Auth). Signup form includes Turnstile CAPTCHA.
-- FR-02: User can sign in / sign out
-- FR-03: User can edit display_name and avatar (JPG, max 2MB)
-- FR-04: User can delete their account:
+- FR-01: On first deployment, the platform has no users. A dedicated onboarding flow creates the first admin user.
+- FR-02: Onboarding page is accessible only while no admin user exists. Once an admin exists, onboarding is never shown again.
+- FR-03: Visitor can sign up with email + password (Supabase Auth). Signup form includes Turnstile CAPTCHA.
+- FR-04: User can sign in / sign out
+- FR-05: User can edit display_name and avatar (JPG, max 2MB)
+- FR-06: User can delete their account:
   - Supabase Auth user is permanently deleted immediately
   - `public.users` record is anonymized (display_name → "Deleted User #N", avatar_path → null)
   - All match/tournament history preserved via FK integrity
   - Same email can be used to register a new account later
-- FR-05: User can download all their personal data as JSON (data portability, LGPD)
-- FR-06: User is informed of data processing and consents at signup
-- FR-07: User can request account suspension (temporary block)
-- FR-08: User profile displays username, display_name, avatar, event history (active + completed)
-- FR-09: Game store manager (organizer role) can link their account to a store
+  - **Exception:** the last remaining admin cannot delete their account
+- FR-07: User can download all their personal data as JSON (data portability, LGPD)
+- FR-08: User is informed of data processing and consents at signup
+- FR-09: User can request account suspension (temporary block)
+- FR-10: User profile displays username, display_name, avatar, event history (active + completed)
 
 ### 2.2 TCGs & Formats (Admin)
-- FR-10: Admin can create, edit, and soft-delete TCGs
-- FR-11: Admin can create, edit, and soft-delete Formats under a TCG
-- FR-12: Soft-deleted TCGs/Formats are hidden from new match/tournament creation but preserved in existing records (via snapshot)
+- FR-11: Admin can create, edit, and soft-delete TCGs
+- FR-12: Admin can create, edit, and soft-delete Formats under a TCG
+- FR-13: Soft-deleted TCGs/Formats are hidden from new match/tournament creation but preserved in existing records (via snapshot)
 
-### 2.3 Game Stores (Admin & Organizer)
-- FR-13: Any authenticated user can submit a game store registration (name, address, phone, etc.)
-- FR-14: Submitted store gets status `pending` — not visible on map until approved
-- FR-15: Admin reviews pending stores: approve or reject (with reason)
-- FR-16: On approval: store goes live, submitter becomes `managed_by_user_id`
-- FR-17: Admin can edit any store's details, logo, or reassign manager
-- FR-18: Store manager can edit their store's details (name, address, logo, etc.)
-- FR-19: Admin can soft-delete a store
+### 2.3 Game Stores
+- FR-14: Any authenticated user can create a game store (name, address, phone, logo, etc.)
+- FR-15: Store creator becomes the owner and can add managers and staff
+- FR-16: Store owner can transfer ownership to another member
+- FR-17: Store owner can add/remove managers; managers can add/remove staff
+- FR-18: Store owner and managers can edit store details (name, address, logo, etc.)
+- FR-19: Store members (owner/manager/staff) can create events on behalf of the store
+- FR-20: Admin can verify a store (`is_verified`) to give it a legitimacy badge
+- FR-21: Admin can suspend a store (with reason) — hides it and blocks new events
+- FR-22: Admin can soft-delete a store
 
 ### 2.4 Events — Matches, Tournaments & Trading Sessions
 
 All event types share a unified data model with type-specific behavior.
 
 **Matches** (playing a game):
-- FR-20: Player can create a match specifying:
+- FR-23: Player can create a match specifying:
   - TCG, format, date/time
   - Location (existing game store OR custom location with autocomplete geocoding)
   - Max participants (default 2, up to N for Commander/pod play)
   - Whether open to anyone or inviting specific players
-- FR-21: Player can browse events near their current location (browser Geolocation API) with filters (TCG, format, date range, event type, status)
-- FR-22: Events are displayed on a map (Leaflet + OpenStreetMap)
-- FR-23: Player can request to join an open match
-- FR-24: Invited player receives notification and can accept or decline
-- FR-25: Match creator can cancel at any time
-- FR-26: All participants confirm the match after scheduling
-- FR-27: Players can report match completion
-- FR-28: Event history preserved even if participants delete their accounts
-- FR-29: Matches support flexible player counts (1v1, 4-player Commander pods, etc.)
+  - Organizer: self or one of the user's stores
+- FR-24: Player can browse events near their current location (browser Geolocation API) with filters (TCG, format, date range, event type, status)
+- FR-25: Events are displayed on a map (Leaflet + OpenStreetMap)
+- FR-26: Player can request to join an open match (sets participant status to `pending`)
+- FR-27: Player must confirm attendance hours before the match, moving participant status to `confirmed`
+- FR-28: Invited player receives notification and can accept or decline a challenge
+- FR-29: Match creator can cancel at any time
+- FR-30: Match is confirmed when enough participants have status `confirmed`
+- FR-31: Players can report match completion and scores
+- FR-32: Event history preserved even if participants delete their accounts
+- FR-33: Matches support flexible player counts (1v1, 4-player Commander pods, etc.)
 
 **Trading Sessions** (trading cards, not playing):
-- FR-30: Player can create a trading session specifying:
+- FR-34: Player can create a trading session specifying:
   - TCG (optional — null means general trading, any TCG)
   - Date/time and location (store or custom)
   - Description of what they're looking for / offering
   - Max participants (optional)
-- FR-31: Players can RSVP to a trading session
-- FR-32: Session creator can edit or cancel their session
+  - Organizer: self or one of the user's stores
+- FR-35: Players can RSVP to a trading session (status `pending`), then confirm attendance
+- FR-36: Session creator can edit or cancel their session
+- FR-37: Session creator can invite registered users; invited users receive a notification and can accept or decline
 
 **Tournaments** (structured competition):
-- FR-33: Organizer (user or store manager) can create a tournament with:
+- FR-38: Organizer (user or store member) can create a tournament with:
   - TCG, format, bracket type, max participants, location, date
-- FR-34: Players can register for open tournaments (until max_participants reached)
-- FR-35: Organizer can check in participants before start
-- FR-36: Organizer can start the tournament — bracket is generated automatically
-- FR-37: Bracket supports: single elimination, double elimination, round robin, swiss, pool play + playoffs (see [Brakto comparison](https://www.brakto.com/blog/tournament-format-comparison))
-- FR-38: Players report their match results; organizer can override
-- FR-39: Organizer advances winners through rounds
-- FR-40: Tournament history is preserved after deletion
+  - Organizer: self or one of the user's stores
+- FR-39: Players can register for open tournaments (until max_participants reached)
+- FR-40: Players must confirm registration before the tournament
+- FR-41: Organizer can check in participants before start
+- FR-42: Organizer can start the tournament — bracket is generated automatically
+- FR-43: Bracket supports: single elimination, double elimination, round robin, swiss, pool play + playoffs (see [Brakto comparison](https://www.brakto.com/blog/tournament-format-comparison))
+- FR-44: Players report their match results; organizer can override
+- FR-45: Organizer advances winners through rounds
+- FR-46: Organizer can mark a bracket match as walkover (W.O.) when a competitor does not attend
+- FR-47: Tournament history is preserved after deletion
+- FR-48: Organizer can invite registered users; invited users receive a notification and can accept or decline
 
 ### 2.5 Event Status Lifecycles
 **Match:**
 ```
-open ──(player joins)──▶ confirmed
+open ──(enough confirmed participants)──▶ confirmed
 open ──(challenge sent)──▶ challenged ──(accept)──▶ confirmed
 confirmed ──(played)──▶ completed
 any ──(cancel)──▶ cancelled
@@ -101,26 +113,35 @@ planned ──(publish)──▶ active ──(date passed)──▶ completed
 any ──(cancel)──▶ cancelled
 ```
 
-### 2.6 Moderation (Admin)
-- FR-41: Admin reviews and approves/rejects pending game store registrations
-- FR-42: Admin can remove any user's avatar
-- FR-43: Admin can ban a user (sets `banned_at`) — banned users cannot create/join events
-- FR-44: Admin can unban a user
-- FR-45: Admin can soft-delete any event or store (hides from public view)
-- FR-46: All moderation actions are logged in Audit Log
+### 2.6 Notifications
+- FR-49: System sends in-app notifications for event invitations, RSVPs, confirmations, cancellations, bracket advances, and moderation actions
+- FR-50: Frontend subscribes to user's notifications via Supabase Realtime and shows an unread badge
+- FR-51: User can opt in to browser push notifications (Web Push API); push messages are triggered by the same notification inserts
 
-### 2.7 Geocoding, Maps & Geolocation
-- FR-47: Address autocomplete — user types a name, gets suggestions with lat/lng + address components (via Nominatim proxied through Hono)
-- FR-48: Map view (Leaflet) for browsing events by location
-- FR-49: "Find near me" button uses browser Geolocation API to center the map on user's current location
-- FR-50: Custom locations are stored with lat/lng for map display
-- FR-51: Trading sessions, matches, and tournaments all appear on the same map with distinct markers by type
+### 2.7 Moderation (Admin & Community)
+- FR-52: Any authenticated user can report a store, user, or event for impersonation, abuse, or incorrect information
+- FR-53: Admin reviews reports and can resolve or dismiss them
+- FR-54: Admin can remove any user's avatar
+- FR-55: Admin can ban a user (sets `banned_at`) — banned users cannot create/join events
+- FR-56: Admin can unban a user
+- FR-57: Admin can suspend a store (sets `status = suspended`)
+- FR-58: Admin can soft-delete any event or store (hides from public view)
+- FR-59: All moderation actions are logged in Audit Log
+- FR-60: Admin can promote another user to admin
+- FR-61: Admin role is polymorphic — admins can create stores, tournaments, trading sessions, and matches like any other user
 
-### 2.8 LGPD Compliance
-- FR-52: Data export endpoint returns all user personal data in JSON format (portability)
-- FR-53: Consent recorded at signup with timestamp and version of privacy policy
-- FR-54: Account suspension option — temporarily blocks account without data deletion
-- FR-55: Privacy policy displayed at signup and linked from footer
+### 2.8 Geocoding, Maps & Geolocation
+- FR-62: Address autocomplete — user types a name, gets suggestions with lat/lng + address components (via Nominatim proxied through Hono)
+- FR-63: Map view (Leaflet) for browsing events by location
+- FR-64: "Find near me" button uses browser Geolocation API to center the map on user's current location
+- FR-65: Custom locations are stored with lat/lng for map display
+- FR-66: Trading sessions, matches, and tournaments all appear on the same map with distinct markers by type
+
+### 2.9 LGPD Compliance
+- FR-67: Data export endpoint returns all user personal data in JSON format (portability)
+- FR-68: Consent recorded at signup with timestamp and version of privacy policy
+- FR-69: Account suspension option — temporarily blocks account without data deletion
+- FR-70: Privacy policy displayed at signup and linked from footer
 
 ## 3. Non-Functional Requirements
 
@@ -148,7 +169,7 @@ any ──(cancel)──▶ cancelled
 - NFR-14: User deletion permanently removes Supabase Auth user (email erased); public record anonymized ("Deleted User #N") for FK integrity
 - NFR-15: TCG/format deletion preserves match/tournament history via snapshot fields
 - NFR-16: User consent recorded at signup (timestamp + privacy policy version)
-- NFR-17: Data export returns all user personal data in JSON within 24h
+- NFR-17: Data export returns all user personal data in JSON immediately upon request
 - NFR-18: RLS enabled on all tables as defense-in-depth (Hono bypasses via secret key)
 
 ### 3.4 Internationalization & Theming
@@ -176,6 +197,24 @@ any ──(cancel)──▶ cancelled
 - NFR-32: Logger supports levels: `debug`, `info`, `warn`, `error`, `critical`
 - NFR-33: `debug` level only active in development; `critical` always logs stack traces
 
-### 3.7 Browsers & Devices
-- NFR-34: Responsive design — desktop and mobile via Quasar
-- NFR-35: PWA support (installable, offline-capable)
+### 3.8 SEO & Discoverability
+- NFR-34: Semantic HTML5 structure (`<header>`, `<nav>`, `<main>`, `<article>`, `<section>`, `<footer>`) on all pages
+- NFR-35: Unique `<title>` and `<meta name="description">` per page; dynamic for event, store, tournament, trading session, and profile detail pages
+- NFR-36: Canonical URL (`<link rel="canonical">`) on every page
+- NFR-37: `robots.txt` at root — allow public pages, disallow `/admin/*`, `/settings`, `/matches/new`, `/trading/new`, `/tournaments/new`, and auth routes
+- NFR-38: XML sitemap (`/sitemap.xml`) generated automatically and kept up to date
+- NFR-39: OpenGraph tags (`og:title`, `og:description`, `og:image`, `og:url`, `og:type`) on all public pages, especially event/store detail pages
+- NFR-40: Twitter Card tags (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`) on all public pages
+- NFR-41: HTML `lang` attribute reflects the active locale (`pt-BR` or `en-US`)
+- NFR-42: JSON-LD structured data using Schema.org vocabulary:
+  - `Event` for matches, tournaments, and trading sessions
+  - `LocalBusiness` for game stores
+  - `Organization` for the platform
+- NFR-43: SEO uses a hybrid approach:
+  - Quasar Meta plugin sets `<title>`, `<meta>`, OpenGraph, Twitter Card, and JSON-LD client-side for normal users and social scrapers that execute JavaScript.
+  - Public static routes (`/`, `/login`, `/signup`, `/stores`, legal pages) are prerendered at build time.
+  - Public dynamic detail routes (`/matches/:id`, `/trading/:id`, `/tournaments/:id`, `/stores/:id`, `/profile/:username`) are served as a SPA to users, but a Cloudflare Worker (or Pages Function) detects crawler user-agents and returns a minimal HTML shell with the correct meta tags and JSON-LD fetched from the Hono API.
+
+### 3.9 Browsers & Devices
+- NFR-44: Responsive design — desktop and mobile via Quasar
+- NFR-45: PWA support (installable, offline-capable)
