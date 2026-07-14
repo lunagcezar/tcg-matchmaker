@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-007: Events API — Matches & Trading Sessions (TDD)
+  - Event CRUD: list (with filters), get (with participant count), create, update, cancel
+  - Participant management: join (match only), confirm, decline, list
+  - Status defaults: `open` for matches, `planned` for trading sessions
+  - Creator-only guards for update/cancel; join validations (not own event, not full, not duplicate)
+  - 6 new tests (TDD RED → GREEN), 29 total passing
+
 ## [0.6.0] — 2026-07-14
 
 ### Added
