@@ -70,12 +70,11 @@ tcg-matchmaker/
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 20+ (use the version in `.nvmrc` if present)
-- [pnpm](https://pnpm.io/)
-- A [Supabase](https://supabase.com/) project
-- A [Cloudflare](https://cloudflare.com/) account for Pages and Workers
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) for Worker development
-- [Supabase CLI](https://supabase.com/docs/guides/cli) for local database development
+- [Node.js](https://nodejs.org/) 20+
+- [pnpm](https://pnpm.io/) 9+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — required for local Supabase
+- [Supabase CLI](https://supabase.com/docs/guides/cli) — for local database
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) — for Worker
 
 ## Development setup
 
@@ -83,9 +82,9 @@ tcg-matchmaker/
 
 - [Node.js](https://nodejs.org/) 20+
 - [pnpm](https://pnpm.io/) 9+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Supabase)
-- [Supabase CLI](https://supabase.com/docs/guides/cli)
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — required for local Supabase
+- [Supabase CLI](https://supabase.com/docs/guides/cli) — `supabase start` requires Docker
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) — for Worker development
 
 ### Quick start
 
