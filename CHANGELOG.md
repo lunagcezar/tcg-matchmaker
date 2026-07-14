@@ -16,6 +16,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added missing index/listing page routes: `/matches`, `/trading`, `/tournaments`, `/admin/tcgs/:id/formats`, `/admin/stores`, `/admin/stores/:id`
+- Organized pages by domain: `auth/`, `matches/`, `trading/`, `tournaments/`, `stores/`, `admin/`
+- Standardized i18n structure: `pt-BR/index.ts` now matches `en-US/index.ts` pattern
+
+### Added
+
 - Implemented spec-015: Frontend Foundation
   - Supabase Auth boot file + useAuthStore with signup/login/logout/session restore
   - useAppStore with theme and locale persistence via localStorage

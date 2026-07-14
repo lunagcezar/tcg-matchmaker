@@ -14,24 +14,24 @@ Initially focused on **Fortaleza, Ceará, Brasil**.
 
 ## Tech stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | [Quasar](https://quasar.dev/) (Vue 3 + Vite + TypeScript) |
-| State | [Pinia](https://pinia.vuejs.org/api/) |
-| Utilities | [VueUse](https://vueuse.org/guide/) (geolocation, storage, debounce) |
-| API client | [Hono RPC](https://hono.dev/docs/guides/rpc) — fully typed client from Worker routes |
-| API | [Hono](https://hono.dev/) on Cloudflare Workers |
-| Database | [Supabase](https://supabase.com/) (PostgreSQL + PostGIS + Auth + Realtime) |
-| Validation | [Zod](https://zod.dev/) |
-| Maps | [Leaflet](https://leafletjs.com/) + OpenStreetMap |
-| Geocoding | [Nominatim](https://nominatim.org/) (proxied through Hono) |
-| Bracket rendering | [D3.js](https://d3js.org/api) |
-| Tests | [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [MSW](https://mswjs.io/) |
-| Date/time | [Luxon](https://moment.github.io/luxon/) |
-| Observability | [Sentry](https://sentry.io/) |
-| CI/CD | Cloudflare Pages (frontend) + Workers (API) |
-| Bot protection | [Turnstile](https://www.cloudflare.com/products/turnstile/) |
-| Email | [Resend](https://resend.com/) (custom SMTP)
+| Layer             | Technology                                                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------------------------------- |
+| Frontend          | [Quasar](https://quasar.dev/) (Vue 3 + Vite + TypeScript)                                                   |
+| State             | [Pinia](https://pinia.vuejs.org/api/)                                                                       |
+| Utilities         | [VueUse](https://vueuse.org/guide/) (geolocation, storage, debounce)                                        |
+| API client        | [Hono RPC](https://hono.dev/docs/guides/rpc) — fully typed client from Worker routes                        |
+| API               | [Hono](https://hono.dev/) on Cloudflare Workers                                                             |
+| Database          | [Supabase](https://supabase.com/) (PostgreSQL + PostGIS + Auth + Realtime)                                  |
+| Validation        | [Zod](https://zod.dev/)                                                                                     |
+| Maps              | [Leaflet](https://leafletjs.com/) + OpenStreetMap                                                           |
+| Geocoding         | [Nominatim](https://nominatim.org/) (proxied through Hono)                                                  |
+| Bracket rendering | [D3.js](https://d3js.org/api)                                                                               |
+| Tests             | [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [MSW](https://mswjs.io/) |
+| Date/time         | [Luxon](https://moment.github.io/luxon/)                                                                    |
+| Observability     | [Sentry](https://sentry.io/)                                                                                |
+| CI/CD             | Cloudflare Pages (frontend) + Workers (API)                                                                 |
+| Bot protection    | [Turnstile](https://www.cloudflare.com/products/turnstile/)                                                 |
+| Email             | [Resend](https://resend.com/) (custom SMTP)                                                                 |
 
 The project is a monorepo organized with pnpm workspaces. The Hono API uses domain-driven design internally.
 
@@ -128,25 +128,25 @@ The frontend is usually available at `http://localhost:9000` and the Worker at `
 
 ### Frontend (`packages/frontend/.env`)
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_SUPABASE_URL` | Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (used only for Auth) |
-| `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key |
-| `VITE_SENTRY_DSN` | Sentry DSN for frontend error tracking |
-| `VITE_API_URL` | Hono Worker URL (e.g., `http://localhost:8787` locally) |
+| Variable                        | Description                                             |
+| ------------------------------- | ------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Supabase project URL                                    |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (used only for Auth)           |
+| `VITE_TURNSTILE_SITE_KEY`       | Cloudflare Turnstile site key                           |
+| `VITE_SENTRY_DSN`               | Sentry DSN for frontend error tracking                  |
+| `VITE_API_URL`                  | Hono Worker URL (e.g., `http://localhost:8787` locally) |
 
 ### Worker (`packages/worker/.env`)
 
-| Variable | Description |
-|----------|-------------|
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SECRET_KEY` | Supabase secret key (used for all DB operations) |
-| `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (used to verify JWTs) |
-| `RESEND_API_KEY` | Resend API key for transactional emails |
-| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key |
-| `SENTRY_DSN` | Sentry DSN for backend error tracking |
-| `NOMINATIM_USER_AGENT` | User agent for Nominatim geocoding requests |
+| Variable                   | Description                                      |
+| -------------------------- | ------------------------------------------------ |
+| `SUPABASE_URL`             | Supabase project URL                             |
+| `SUPABASE_SECRET_KEY`      | Supabase secret key (used for all DB operations) |
+| `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (used to verify JWTs)   |
+| `RESEND_API_KEY`           | Resend API key for transactional emails          |
+| `TURNSTILE_SECRET_KEY`     | Cloudflare Turnstile secret key                  |
+| `SENTRY_DSN`               | Sentry DSN for backend error tracking            |
+| `NOMINATIM_USER_AGENT`     | User agent for Nominatim geocoding requests      |
 
 ### Production secrets
 
@@ -163,20 +163,21 @@ Frontend env variables are provided at build time by Cloudflare Pages.
 
 ## Available commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev:frontend` | Start the Quasar dev server |
-| `pnpm dev:worker` | Start the Worker dev server |
-| `pnpm build:frontend` | Build the frontend for production |
-| `pnpm build:worker` | Build the Worker for production |
-| `pnpm test` | Run all tests with Vitest |
-| `pnpm lint` | Run ESLint |
-| `pnpm format` | Run Prettier |
-| `supabase start` | Start the local Supabase stack |
-| `supabase db diff` | Generate a migration from schema changes |
+| Command                         | Description                                 |
+| ------------------------------- | ------------------------------------------- |
+| `pnpm dev:frontend`             | Start the Quasar dev server                 |
+| `pnpm dev:worker`               | Start the Worker dev server                 |
+| `pnpm build:frontend`           | Build the frontend for production           |
+| `pnpm build:worker`             | Build the Worker for production             |
+| `pnpm test`                     | Run all Vitest tests (worker)               |
+| `pnpm test:e2e`                 | Run Playwright e2e tests (frontend)         |
+| `pnpm lint`                     | Run ESLint                                  |
+| `pnpm format`                   | Run Prettier                                |
+| `supabase start`                | Start the local Supabase stack              |
+| `supabase db diff`              | Generate a migration from schema changes    |
 | `supabase gen types typescript` | Generate TypeScript types from the database |
-| `wrangler dev` | Start the Worker locally via Wrangler |
-| `wrangler deploy` | Deploy the Worker to production |
+| `wrangler dev`                  | Start the Worker locally via Wrangler       |
+| `wrangler deploy`               | Deploy the Worker to production             |
 
 ## Architecture notes
 
@@ -199,22 +200,21 @@ See `docs/pages.md` and `AGENTS.md` for more details.
 
 ## Testing
 
-Tests are written with Vitest:
+### Unit & Integration (Vitest)
 
-- Unit tests for composables, utilities, and shared schemas.
-- Component tests with `@vue/test-utils`.
-- API tests with `@cloudflare/vitest-pool-workers` for the Hono routes.
-
-Run the full test suite:
+Worker API routes and middleware are tested with **Vitest**. Tests use mocked Supabase client and run via Miniflare-compatible environment.
 
 ```bash
-pnpm test
+pnpm test              # Run all worker tests
+pnpm test:watch        # Watch mode
 ```
 
-Run tests in watch mode during development:
+### E2E (Playwright)
+
+Frontend pages are tested with **Playwright**. Tests run against the Quasar dev server (auto-started).
 
 ```bash
-pnpm test:watch
+pnpm test:e2e          # Start dev server + run e2e tests
 ```
 
 ## Deployment

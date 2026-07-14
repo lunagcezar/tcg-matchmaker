@@ -385,7 +385,8 @@ Public detail pages (`/matches/:id`, `/tournaments/:id`, `/stores/:id`, `/profil
 - `quasar dev` — Start development server
 - `quasar build` — Build for production
 - `quasar new store <name>` — Scaffold a new Pinia store
-- `pnpm test` — Run Vitest
+- `pnpm test` — Run Vitest (worker unit/integration tests)
+- `pnpm test:e2e` — Run Playwright e2e tests (frontend, auto-starts dev server)
 - `pnpm lint` — ESLint check
 - `pnpm format` — Prettier format
 - `supabase start` — Start local Supabase stack
