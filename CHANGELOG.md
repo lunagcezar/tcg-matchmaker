@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.15.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-015: Frontend Foundation
+  - Supabase Auth boot file + useAuthStore with signup/login/logout/session restore
+  - useAppStore with theme and locale persistence via localStorage
+  - Router with auth guards, admin guard, and onboarding redirect
+  - i18n en-US and pt-BR with full translation sets (nav, auth, common, home, store, event)
+  - MainLayout with responsive navigation drawer (home, stores, events, settings)
+  - AdminLayout with admin navigation (dashboard, TCGs, users, reports, audit)
+  - Login and Signup pages with form validation
+  - All page stubs created for all routes (matches, trading, tournaments, stores, admin)
+  - @supabase/supabase-js frontend dependency
+
 ## [0.14.0] — 2026-07-14
 
 ### Added

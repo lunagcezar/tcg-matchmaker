@@ -40,6 +40,9 @@ importers:
       '@quasar/extras':
         specifier: ^2.0.0
         version: 2.0.2
+      '@supabase/supabase-js':
+        specifier: ^2.110.3
+        version: 2.110.3
       '@tcg/shared':
         specifier: workspace:*
         version: link:../shared

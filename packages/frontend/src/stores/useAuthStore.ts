@@ -1,19 +1,65 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { createClient } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<unknown>(null);
-  const isAuthenticated = ref(false);
+  const user = ref<User | null>(null);
+  const loading = ref(false);
 
-  function setUser(newUser: unknown) {
-    user.value = newUser;
-    isAuthenticated.value = !!newUser;
+  async function restoreSession() {
+    if (!supabase) return;
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user) {
+      user.value = data.session.user;
+    }
   }
 
-  function logout() {
+  async function signUp(email: string, password: string) {
+    if (!supabase) throw new Error('Supabase not configured');
+    loading.value = true;
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      return data;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function signIn(email: string, password: string) {
+    if (!supabase) throw new Error('Supabase not configured');
+    loading.value = true;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      user.value = data.user;
+      return data;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function signOut() {
+    if (!supabase) return;
+    await supabase.auth.signOut();
     user.value = null;
-    isAuthenticated.value = false;
   }
 
-  return { user, isAuthenticated, setUser, logout };
+  async function checkOnboarding(): Promise<boolean> {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiUrl}/api/auth/onboarding`);
+      const body = await res.json();
+      return !body.data?.hasAdmin;
+    } catch {
+      return false;
+    }
+  }
+
+  return { user, loading, restoreSession, signUp, signIn, signOut, checkOnboarding };
 });

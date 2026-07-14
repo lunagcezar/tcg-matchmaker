@@ -1,17 +1,15 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 export const useAppStore = defineStore('app', () => {
-  const locale = ref('en-US');
-  const darkMode = ref(false);
+  const locale = ref(localStorage.getItem('locale') || navigator.language || 'en-US');
+  const darkMode = ref(localStorage.getItem('dark') === 'true');
 
-  function setLocale(l: string) {
-    locale.value = l;
-  }
+  watch(locale, (val) => localStorage.setItem('locale', val));
+  watch(darkMode, (val) => localStorage.setItem('dark', String(val)));
 
-  function toggleDarkMode() {
-    darkMode.value = !darkMode.value;
-  }
+  function setLocale(l: string) { locale.value = l; }
+  function toggleDarkMode() { darkMode.value = !darkMode.value; }
 
   return { locale, darkMode, setLocale, toggleDarkMode };
 });
