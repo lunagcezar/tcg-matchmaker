@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-006: Game Stores API (TDD)
+  - Store routes: list (public), get (public), create (auth), update (owner/manager), soft-delete (admin)
+  - Store memberships: list (owner/manager), add (owner/manager), remove member (owner, last-owner protection)
+  - Admin operations: verify store, suspend store with reason
+  - Auto-generated slug from store name on creation
+  - Owner auto-assigned on store creation, rollback on membership failure
+  - Created shared `chainBuilder` test utility for Supabase mock chains
+  - 6 new tests, 23 total, all passing (TDD: RED → GREEN)
+
 ## [0.5.0] — 2026-07-14
 
 ### Added
