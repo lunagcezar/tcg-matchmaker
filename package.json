@@ -6,6 +6,7 @@
     "dev": "concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "test:e2e": "pnpm -F @tcg/frontend test:e2e",
     "lint": "pnpm -r lint && eslint packages/shared/src packages/worker/src --ext .ts",
     "format": "prettier --write \"**/*.{ts,vue,json,md,yaml,yml}\" --ignore-path .gitignore",
     "prepare": "husky"

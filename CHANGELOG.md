@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.16.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-016: Playwright E2E Testing
+  - Playwright with Chromium installed and configured
+  - Baseline e2e tests: home page, login, signup, navigation, 404
+  - `pnpm test:e2e` runs Playwright against Quasar dev server (auto-starts)
+  - Dedicated `e2e/` directory for test files
+
 ## [0.15.0] — 2026-07-14
 
 ### Added
