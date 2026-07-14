@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-012: Notifications API (TDD)
+  - Notifications: list (latest 50, unread first), mark as read, mark all as read, unread count
+  - Push subscriptions: create (validates endpoint/p256dh/auth), delete (own only)
+  - Auth middleware protects all notification routes
+  - 5 new tests (TDD RED → GREEN), 50 total passing
+
 ## [0.11.0] — 2026-07-14
 
 ### Added

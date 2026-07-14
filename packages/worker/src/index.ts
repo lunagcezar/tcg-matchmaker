@@ -7,6 +7,7 @@ import { eventRouter } from './events/index.js';
 import { tournamentRouter, bracketMatchRouter } from './tournaments/index.js';
 import { geocodeRouter } from './geocoding/index.js';
 import { reportRouter, adminRouter } from './moderation/index.js';
+import { notificationRouter, pushSubscriptionRouter } from './notifications/index.js';
 
 type Bindings = {
   SUPABASE_URL: string;
@@ -50,6 +51,8 @@ app.route('/api/bracket-matches', bracketMatchRouter);
 app.route('/api/geocode', geocodeRouter);
 app.route('/api/reports', reportRouter);
 app.route('/api/admin', adminRouter);
+app.route('/api/notifications', notificationRouter);
+app.route('/api/push-subscriptions', pushSubscriptionRouter);
 
 app.notFound((c) => c.json({ data: null, error: 'Not found', meta: null }, 404));
 

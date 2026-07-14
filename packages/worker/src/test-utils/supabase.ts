@@ -1,5 +1,5 @@
-import { vi } from "vitest";
-import { Hono } from "hono";
+import { vi } from 'vitest';
+import { Hono } from 'hono';
 
 type MockResponse<T = unknown> = { data: T | null; error: unknown; count?: number };
 
@@ -16,6 +16,7 @@ export function chain(overrides?: Partial<Record<string, ReturnType<typeof vi.fn
     gte: vi.fn(),
     lte: vi.fn(),
     order: vi.fn(),
+    limit: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
@@ -42,24 +43,26 @@ type WorkerVars = {
 };
 
 export const env: WorkerEnv = {
-  SUPABASE_URL: "https://test.supabase.co",
-  SUPABASE_SECRET_KEY: "test-secret",
-  SUPABASE_PUBLISHABLE_KEY: "test-publishable",
+  SUPABASE_URL: 'https://test.supabase.co',
+  SUPABASE_SECRET_KEY: 'test-secret',
+  SUPABASE_PUBLISHABLE_KEY: 'test-publishable',
 };
 
-export const testUserId = "00000000-0000-0000-0000-000000000001";
-export const testUserId2 = "00000000-0000-0000-0000-000000000002";
+export const testUserId = '00000000-0000-0000-0000-000000000001';
+export const testUserId2 = '00000000-0000-0000-0000-000000000002';
 
 export function makeApp() {
   return new Hono<{ Bindings: WorkerEnv; Variables: WorkerVars }>();
 }
 
-export function makeUser(overrides?: Partial<{ id: string; email: string; username: string; role: string }>) {
+export function makeUser(
+  overrides?: Partial<{ id: string; email: string; username: string; role: string }>,
+) {
   return {
     id: testUserId,
-    email: "a@test.com",
-    username: "testuser",
-    role: "player",
+    email: 'a@test.com',
+    username: 'testuser',
+    role: 'player',
     ...overrides,
   };
 }
@@ -68,8 +71,12 @@ export function userChain(uid: string = testUserId) {
   return chain({
     single: vi.fn().mockResolvedValue(
       toMockResponse({
-        id: uid, email: "a@b.com", username: "u",
-        role: "player", banned_at: null, deleted_at: null,
+        id: uid,
+        email: 'a@b.com',
+        username: 'u',
+        role: 'player',
+        banned_at: null,
+        deleted_at: null,
       }),
     ),
   });
@@ -82,7 +89,7 @@ export function authMock(uid: string = testUserId) {
       admin: { createUser: vi.fn(), deleteUser: vi.fn() },
     },
     from: vi.fn().mockImplementation((table: string) => {
-      if (table === "users") return userChain(uid);
+      if (table === 'users') return userChain(uid);
       return chain();
     }),
   };
