@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-022: Pinia Stores & Frontend Tests
+  - `useEventStore` — Pinia store for shared event state (list, get, create, join, confirm)
+  - `useStoreStore` — Pinia store for shared store state (list, get, create)
+  - Vitest config + test setup for frontend package
+  - Store tests: fetch list, handle empty, join event (3 tests)
+  - ESLint and tsconfig exclude test/e2e directories
+  - `pnpm test` added to frontend package
+
 ## [0.21.0] — 2026-07-14
 
 ### Added
