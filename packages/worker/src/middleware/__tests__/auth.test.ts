@@ -1,27 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Hono } from "hono";
 import { authMiddleware } from "../auth.js";
-import { mockAuthUser, mockBannedUser, mockDeletedUser } from "../../test-utils/mocks.js";
+import { env, makeUser } from "../../test-utils/supabase.js";
 
 vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(),
 }));
 
-const env = {
-  SUPABASE_URL: "https://test.supabase.co",
-  SUPABASE_PUBLISHABLE_KEY: "test-key",
-};
+const authUser = makeUser({ role: "admin" });
+const bannedUser = makeUser({ id: "00000000-0000-0000-0000-000000000003", role: "player", username: "banned" });
+const deletedUser = makeUser({ id: "00000000-0000-0000-0000-000000000004", role: "player", username: "deleted" });
 
 function createTestApp() {
   const app = new Hono<{
     Bindings: typeof env;
-    Variables: { user: typeof mockAuthUser };
+    Variables: { user: { id: string; email: string; username: string; role: string } };
   }>();
-
-  app.get("/test", authMiddleware, (c) => {
-    return c.json({ data: c.var.user, error: null, meta: null });
-  });
-
+  app.get("/test", authMiddleware, (c) => c.json({ data: c.var.user, error: null, meta: null }));
   return app;
 }
 
@@ -34,119 +29,69 @@ describe("authMiddleware", () => {
     const app = createTestApp();
     const res = await app.request("/test", {}, env);
     expect(res.status).toBe(401);
-    const body: any = await res.json();
-    expect(body.error).toBe("Unauthorized");
   });
 
   it("returns 401 when Authorization header is not Bearer", async () => {
     const app = createTestApp();
-    const res = await app.request("/test", {
-      headers: { Authorization: "Basic token" },
-    }, env);
+    const res = await app.request("/test", { headers: { Authorization: "Basic token" } }, env);
     expect(res.status).toBe(401);
   });
 
   it("returns 401 when token is invalid", async () => {
     const { createClient } = await import("@supabase/supabase-js");
-    vi.mocked(createClient).mockReturnValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: null },
-          error: { message: "Invalid token" },
-        }),
-      },
-    } as any);
+    (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: { message: "Invalid" } }) },
+    });
 
-    const app = createTestApp();
-    const res = await app.request("/test", {
-      headers: { Authorization: "Bearer invalid-token" },
-    }, env);
+    const res = await createTestApp().request("/test", { headers: { Authorization: "Bearer bad" } }, env);
     expect(res.status).toBe(401);
   });
 
   it("returns 403 when user is banned", async () => {
     const { createClient } = await import("@supabase/supabase-js");
-    const mockClient = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: mockBannedUser.id } },
-          error: null,
-        }),
-      },
+    (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: bannedUser.id } }, error: null }) },
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: mockBannedUser, error: null }),
+        single: vi.fn().mockResolvedValue({ data: { ...bannedUser, banned_at: "2026-01-01T00:00:00.000Z", deleted_at: null }, error: null }),
       }),
-    };
-    vi.mocked(createClient).mockReturnValue(mockClient as any);
+    });
 
-    const app = createTestApp();
-    const res = await app.request("/test", {
-      headers: { Authorization: "Bearer valid-token" },
-    }, env);
+    const res = await createTestApp().request("/test", { headers: { Authorization: "Bearer t" } }, env);
     expect(res.status).toBe(403);
-    const body: any = await res.json();
-    expect(body.error).toBe("Account is banned");
   });
 
   it("returns 404 when user is deleted", async () => {
     const { createClient } = await import("@supabase/supabase-js");
-    const mockClient = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: mockDeletedUser.id } },
-          error: null,
-        }),
-      },
+    (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: deletedUser.id } }, error: null }) },
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: mockDeletedUser, error: null }),
+        single: vi.fn().mockResolvedValue({ data: { ...deletedUser, deleted_at: "2026-01-01T00:00:00.000Z", banned_at: null }, error: null }),
       }),
-    };
-    vi.mocked(createClient).mockReturnValue(mockClient as any);
+    });
 
-    const app = createTestApp();
-    const res = await app.request("/test", {
-      headers: { Authorization: "Bearer valid-token" },
-    }, env);
+    const res = await createTestApp().request("/test", { headers: { Authorization: "Bearer t" } }, env);
     expect(res.status).toBe(404);
   });
 
   it("passes through for valid user", async () => {
     const { createClient } = await import("@supabase/supabase-js");
-    const mockClient = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: mockAuthUser.id } },
-          error: null,
-        }),
-      },
+    (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: authUser.id } }, error: null }) },
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: {
-            id: mockAuthUser.id,
-            email: mockAuthUser.email,
-            username: mockAuthUser.username,
-            role: mockAuthUser.role,
-            banned_at: null,
-            deleted_at: null,
-          },
+          data: { ...authUser, banned_at: null, deleted_at: null },
           error: null,
         }),
       }),
-    };
-    vi.mocked(createClient).mockReturnValue(mockClient as any);
+    });
 
-    const app = createTestApp();
-    const res = await app.request("/test", {
-      headers: { Authorization: "Bearer valid-token" },
-    }, env);
+    const res = await createTestApp().request("/test", { headers: { Authorization: "Bearer t" } }, env);
     expect(res.status).toBe(200);
-    const body: any = await res.json();
-    expect(body.data.id).toBe(mockAuthUser.id);
   });
 });

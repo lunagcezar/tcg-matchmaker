@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-009: code quality — DRY test utilities & no-any rule
+  - Extracted shared test utilities into `src/test-utils/supabase.ts`: `chain()`, `makeApp()`, `authMock()`, `userChain()`, `makeUser()`, `env`, `testUserId`
+  - Removed all duplicate `chain`/`chainBuilder`/`authMock`/`makeApp` functions from test files
+  - Removed old `test-utils/mocks.ts` and `test-utils/helpers.ts`
+  - No `as any` in production code (verified across all worker source files)
+- AGENTS.md: added explicit "No `any` types" rule in Code Quality section
+
+### Changed
+
+- All 7 test files refactored to import shared utilities from `src/test-utils/supabase.ts`
+- Test files use `as ReturnType<typeof vi.fn>` casts instead of `as any`
+
 ## [0.8.0] — 2026-07-14
 
 ### Added

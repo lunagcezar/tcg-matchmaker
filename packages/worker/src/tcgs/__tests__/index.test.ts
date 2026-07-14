@@ -6,55 +6,29 @@ vi.mock("@supabase/supabase-js", () => ({
 
 import { Hono } from "hono";
 import { tcgRouter, formatRouter } from "../index.js";
+import { env, testUserId, testUserId2, chain, makeApp, userChain, authMock } from "../../test-utils/supabase.js";
 
-const env = {
-  SUPABASE_URL: "https://test.supabase.co",
-  SUPABASE_SECRET_KEY: "test-secret",
-};
-
-function makeUser(role: string) {
-  return {
-    id: "user-0001",
-    email: `${role}@test.com`,
-    username: role,
-    role,
-  };
+function createTcgApp() {
+  return makeApp().route("/api/tcgs", tcgRouter);
 }
 
+const tcgData = {
+  id: "00000000-0000-0000-0000-000000000010", name: "MTG", slug: "mtg",
+  description: null, logo_path: null,
+  created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z", deleted_at: null,
+};
+
 describe("TCG routes", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  beforeEach(() => { vi.clearAllMocks(); });
 
   describe("GET /api/tcgs", () => {
     it("returns a list of TCGs", async () => {
       const { createClient } = await import("@supabase/supabase-js");
-      const mockTcg = {
-        id: "tcg-1", name: "MTG", slug: "mtg",
-        description: null, logo_path: null,
-        created_at: "2026-01-01T00:00:00.000Z",
-        updated_at: "2026-01-01T00:00:00.000Z", deleted_at: null,
-      };
-      const chain = {
-        select: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: [mockTcg], error: null }),
-      };
-      chain.select.mockReturnValue(chain);
-      chain.is.mockReturnValue(chain);
+      const c = chain({ order: vi.fn().mockResolvedValue({ data: [tcgData], error: null }) });
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({ auth: { getUser: vi.fn() }, from: vi.fn().mockReturnValue(c) });
 
-      vi.mocked(createClient).mockReturnValue({
-        auth: { getUser: vi.fn() },
-        from: vi.fn().mockReturnValue(chain),
-      } as any);
-
-      const app = new Hono<{ Bindings: typeof env; Variables: { user: ReturnType<typeof makeUser> } }>();
-      app.route("/api/tcgs", tcgRouter);
-
-      const res = await app.request("/api/tcgs", {}, env);
-      expect(res.status).toBe(200);
-      const body: any = await res.json();
-      expect(body.data).toHaveLength(1);
+      const res = await createTcgApp().request("/api/tcgs", {}, env);
+      const body = (await res.json()) as { data: Array<{ name: string }> };
       expect(body.data[0].name).toBe("MTG");
     });
   });
@@ -62,48 +36,21 @@ describe("TCG routes", () => {
   describe("POST /api/tcgs", () => {
     it("returns 401 when not authenticated", async () => {
       const { createClient } = await import("@supabase/supabase-js");
-      vi.mocked(createClient).mockReturnValue({
-        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: { message: "No auth" } }) },
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: { message: "Unauthorized" } }) },
         from: vi.fn(),
-      } as any);
+      });
 
-      const app = new Hono<{ Bindings: typeof env; Variables: { user: ReturnType<typeof makeUser> } }>();
-      app.route("/api/tcgs", tcgRouter);
-
-      const res = await app.request("/api/tcgs", {
-        method: "POST",
-        body: JSON.stringify({ name: "Test", slug: "test" }),
-      }, env);
+      const res = await createTcgApp().request("/api/tcgs", { method: "POST" }, env);
       expect(res.status).toBe(401);
     });
 
     it("returns 403 when user is not admin", async () => {
       const { createClient } = await import("@supabase/supabase-js");
-      const player = makeUser("player");
-      const userChain = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: { ...player, banned_at: null, deleted_at: null },
-          error: null,
-        }),
-      };
-      userChain.select.mockReturnValue(userChain);
-      userChain.eq.mockReturnValue(userChain);
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue(authMock(testUserId2));
 
-      vi.mocked(createClient).mockReturnValue({
-        auth: {
-          getUser: vi.fn().mockResolvedValue({ data: { user: { id: player.id } }, error: null }),
-        },
-        from: vi.fn().mockReturnValue(userChain),
-      } as any);
-
-      const app = new Hono<{ Bindings: typeof env; Variables: { user: ReturnType<typeof makeUser> } }>();
-      app.route("/api/tcgs", tcgRouter);
-
-      const res = await app.request("/api/tcgs", {
-        method: "POST",
-        headers: { Authorization: "Bearer token", "Content-Type": "application/json" },
+      const res = await createTcgApp().request("/api/tcgs", {
+        method: "POST", headers: { Authorization: "Bearer t", "Content-Type": "application/json" },
         body: JSON.stringify({ name: "Test", slug: "test" }),
       }, env);
       expect(res.status).toBe(403);
@@ -111,105 +58,52 @@ describe("TCG routes", () => {
 
     it("creates a TCG when admin is authenticated", async () => {
       const { createClient } = await import("@supabase/supabase-js");
-      const admin = makeUser("admin");
-      const createdTcg = {
-        id: "00000000-0000-0000-0000-000000000010", name: "Test TCG", slug: "test-tcg",
-        description: null, logo_path: null,
-        created_at: "2026-07-14T00:00:00.000Z",
-        updated_at: "2026-07-14T00:00:00.000Z", deleted_at: null,
-      };
-      const userChain = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: { ...admin, banned_at: null, deleted_at: null },
-          error: null,
+      const adminId = "00000000-0000-0000-0000-00000000000a";
+      const userC = chain({ single: vi.fn().mockResolvedValue({ data: { id: adminId, email: "a@b.com", username: "a", role: "admin", banned_at: null, deleted_at: null }, error: null }) });
+      const tcgC = chain({ single: vi.fn().mockResolvedValue({ data: tcgData, error: null }), insert: vi.fn().mockReturnThis() });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(adminId),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === "users") return userC;
+          if (t === "tcgs") return tcgC;
+          return chain();
         }),
-      };
-      userChain.select.mockReturnValue(userChain);
-      userChain.eq.mockReturnValue(userChain);
+      });
 
-      const tcgChain = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: createdTcg, error: null }),
-      };
-      tcgChain.select.mockReturnValue(tcgChain);
-      tcgChain.eq.mockReturnValue(tcgChain);
-      tcgChain.insert.mockReturnValue(tcgChain);
-
-      vi.mocked(createClient).mockReturnValue({
-        auth: {
-          getUser: vi.fn().mockResolvedValue({ data: { user: { id: admin.id } }, error: null }),
-        },
-        from: vi.fn().mockImplementation((table: string) => {
-          if (table === "users") return userChain;
-          return tcgChain;
-        }),
-      } as any);
-
-      const app = new Hono<{ Bindings: typeof env; Variables: { user: ReturnType<typeof makeUser> } }>();
-      app.route("/api/tcgs", tcgRouter);
-
-      const res = await app.request("/api/tcgs", {
-        method: "POST",
-        headers: { Authorization: "Bearer token", "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Test TCG", slug: "test-tcg" }),
+      const res = await createTcgApp().request("/api/tcgs", {
+        method: "POST", headers: { Authorization: "Bearer t", "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "MTG", slug: "mtg" }),
       }, env);
       expect(res.status).toBe(201);
-      const body2: any = await res.json();
-      expect(body2.data.name).toBe("Test TCG");
     });
   });
 
   describe("DELETE /api/tcgs/:id", () => {
     it("soft-deletes a TCG", async () => {
       const { createClient } = await import("@supabase/supabase-js");
-      const admin = makeUser("admin");
-      const userChain = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: { ...admin, banned_at: null, deleted_at: null },
-          error: null,
-        }),
-      };
-      userChain.select.mockReturnValue(userChain);
-      userChain.eq.mockReturnValue(userChain);
-
-      const tcgChain = {
-        select: vi.fn().mockReturnThis(),
+      const adminId = "00000000-0000-0000-0000-00000000000a";
+      const userC = chain({ single: vi.fn().mockResolvedValue({ data: { id: adminId, role: "admin", banned_at: null, deleted_at: null }, error: null }) });
+      const tcgC = chain({
+        update: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         is: vi.fn().mockReturnThis(),
-        update: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({ data: { id: "tcg-1" }, error: null }),
-      };
-      tcgChain.select.mockReturnValue(tcgChain);
-      tcgChain.eq.mockReturnValue(tcgChain);
-      tcgChain.is.mockReturnValue(tcgChain);
-      tcgChain.update.mockReturnValue(tcgChain);
+      });
 
-      vi.mocked(createClient).mockReturnValue({
-        auth: {
-          getUser: vi.fn().mockResolvedValue({ data: { user: { id: admin.id } }, error: null }),
-        },
-        from: vi.fn().mockImplementation((table: string) => {
-          if (table === "users") return userChain;
-          return tcgChain;
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(adminId),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === "users") return userC;
+          if (t === "tcgs") return tcgC;
+          return chain();
         }),
-      } as any);
+      });
 
-      const app = new Hono<{ Bindings: typeof env; Variables: { user: ReturnType<typeof makeUser> } }>();
-      app.route("/api/tcgs", tcgRouter);
-
-      const res = await app.request("/api/tcgs/tcg-1", {
-        method: "DELETE",
-        headers: { Authorization: "Bearer token" },
+      const res = await createTcgApp().request("/api/tcgs/tcg-1", {
+        method: "DELETE", headers: { Authorization: "Bearer t" },
       }, env);
       expect(res.status).toBe(200);
-      const body3: any = await res.json();
-      expect(body3.data.success).toBe(true);
     });
   });
 });

@@ -132,6 +132,7 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 - **ESLint** with TypeScript rules and Quasar preset
 - **Prettier** for consistent formatting (single quotes, trailing commas, 100 print width)
 - **Husky** + **lint-staged** — pre-commit hook runs ESLint + Prettier on staged files only; prevents broken commits
+- **No `any` types** — never use `any` in production code. Use `unknown`, proper types, or Zod schemas instead. In tests, prefer `as Type` assertions over `as any`. Configure TypeScript with `strict: true` to enforce this.
 
 ## API Conventions
 
