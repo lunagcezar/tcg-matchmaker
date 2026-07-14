@@ -1,4 +1,4 @@
 {
   "extends": "./.quasar/tsconfig.json",
-  "exclude": ["src/**/__tests__", "e2e"]
+  "exclude": ["src/**/__tests__", "e2e", "vitest.config.ts", "playwright.config.mjs"]
 }
