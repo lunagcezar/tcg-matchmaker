@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-023: Home Page — Map, Event Feed & Filters
+  - Leaflet map with OpenStreetMap tiles, color-coded markers by event type
+  - Event feed cards with type badges and relative timestamps
+  - Filter bar with event type pills (Matches, Trading, Tournaments)
+  - Geolocation button ("Find near me")
+  - Split layout: map (60%) + feed (40%) on desktop, stacked on mobile
+  - Components: FilterBar, EventFeed, EventMap (organisms/home/)
+  - Leaflet + @types/leaflet frontend dependencies
+
 ## [0.22.0] — 2026-07-14
 
 ### Added
