@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-008: Tournaments API (TDD)
+  - Tournament CRUD: create (draft), list, get, update, publish (→open), cancel
+  - Registration: register (pending), check-in (organizer)
+  - Start tournament: single-elimination bracket generation (rounds + matches with next_match advancement)
+  - Bracket queries: get rounds + matches
+  - Match reporting: report result (advances winner), walkover (W.O.)
+  - Fixed bracket generation float index bug in nextMatchIndex calculation
+  - 5 new tests (TDD RED → GREEN), 34 total passing
+
 ## [0.7.0] — 2026-07-14
 
 ### Added

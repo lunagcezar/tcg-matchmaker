@@ -4,6 +4,7 @@ import { authRouter } from "./auth/index.js";
 import { tcgRouter, formatRouter } from "./tcgs/index.js";
 import { storeRouter } from "./stores/index.js";
 import { eventRouter } from "./events/index.js";
+import { tournamentRouter, bracketMatchRouter } from "./tournaments/index.js";
 
 type Bindings = {
   SUPABASE_URL: string;
@@ -41,6 +42,8 @@ app.route("/api/tcgs", tcgRouter);
 app.route("/api/formats", formatRouter);
 app.route("/api/stores", storeRouter);
 app.route("/api/events", eventRouter);
+app.route("/api/tournaments", tournamentRouter);
+app.route("/api/bracket-matches", bracketMatchRouter);
 
 app.notFound((c) => c.json({ data: null, error: "Not found", meta: null }, 404));
 
