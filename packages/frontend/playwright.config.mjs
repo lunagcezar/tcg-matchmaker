@@ -11,10 +11,18 @@ export default defineConfig({
     baseURL: 'http://localhost:9000',
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: 'quasar dev',
-    url: 'http://localhost:9000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  webServer: [
+    {
+      command: 'pnpm -F @tcg/worker dev',
+      url: 'http://localhost:8787/health',
+      reuseExistingServer: !process.env.CI,
+      timeout: 30000,
+    },
+    {
+      command: 'pnpm -F @tcg/frontend dev',
+      url: 'http://localhost:9000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000,
+    },
+  ],
 });

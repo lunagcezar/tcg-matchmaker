@@ -213,11 +213,19 @@ pnpm test:watch        # Watch mode
 
 ### E2E (Playwright)
 
-Frontend pages are tested with **Playwright**. Tests run against the Quasar dev server (auto-started).
+Frontend pages are tested with **Playwright**. Tests run against the full local stack (frontend + Worker), auto-started by Playwright.
+
+Prerequisites:
+
+- Local Supabase running: `supabase start`
+- `.env` files configured (see `.env.example` in each package)
 
 ```bash
-pnpm test:e2e          # Start dev server + run e2e tests
+pnpm test:e2e          # Playwright starts Quasar + Wrangler, runs tests
+pnpm dev:e2e           # Start everything manually + run tests in foreground
 ```
+
+For Supabase-dependent tests, ensure the local Supabase stack is running first:
 
 ## Deployment
 

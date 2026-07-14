@@ -4,6 +4,7 @@
   "packageManager": "pnpm@11.13.0",
   "scripts": {
     "dev": "concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
+    "dev:e2e": "concurrently -k \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\" \"pnpm -F @tcg/frontend test:e2e\"",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "test:e2e": "pnpm -F @tcg/frontend test:e2e",

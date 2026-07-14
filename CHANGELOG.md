@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.25.0] — 2026-07-14
+
+### Added
+
+- Playwright config now auto-starts both Quasar frontend + Hono Worker
+- Root `dev:e2e` script starts all services + runs tests
+- Root `.env.example` documenting all env vars for local dev
+- README updated with e2e prerequisites (Supabase, env files)
+
 ## [0.24.0] — 2026-07-14
 
 ### Added
