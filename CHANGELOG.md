@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-014: Logger Middleware (TDD)
+  - Structured logger with levels: debug, info, warn, error, critical
+  - Console transport (always), Sentry transport (when DSN configured)
+  - LGPD sanitization: personal fields → `[SANITIZED]`, tokens/passwords stripped
+  - `debug` level active only in development mode
+  - `critical` always logs errors with stack traces via Sentry
+  - Integrated into Worker's `onError` handler
+  - 5 new tests, 60 total passing
+
 ## [0.13.0] — 2026-07-14
 
 ### Added
