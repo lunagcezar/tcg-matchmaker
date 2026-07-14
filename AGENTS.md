@@ -107,7 +107,7 @@ src/components/
     cards/         — Entity cards (EventCard, UserCard, StoreCard)
     navigation/    — Nav components (MainNavigation, AdminNavigation)
   organisms/       — Feature-specific sections composed of molecules + atoms
-    home/          — EventMap, FilterPanel, EventList, GeolocateButton
+      home/          — EventMap, EventFeed, FilterBar, GeolocateButton
     match/         — MatchCreateForm, ParticipantConfirmList
     trading/       — TradingCreateForm, AttendeeList, RsvpButton
     tournament/    — BracketView, ParticipantRegisterList

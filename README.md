@@ -14,24 +14,25 @@ Initially focused on **Fortaleza, Ceará, Brasil**.
 
 ## Tech stack
 
-| Layer             | Technology                                                                                                  |
-| ----------------- | ----------------------------------------------------------------------------------------------------------- |
-| Frontend          | [Quasar](https://quasar.dev/) (Vue 3 + Vite + TypeScript)                                                   |
-| State             | [Pinia](https://pinia.vuejs.org/api/)                                                                       |
-| Utilities         | [VueUse](https://vueuse.org/guide/) (geolocation, storage, debounce)                                        |
-| API client        | [Hono RPC](https://hono.dev/docs/guides/rpc) — fully typed client from Worker routes                        |
-| API               | [Hono](https://hono.dev/) on Cloudflare Workers                                                             |
-| Database          | [Supabase](https://supabase.com/) (PostgreSQL + PostGIS + Auth + Realtime)                                  |
-| Validation        | [Zod](https://zod.dev/)                                                                                     |
-| Maps              | [Leaflet](https://leafletjs.com/) + OpenStreetMap                                                           |
-| Geocoding         | [Nominatim](https://nominatim.org/) (proxied through Hono)                                                  |
-| Bracket rendering | [D3.js](https://d3js.org/api)                                                                               |
-| Tests             | [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [MSW](https://mswjs.io/) |
-| Date/time         | [Luxon](https://moment.github.io/luxon/)                                                                    |
-| Observability     | [Sentry](https://sentry.io/)                                                                                |
-| CI/CD             | Cloudflare Pages (frontend) + Workers (API)                                                                 |
-| Bot protection    | [Turnstile](https://www.cloudflare.com/products/turnstile/)                                                 |
-| Email             | [Resend](https://resend.com/) (custom SMTP)                                                                 |
+| Layer             | Technology                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Frontend          | [Quasar](https://quasar.dev/) (Vue 3 + Vite + TypeScript)                            |
+| State             | [Pinia](https://pinia.vuejs.org/api/)                                                |
+| Utilities         | [VueUse](https://vueuse.org/guide/) (geolocation, storage, debounce)                 |
+| API client        | [Hono RPC](https://hono.dev/docs/guides/rpc) — fully typed client from Worker routes |
+| API               | [Hono](https://hono.dev/) on Cloudflare Workers                                      |
+| Database          | [Supabase](https://supabase.com/) (PostgreSQL + PostGIS + Auth + Realtime)           |
+| Validation        | [Zod](https://zod.dev/)                                                              |
+| Maps              | [Leaflet](https://leafletjs.com/) + OpenStreetMap                                    |
+| Geocoding         | [Nominatim](https://nominatim.org/) (proxied through Hono)                           |
+| Bracket rendering | [D3.js](https://d3js.org/api)                                                        |
+| Tests (unit)      | [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/)     |
+| Tests (e2e)       | [Playwright](https://playwright.dev/)                                                |
+| Date/time         | [Luxon](https://moment.github.io/luxon/)                                             |
+| Observability     | [Sentry](https://sentry.io/)                                                         |
+| CI/CD             | Cloudflare Pages (frontend) + Workers (API)                                          |
+| Bot protection    | [Turnstile](https://www.cloudflare.com/products/turnstile/)                          |
+| Email             | [Resend](https://resend.com/) (custom SMTP)                                          |
 
 The project is a monorepo organized with pnpm workspaces. The Hono API uses domain-driven design internally.
 
@@ -202,10 +203,11 @@ See `docs/pages.md` and `AGENTS.md` for more details.
 
 ### Unit & Integration (Vitest)
 
-Worker API routes and middleware are tested with **Vitest**. Tests use mocked Supabase client and run via Miniflare-compatible environment.
+Worker API routes and middleware are tested with **Vitest** (mocked Supabase client).
+Frontend stores and components are tested with **Vitest** + **@vue/test-utils** (mocked fetch, jsdom environment).
 
 ```bash
-pnpm test              # Run all worker tests
+pnpm test              # Run all tests (worker + frontend unit)
 pnpm test:watch        # Watch mode
 ```
 
