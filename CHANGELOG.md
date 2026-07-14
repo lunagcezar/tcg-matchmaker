@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.17.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-017: Hono RPC Client
+  - `useApi` composable wrapping `hono/client` `hc()` with base URL from env
+  - `hono` package added to frontend dependencies
+  - Cached client singleton pattern (one client instance)
+  - Ready for typed API calls once full type sharing is configured
+
 ## [0.16.0] — 2026-07-14
 
 ### Added
