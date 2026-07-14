@@ -1,1 +1,3 @@
--- Seed data added in subsequent specs
+-- Seed data for local development
+-- After running `supabase start`, generate TypeScript types:
+--   supabase gen types typescript --local > packages/shared/src/database.types.ts

@@ -382,15 +382,21 @@ Public detail pages (`/matches/:id`, `/tournaments/:id`, `/stores/:id`, `/profil
 
 ## Available Commands
 
-- `quasar dev` — Start development server
-- `quasar build` — Build for production
-- `quasar new store <name>` — Scaffold a new Pinia store
-- `pnpm test` — Run Vitest (worker unit/integration tests)
-- `pnpm test:e2e` — Run Playwright e2e tests (frontend, auto-starts dev server)
-- `pnpm lint` — ESLint check
-- `pnpm format` — Prettier format
-- `supabase start` — Start local Supabase stack
-- `supabase db diff` — Generate migration from schema changes
-- `supabase gen types typescript` — Generate TypeScript types
-- `wrangler dev` — Start local Workers development
-- `wrangler deploy` — Deploy Workers to production
+| Command                         | Description                                     |
+| ------------------------------- | ----------------------------------------------- |
+| `quasar dev`                    | Start frontend dev server                       |
+| `quasar build`                  | Build frontend for production                   |
+| `quasar new store <name>`       | Scaffold a new Pinia store                      |
+| `pnpm dev`                      | Start both Worker + frontend concurrently       |
+| `pnpm dev:e2e`                  | Start Worker + frontend + run Playwright tests  |
+| `pnpm test`                     | Run all Vitest tests (worker unit + frontend)   |
+| `pnpm test:e2e`                 | Playwright auto-starts services, runs e2e tests |
+| `pnpm lint`                     | ESLint check across all packages                |
+| `pnpm format`                   | Prettier format                                 |
+| `supabase start`                | Start local Supabase stack (Docker)             |
+| `supabase stop`                 | Stop local Supabase                             |
+| `supabase db diff`              | Generate migration from schema changes          |
+| `supabase gen types typescript` | Generate TypeScript types from DB               |
+| `supabase db push`              | Push migrations to production                   |
+| `wrangler dev`                  | Start Worker locally                            |
+| `wrangler deploy`               | Deploy Worker to production                     |

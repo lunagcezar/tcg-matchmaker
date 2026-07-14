@@ -79,51 +79,59 @@ tcg-matchmaker/
 
 ## Development setup
 
-1. Clone the repository:
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 20+
+- [pnpm](https://pnpm.io/) 9+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Supabase)
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
+
+### Quick start
 
 ```bash
+# 1. Clone and install
 git clone <repo-url>
 cd tcg-matchmaker
-```
-
-2. Install dependencies:
-
-```bash
 pnpm install
-```
 
-3. Copy environment files and fill in your values:
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your Supabase project credentials
 
-```bash
-cp packages/frontend/.env.example packages/frontend/.env
-cp packages/worker/.env.example packages/worker/.env
-```
-
-4. Start the local Supabase stack:
-
-```bash
+# 3. Start local Supabase
 supabase start
-```
 
-5. In a separate terminal, generate TypeScript types from the local database:
-
-```bash
+# 4. Generate TypeScript types from local DB
 supabase gen types typescript --local > packages/shared/src/database.types.ts
+
+# 5. In separate terminals:
+pnpm dev:worker    # Worker at http://localhost:8787
+pnpm dev:frontend  # Frontend at http://localhost:9000
 ```
 
-6. Start the Worker:
+### Supabase local stack
+
+The local Supabase stack provides PostgreSQL (with PostGIS), Auth, and Storage:
 
 ```bash
-pnpm dev:worker
+supabase start                    # Start all services
+supabase stop                     # Stop all services
+supabase db diff                  # Generate migration from schema changes
+supabase gen types typescript     # Generate TypeScript types from DB
+supabase db push                  # Push migrations to production
 ```
 
-7. In another terminal, start the frontend:
+The local Supabase dashboard is available at `http://localhost:54323`.
+
+### Running tests
 
 ```bash
-pnpm dev:frontend
+pnpm test              # Worker unit tests (Vitest)
+pnpm test:e2e          # E2E tests (Playwright — auto-starts frontend + Worker)
 ```
 
-The frontend is usually available at `http://localhost:9000` and the Worker at `http://localhost:8787`.
+For E2E tests, ensure local Supabase is running (`supabase start`) and `.env` files are configured.
 
 ## Environment variables
 

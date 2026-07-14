@@ -16,3 +16,13 @@ enabled_extensions = ["postgis"]
 
 [analytics]
 enabled = false
+
+[storage]
+enabled = true
+
+[storage.buckets]
+avatars = { public = false, file_size_limit = "2MB", allowed_mime_types = ["image/jpeg"] }
+logos = { public = true, file_size_limit = "2MB", allowed_mime_types = ["image/jpeg"] }
+
+[auth.external]
+enabled = false
