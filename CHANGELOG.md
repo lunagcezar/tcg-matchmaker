@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-010: Geocoding API (TDD)
+  - `GET /api/geocode/search?q=` — proxy Nominatim autocomplete search with KV cache (24h TTL)
+  - `GET /api/geocode/reverse?lat=&lng=` — proxy Nominatim reverse geocoding with KV cache
+  - KV caching: cached flag in response meta, avoids repeated Nominatim calls
+  - Proper error handling: 400 for missing params, 502 for upstream failures
+  - Nominatim usage policy: User-Agent header set via env
+  - 6 new tests (TDD RED → GREEN), 40 total passing
+
 ## [0.9.0] — 2026-07-14
 
 ### Added
