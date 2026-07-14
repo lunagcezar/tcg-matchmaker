@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 - Architecture planning documents:
   - `docs/data-model.md` — Entity definitions for Users, TCGs, Formats, Game Stores, Matches, Tournaments, Brackets
   - `docs/requirements.md` — Functional and non-functional requirements
-  - `docs/use-cases.md` — 20 use cases covering all user roles
+  - `docs/use-cases.md` — 26 use cases covering all user roles
   - `docs/pages.md` — Route map and component organization
   - `AGENTS.md` — Project conventions and AI-assisted development guide
 - Skills added to `.agents/skills/`:
@@ -42,3 +42,5 @@ All notable changes to this project will be documented in this file.
 - Store registration: self-submit with admin review (status: pending/approved/rejected)
 - Added tools to stack: VueUse, hono/client, Zod, Luxon, @vue/test-utils, MSW
 - Added: Supabase Realtime, Cloudflare KV, ESLint + Prettier + Husky, Supabase CLI
+- Added: Technical tips section in AGENTS.md (monorepo structure, Hono RPC, CORS, direct uploads, PostGIS, notifications, bracket types, env vars, pagination, worker testing)
+- Added: `pool_play` bracket type (5 total: single elim, double elim, round robin, swiss, pool play)

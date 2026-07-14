@@ -212,6 +212,87 @@ types: feat, fix, docs, refactor, test, chore
 scope: frontend, worker, spec, docs
 ```
 
+## Technical Tips
+
+### Project structure — monorepo with shared package
+
+```
+tcg-matchmaker/
+  packages/
+    shared/        — Zod schemas, types, constants (shared between frontend + worker)
+    frontend/      — Quasar app
+    worker/        — Hono API
+```
+
+Zod schemas for API requests/responses and shared types (Event, Participant, etc.) need to be imported by both frontend and worker. A shared package avoids duplication and keeps contracts in sync.
+
+### Hono RPC type sharing
+
+`hono/client` requires the Worker to export route types. This means the worker package must be a dependency of the frontend package (type-only import). Package graph:
+
+```
+frontend → shared
+worker → shared
+frontend → worker (types only)
+```
+
+### CORS in Hono Worker
+
+Configure CORS in Hono middleware to accept requests from the Cloudflare Pages domain and `localhost` during dev. Use the `hono/cors` middleware.
+
+### Direct uploads to Supabase Storage
+
+Avatar/logo uploads go **directly** from the frontend to Supabase Storage (using publishable key + RLS), not through the Worker. Workers have a 128MB memory limit — routing uploads through them wastes resources. The Worker validates file type/size after upload via a webhook or pre-signed URL check.
+
+### PostGIS enablement
+
+Supabase supports PostGIS but it must be explicitly enabled:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
+
+This belongs in your first migration. Geospatial queries (`ST_DWithin`, `ST_MakePoint`) rely on it.
+
+### Notifications — Realtime + table
+
+In-app notifications use a `notifications` table + Supabase Realtime subscriptions. When an event changes (RSVP, challenge, bracket result), insert a notification row. Frontend subscribes to the user's notifications via Realtime and shows a badge.
+
+### Bracket types
+
+Flexible selection at tournament creation. Supported types (see [Brakto comparison](https://www.brakto.com/blog/tournament-format-comparison)):
+
+- **Single elimination** — fastest, dramatic, lose once = out
+- **Double elimination** — second chance, more accurate rankings
+- **Round robin** — everyone plays everyone, most fair, best for small groups
+- **Swiss system** — balanced matchups for large fields, standard for chess/MTG/esports
+- **Pool play + playoffs** — group stage into knockout rounds, World Cup style
+
+Swiss is particularly relevant for MTG (standard for competitive MTG tournaments). Implement all five bracket types; do not default to only single elimination.
+
+### Environment variables
+
+Worker secrets via `wrangler secret put`:
+- `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SUPABASE_PUBLISHABLE_KEY`
+- `RESEND_API_KEY`
+- `TURNSTILE_SECRET_KEY`
+- `SENTRY_DSN`
+- `NOMINATIM_USER_AGENT`
+
+Frontend env via `.env` files:
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_TURNSTILE_SITE_KEY`
+- `VITE_SENTRY_DSN`
+- `VITE_API_URL` (worker URL)
+
+### API pagination
+
+Use cursor-based pagination for the event feed (not offset). Cursors are stable when events are inserted mid-scroll. Query by `created_at` cursor + limit.
+
+### Worker testing
+
+Use `@cloudflare/vitest-pool-workers` for testing Hono routes in the actual Workers runtime. This catches Workers-specific issues that Node.js testing misses (no `fs`, limited globals).
+
 ## Available Commands
 
 - `quasar dev` — Start development server

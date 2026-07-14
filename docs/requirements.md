@@ -23,7 +23,7 @@
 - FR-05: User can download all their personal data as JSON (data portability, LGPD)
 - FR-06: User is informed of data processing and consents at signup
 - FR-07: User can request account suspension (temporary block)
-- FR-08: User profile displays username, display_name, avatar, match history (active + completed)
+- FR-08: User profile displays username, display_name, avatar, event history (active + completed)
 - FR-09: Game store manager (organizer role) can link their account to a store
 
 ### 2.2 TCGs & Formats (Admin)
@@ -70,15 +70,15 @@ All event types share a unified data model with type-specific behavior.
 - FR-32: Session creator can edit or cancel their session
 
 **Tournaments** (structured competition):
-- FR-30: Organizer can create a tournament with:
+- FR-33: Organizer (user or store manager) can create a tournament with:
   - TCG, format, bracket type, max participants, location, date
-- FR-31: Players can register for open tournaments (until max_participants reached)
-- FR-32: Organizer can check in participants before start
-- FR-33: Organizer can start the tournament — bracket is generated automatically
-- FR-34: Bracket supports: single elimination, double elimination, swiss, round robin
-- FR-35: Players report their match results; organizer can override
-- FR-36: Organizer advances winners through rounds
-- FR-37: Tournament history is preserved after deletion
+- FR-34: Players can register for open tournaments (until max_participants reached)
+- FR-35: Organizer can check in participants before start
+- FR-36: Organizer can start the tournament — bracket is generated automatically
+- FR-37: Bracket supports: single elimination, double elimination, round robin, swiss, pool play + playoffs (see [Brakto comparison](https://www.brakto.com/blog/tournament-format-comparison))
+- FR-38: Players report their match results; organizer can override
+- FR-39: Organizer advances winners through rounds
+- FR-40: Tournament history is preserved after deletion
 
 ### 2.5 Event Status Lifecycles
 **Match:**
@@ -102,25 +102,25 @@ any ──(cancel)──▶ cancelled
 ```
 
 ### 2.6 Moderation (Admin)
-- FR-38: Admin reviews and approves/rejects pending game store registrations
-- FR-39: Admin can remove any user's avatar
-- FR-40: Admin can ban a user (sets `banned_at`) — banned users cannot create/join events
-- FR-41: Admin can unban a user
-- FR-42: Admin can soft-delete any event or store (hides from public view)
-- FR-43: All moderation actions are logged in Audit Log
+- FR-41: Admin reviews and approves/rejects pending game store registrations
+- FR-42: Admin can remove any user's avatar
+- FR-43: Admin can ban a user (sets `banned_at`) — banned users cannot create/join events
+- FR-44: Admin can unban a user
+- FR-45: Admin can soft-delete any event or store (hides from public view)
+- FR-46: All moderation actions are logged in Audit Log
 
 ### 2.7 Geocoding, Maps & Geolocation
-- FR-44: Address autocomplete — user types a name, gets suggestions with lat/lng + address components (via Nominatim proxied through Hono)
-- FR-45: Map view (Leaflet) for browsing events by location
-- FR-46: "Find near me" button uses browser Geolocation API to center the map on user's current location
-- FR-47: Custom locations are stored with lat/lng for map display
-- FR-48: Trading sessions and matches both appear on the same map with distinct markers by type
+- FR-47: Address autocomplete — user types a name, gets suggestions with lat/lng + address components (via Nominatim proxied through Hono)
+- FR-48: Map view (Leaflet) for browsing events by location
+- FR-49: "Find near me" button uses browser Geolocation API to center the map on user's current location
+- FR-50: Custom locations are stored with lat/lng for map display
+- FR-51: Trading sessions, matches, and tournaments all appear on the same map with distinct markers by type
 
 ### 2.8 LGPD Compliance
-- FR-49: Data export endpoint returns all user personal data in JSON format (portability)
-- FR-50: Consent recorded at signup with timestamp and version of privacy policy
-- FR-51: Account suspension option — temporarily blocks account without data deletion
-- FR-52: Privacy policy displayed at signup and linked from footer
+- FR-52: Data export endpoint returns all user personal data in JSON format (portability)
+- FR-53: Consent recorded at signup with timestamp and version of privacy policy
+- FR-54: Account suspension option — temporarily blocks account without data deletion
+- FR-55: Privacy policy displayed at signup and linked from footer
 
 ## 3. Non-Functional Requirements
 

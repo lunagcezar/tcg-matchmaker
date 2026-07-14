@@ -17,6 +17,7 @@
 | banned_at | timestamp? | if set, user is banned; API middleware rejects requests |
 | ban_reason | text? | admin-provided reason |
 | locked_until | timestamp? | after 5 failed login attempts, blocks login for 15 min |
+| suspended_at | timestamp? | user-initiated suspension (LGPD); blocks event creation/joining |
 | created_at | timestamp | |
 | updated_at | timestamp | |
 | deleted_at | timestamp? | soft delete — all data preserved |
@@ -99,7 +100,7 @@ One table for all event types. Type-specific fields are nullable.
 | format_id | UUID? | FK → formats (nullable — not used for trading) |
 | format_name | string? | snapshot at creation — survives format deletion |
 | max_participants | int? | null = unlimited (matches default to 2) |
-| bracket_type | enum? | `single_elimination` | `double_elimination` | `swiss` | `round_robin` (tournaments only) |
+| bracket_type | enum? | `single_elimination` | `double_elimination` | `round_robin` | `swiss` | `pool_play` (tournaments only) |
 | created_at | timestamp | |
 | updated_at | timestamp | |
 | deleted_at | timestamp? | soft delete |

@@ -77,19 +77,19 @@
 | Field | Value |
 |-------|-------|
 | Actor | Player |
-| Precondition | Authenticated, not banned, match has status `looking_for_opponent` |
+| Precondition | Authenticated, not banned, match has status `open` |
 | Description | Player joins an open match |
-| Flow | 1. Player views match details<br>2. Clicks "Join Match"<br>3. System sets `opponent_id` to current player<br>4. System changes match status to `confirmed`<br>5. Both players receive confirmation |
-| Postcondition | Match is confirmed. Both players have match details. |
+| Flow | 1. Player views match details<br>2. Clicks "Join Match"<br>3. System adds player to event_participants with role `participant`, status `confirmed`<br>4. System changes match status to `confirmed`<br>5. All participants receive confirmation |
+| Postcondition | Match is confirmed. All participants have match details. |
 
 ## UC-08: Accept/Decline Challenge
 
 | Field | Value |
 |-------|-------|
 | Actor | Player |
-| Precondition | Authenticated, match has status `challenged`, current user is `opponent_id` |
+| Precondition | Authenticated, match has status `challenged`, current user is an invited participant in event_participants |
 | Description | Player responds to a challenge |
-| Flow | 1. Player views match details or notification<br>2. Clicks "Accept" or "Decline"<br>3. If Accept: system changes status to `confirmed`<br>4. If Decline: system changes status to `cancelled` |
+| Flow | 1. Player views match details or notification<br>2. Clicks "Accept" or "Decline"<br>3. If Accept: system updates participant status to `confirmed`, changes match status to `confirmed`<br>4. If Decline: system updates participant status to `declined`, changes match status to `cancelled` |
 | Postcondition | Match confirmed or cancelled. Creator notified. |
 
 ## UC-09: Cancel Match
@@ -159,8 +159,8 @@
 | Actor | Organizer (user or store manager) |
 | Precondition | Authenticated, not banned |
 | Description | Organizer creates a tournament |
-| Flow | 1. Organizer clicks "Create Tournament"<br>2. Selects TCG and Format<br>3. Selects bracket type, max participants, date range<br>4. Chooses location (store or custom)<br>5. Sets tournament name and description<br>6. System creates tournament with status `draft`<br>7. Organizer can publish it to open registration |
-| Postcondition | Tournament created. If published, appears in tournament listings. |
+| Flow | 1. Organizer clicks "Create Tournament"<br>2. Selects TCG and Format<br>3. Selects bracket type — flexible choice at creation:<br>   - Single elimination (fastest, dramatic)<br>   - Double elimination (second chance)<br>   - Round robin (everyone plays everyone, small groups)<br>   - Swiss system (balanced matchups, large fields, MTG standard)<br>   - Pool play + playoffs (group stage into knockout, World Cup style)<br>4. Sets max participants and date range<br>5. Chooses location (store or custom)<br>6. Sets tournament name and description<br>7. System creates tournament with status `draft`<br>8. Organizer can publish it to open registration |
+| Postcondition | Tournament created with selected bracket type. If published, appears in tournament listings. |
 
 ## UC-16: Register for Tournament
 
