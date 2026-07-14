@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.24.0] — 2026-07-14
+
+### Added
+
+- Home page tests: Playwright (map, filter, geolocate, type filtering) + FilterBar unit test
+- @vue/test-utils, jsdom, @vitejs/plugin-vue installed for component testing
+- Vitest config updated to jsdom environment with Vue plugin
+- 4 frontend tests total (3 store + 1 component)
+
 ## [0.23.0] — 2026-07-14
 
 ### Added
