@@ -44,3 +44,4 @@ All notable changes to this project will be documented in this file.
 - Added: Supabase Realtime, Cloudflare KV, ESLint + Prettier + Husky, Supabase CLI
 - Added: Technical tips section in AGENTS.md (monorepo structure, Hono RPC, CORS, direct uploads, PostGIS, notifications, bracket types, env vars, pagination, worker testing)
 - Added: `pool_play` bracket type (5 total: single elim, double elim, round robin, swiss, pool play)
+- Added: D3.js for bracket visualization

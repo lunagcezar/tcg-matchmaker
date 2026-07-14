@@ -18,6 +18,7 @@ A community TCG (Trading Card Game) matchmaker platform. Users find and schedule
 | Auth | **Supabase Auth** | JWT verified in Hono middleware |
 | Real-time | **Supabase Realtime** | Live updates for RSVPs, match confirmations, bracket changes |
 | Map | **Leaflet** + OpenStreetMap tiles | Free map display |
+| Bracket rendering | **D3.js** | Tree layouts for bracket visualization (single elim, double elim, pool play) |
 | Geocoding | **Nominatim** (proxied through Hono) | Address autocomplete |
 | Tests | **Vitest** + **@vue/test-utils** | Unit + integration + component tests |
 | Mocking | **MSW** | API mocking in tests |
@@ -195,6 +196,7 @@ Always fetch the latest documentation for the tools used in this project:
 - VueUse: https://vueuse.org/guide/
 - Leaflet: https://leafletjs.com/reference.html
 - Luxon: https://moment.github.io/luxon/
+- D3.js: https://d3js.org/api
 - Zod: https://zod.dev/
 - MSW: https://mswjs.io/docs/
 - Vue Test Utils: https://test-utils.vuejs.org/guide/
@@ -268,7 +270,9 @@ Flexible selection at tournament creation. Supported types (see [Brakto comparis
 - **Swiss system** — balanced matchups for large fields, standard for chess/MTG/esports
 - **Pool play + playoffs** — group stage into knockout rounds, World Cup style
 
-Swiss is particularly relevant for MTG (standard for competitive MTG tournaments). Implement all five bracket types; do not default to only single elimination.
+Swiss is particularly relevant for MTG (standard for competitive MTG tournaments). Implement all five bracket types.
+
+Bracket visualization uses **D3.js** — its tree layout (`d3-hierarchy`) handles single and double elimination bracket layouts natively. Use `d3-shape` for drawing connector lines between matches. Swiss and round robin display as tables (QTable) rather than tree brackets. Wrap D3 in a `useBracketD3` composable to isolate it from Vue's reactivity.
 
 ### Environment variables
 
