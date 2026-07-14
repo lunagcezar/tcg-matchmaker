@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-005: test backfill & TDD infrastructure
+  - Vitest configuration for worker package
+  - Test utilities: mock data factories, Supabase mock helper
+  - Auth middleware tests: 6 cases (missing header, invalid token, banned, deleted, valid user)
+  - Admin middleware tests: 2 cases (403 non-admin, pass for admin)
+  - Auth route tests: 4 cases (onboarding with/without admin, me authenticated/not)
+  - TCG route tests: 5 cases (list, 401, 403, create, soft-delete)
+
+### Changed
+
+- Moved test utilities inside `src/` for tsconfig compatibility
+- Established testing patterns (Hono `app.request()`, `vi.mock` for Supabase)
+
 ## [0.4.0] — 2026-07-14
 
 ### Added
