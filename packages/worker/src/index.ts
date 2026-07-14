@@ -18,6 +18,7 @@ type Bindings = {
   SENTRY_DSN: string;
   NOMINATIM_USER_AGENT: string;
   GEOCODING_KV: KVNamespace;
+  RATE_LIMIT_KV?: KVNamespace;
 };
 
 type Variables = {

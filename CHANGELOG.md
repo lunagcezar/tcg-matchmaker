@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-013: Rate Limiting Middleware (TDD)
+  - KV-backed `rateLimitMiddleware(action, maxRequests, windowSeconds)` factory
+  - IP extraction from CF-Connecting-IP header
+  - Applied to: POST /api/auth/onboarding (3/h), DELETE /api/auth/account (5/15m)
+  - Returns 429 with error message when limit exceeded
+  - 4 new tests, 54 total passing
+
 ## [0.12.0] — 2026-07-14
 
 ### Added
