@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.18.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-018: Admin Pages (TDD)
+  - TCG management: list with QTable, create dialog, soft-delete button
+  - Format management: list/create under TCG, back navigation
+  - User management: list users with role/status badges, ban/unban/promote
+  - Report moderation: list with status badges, resolve/dismiss
+  - Audit log: table with action badges
+  - Dashboard: navigation cards to all admin sections
+  - Store management: basic table view
+  - Playwright baseline tests for all admin pages (TDD RED → GREEN)
+
 ## [0.17.0] — 2026-07-14
 
 ### Added
