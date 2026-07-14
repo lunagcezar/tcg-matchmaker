@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-004: TCGs & Formats API
+  - Admin middleware (`middleware/admin.ts`) — role check, returns 403 for non-admins
+  - Updated shared schemas: `UpdateTcgSchema`, `UpdateFormatSchema`
+  - `GET /api/tcgs` — list non-deleted TCGs (public)
+  - `GET /api/tcgs/:id` — get TCG by ID (public)
+  - `POST /api/tcgs` — create TCG (admin)
+  - `PATCH /api/tcgs/:id` — update TCG (admin)
+  - `DELETE /api/tcgs/:id` — soft-delete TCG (admin)
+  - `GET /api/tcgs/:tcgId/formats` — list formats for a TCG (public)
+  - `POST /api/tcgs/:tcgId/formats` — create format (admin)
+  - `PATCH /api/formats/:id` — update format (admin)
+  - `DELETE /api/formats/:id` — soft-delete format (admin)
+
 ## [0.3.0] — 2026-07-14
 
 ### Added

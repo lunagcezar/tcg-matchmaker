@@ -36,7 +36,22 @@ export const CreateFormatSchema = z.object({
   description: z.string().max(500).optional(),
 });
 
+export const UpdateTcgSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional(),
+  description: z.string().max(500).optional(),
+  logo_path: z.string().optional(),
+});
+
+export const UpdateFormatSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional(),
+  description: z.string().max(500).optional(),
+});
+
 export type CreateTcgInput = z.input<typeof CreateTcgSchema>;
+export type UpdateTcgInput = z.input<typeof UpdateTcgSchema>;
 export type Tcg = z.infer<typeof TcgSchema>;
 export type Format = z.infer<typeof FormatSchema>;
 export type CreateFormatInput = z.input<typeof CreateFormatSchema>;
+export type UpdateFormatInput = z.input<typeof UpdateFormatSchema>;

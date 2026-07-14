@@ -1,62 +1,38 @@
-# Plan — spec-003: Complete Database Schema
+# Plan — spec-004: TCGs & Formats API
 
 ## Summary
 
-Add the second migration with all remaining tables from the data model, plus corresponding Zod schemas in the shared package. This unblocks all feature API specs.
+Implement the TCG and Format management API routes. Admin-only write, public read. Uses the existing auth middleware plus a new admin role check.
 
 ## Implementation Order
 
 ```
-         ┌──────────────────────┐
-         │  Shared Zod schemas  │  (1) Create schema files per domain
-         │  (no deps)           │      tcg.ts, store.ts, event.ts,
-         │                      │      tournament.ts, notification.ts, report.ts
-         └──────────┬───────────┘
-                    │
-                    ▼
-         ┌──────────────────────┐
-         │  SQL Migration       │  (2) 20260714000001_complete_schema.sql
-         │  (references schema) │      11 tables with RLS, FKs, CHECK constraints
-         └──────────────────────┘
+         ┌──────────────────────────┐
+         │  Admin middleware        │  (1) Simple role check
+         │  (middleware/admin.ts)   │
+         └───────────┬──────────────┘
+                     │
+         ┌───────────▼──────────────┐
+         │  Shared schema updates   │  (2) UpdateTcgSchema, UpdateFormatSchema
+         │  (tcg.ts)                │
+         └───────────┬──────────────┘
+                     │
+         ┌───────────▼──────────────┐
+         │  TCG routes + format     │  (3) tcgs/index.ts — both routers
+         │  routers (tcgs/index.ts) │
+         └───────────┬──────────────┘
+                     │
+         ┌───────────▼──────────────┐
+         │  Mount in index.ts       │  (4) app.route("/api/tcgs", tcgRouter)
+         │                          │      app.route("/api/formats", formatRouter)
+         └──────────────────────────┘
 ```
 
 ## Parallelizable Blocks
 
 | Block | Items | Dependencies |
 |-------|-------|-------------|
-| A | Shared schema files (6 files) | None |
-| B | SQL migration | None (references data-model.md only) |
-
-Both blocks are independent and can run in parallel.
-
-## Concrete File List
-
-### New files
-
-| File | Purpose |
-|------|---------|
-| `packages/shared/src/schemas/tcg.ts` | TcgSchema, CreateTcgSchema, types |
-| `packages/shared/src/schemas/store.ts` | StoreSchema, StoreMembershipSchema, CreateStoreSchema, types |
-| `packages/shared/src/schemas/event.ts` | EventSchema, EventParticipantSchema, CreateEventSchema, types |
-| `packages/shared/src/schemas/tournament.ts` | BracketRoundSchema, BracketMatchSchema, types |
-| `packages/shared/src/schemas/notification.ts` | NotificationSchema, PushSubscriptionSchema, types |
-| `packages/shared/src/schemas/report.ts` | ReportSchema, types |
-| `supabase/migrations/20260714000001_complete_schema.sql` | All 12 tables |
-
-### Modified files
-
-| File | Change |
-|------|--------|
-| `packages/shared/src/index.ts` | Add exports for all new schema files |
-
-## Acceptance Criteria Check
-
-| AC | How to verify |
-|----|--------------|
-| AC-001 | Review SQL for correctness |
-| AC-002 | Each table name is present in the migration |
-| AC-003 | `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` for each table |
-| AC-004 | FK constraints use correct ON DELETE behavior |
-| AC-005 | `pnpm -F @tcg/shared exec tsc --noEmit` |
-| AC-006 | `pnpm -F @tcg/worker exec tsc --noEmit` |
-| AC-007 | `pnpm -F @tcg/frontend exec quasar build` |
+| A | Admin middleware | None |
+| B | Shared schema update | None |
+| C | TCG + format routes | A, B |
+| D | Mount routes | C |
