@@ -15,9 +15,7 @@ const env = {
   },
 };
 
-function makeApp() {
-  return new Hono<{ Bindings: typeof env }>().route('/api/geocode', geocodeRouter);
-}
+const app = new Hono<{ Bindings: typeof env }>().route('/api/geocode', geocodeRouter);
 const mockNominatimResponse = [
   {
     display_name: 'Rua Augusta, São Paulo, Brasil',
@@ -47,7 +45,7 @@ describe('Geocode routes', () => {
 
   describe('GET /api/geocode/search', () => {
     it('returns 400 when q parameter is missing', async () => {
-      const res = await makeApp().request('/api/geocode/search', {}, env);
+      const res = await app.request('/api/geocode/search', {}, env);
       expect(res.status).toBe(400);
     });
 
@@ -57,7 +55,7 @@ describe('Geocode routes', () => {
         json: vi.fn().mockResolvedValue(mockNominatimResponse),
       });
 
-      const res = await makeApp().request('/api/geocode/search?q=Rua', {}, env);
+      const res = await app.request('/api/geocode/search?q=Rua', {}, env);
       expect(res.status).toBe(200);
       const body = (await res.json()) as { data: Array<{ display_name: string }> };
       expect(body.data.length).toBe(2);
@@ -70,14 +68,14 @@ describe('Geocode routes', () => {
         json: vi.fn().mockResolvedValue(mockNominatimResponse),
       });
 
-      await makeApp().request('/api/geocode/search?q=Rua', {}, env);
+      await app.request('/api/geocode/search?q=Rua', {}, env);
       expect(env.GEOCODING_KV.put).toHaveBeenCalled();
     });
 
     it('returns cached results on repeated request', async () => {
       env.GEOCODING_KV.get = vi.fn().mockResolvedValue(JSON.stringify(mockNominatimResponse));
 
-      const res = await makeApp().request('/api/geocode/search?q=Rua', {}, env);
+      const res = await app.request('/api/geocode/search?q=Rua', {}, env);
       expect(res.status).toBe(200);
       expect(mockFetch).not.toHaveBeenCalled();
     });
@@ -85,7 +83,7 @@ describe('Geocode routes', () => {
 
   describe('GET /api/geocode/reverse', () => {
     it('returns 400 when lat or lng is missing', async () => {
-      const res = await makeApp().request('/api/geocode/reverse', {}, env);
+      const res = await app.request('/api/geocode/reverse', {}, env);
       expect(res.status).toBe(400);
     });
 
@@ -99,7 +97,7 @@ describe('Geocode routes', () => {
         }),
       });
 
-      const res = await makeApp().request('/api/geocode/reverse?lat=-3.7&lng=-38.5', {}, env);
+      const res = await app.request('/api/geocode/reverse?lat=-3.7&lng=-38.5', {}, env);
       expect(res.status).toBe(200);
       const body = (await res.json()) as { data: Record<string, unknown> };
       expect(body.data).toBeDefined();
