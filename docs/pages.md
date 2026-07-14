@@ -11,12 +11,15 @@
 /profile/:username           Profile page — event history, stats
 /settings                    Edit profile — display_name, avatar, language
 
+/matches                     Browse matches with filters
 /matches/new                 Create a new match
 /matches/:id                 Match details — join, confirm, cancel
 
+/trading                     Browse trading sessions with filters
 /trading/new                 Create a new trading session
 /trading/:id                 Trading session details — RSVP, view attendees
 
+/tournaments                 Browse tournaments with filters
 /tournaments/new             Create a new tournament
 /tournaments/:id             Tournament details — bracket view, registration
 /tournaments/:id/manage      Organizer panel — check-in, advance rounds
@@ -38,10 +41,10 @@
 
 ## Layout Structure
 
-| Layout | Routes |
-|--------|--------|
-| `MainLayout` | `/`, `/login`, `/signup`, `/profile/:username`, `/settings`, `/matches/*`, `/trading/*`, `/tournaments/*`, `/stores/*` |
-| `AdminLayout` | `/admin/*` |
+| Layout        | Routes                                                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `MainLayout`  | `/`, `/login`, `/signup`, `/profile/:username`, `/settings`, `/matches/*`, `/trading/*`, `/tournaments/*`, `/stores/*` |
+| `AdminLayout` | `/admin/*`                                                                                                             |
 
 ## Component Organization (Atomic Design)
 
