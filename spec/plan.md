@@ -1,28 +1,45 @@
-# Plan — spec-001: Project Infrastructure
+# Plan — spec-002: Auth System
 
 ## Summary
 
-Create the monorepo workspace with three packages (`@tcg/shared`, `@tcg/worker`, `@tcg/frontend`), root dev tooling, and the initial Supabase migration. Implementation order respects the dependency graph: root → shared → worker → frontend, with supabase parallel.
+Implement the Worker-side auth infrastructure: Supabase client factory, JWT verification middleware, and all auth-domain API routes (profile CRUD, onboarding, account management, data export).
 
 ## Implementation Order
 
 ```
          ┌─────────────────┐
-         │  Root configs   │  (1) package.json, tsconfig.base.json,
-         │  (no deps)      │      .prettierrc, .eslintrc.cjs, .gitignore
+         │  Shared schemas │  (1) Add OnboardingStatusSchema, UserResponseSchema,
+         │  (no deps)      │      AccountActionResponseSchema
          └────────┬────────┘
                   │
-      ┌───────────┼───────────┐
-      ▼           ▼           ▼
- ┌─────────┐ ┌──────────┐ ┌────────────┐
- │ shared  │ │ supabase │ │  worker    │  (2) Shared: pure TS lib
- │ (pure)  │ │ (SQL)    │ │ (Hono)     │  (3) Supabase: migration + config
- └────┬────┘ └──────────┘ └─────┬──────┘     Worker: depends on shared
-      │                         │
-      └──────────┬──────────────┘
+                  ▼
+         ┌─────────────────┐
+         │  @supabase/supabase-js │  (2) Add dependency to worker package.json
+         │  dependency       │      pnpm install
+         └────────┬────────┘
+                  │
+          ┌───────┴───────┐
+          ▼               ▼
+   ┌────────────┐  ┌────────────────┐
+   │ db/client  │  │ auth middleware│  (3) DB client factory
+   │ (factory)  │  │                │  (4) JWT verify + banned check
+   └─────┬──────┘  └────────┬───────┘
+         │                  │
+         └───────┬──────────┘
                  ▼
          ┌────────────────┐
-         │   frontend     │  (4) Quasar SPA, depends on shared + worker types
+         │  Auth routes   │  (5) GET /api/auth/me
+         │  (auth/index)  │      PATCH /api/auth/profile
+         │                │      GET /api/auth/onboarding
+         │                │      POST /api/auth/onboarding
+         │                │      POST /api/auth/export
+         │                │      POST /api/auth/suspend
+         │                │      DELETE /api/auth/account
+         └───────┬────────┘
+                 ▼
+         ┌────────────────┐
+         │  Mount in app  │  (6) app.route("/api/auth", authRouter)
+         │  index.ts      │
          └────────────────┘
 ```
 
@@ -30,97 +47,45 @@ Create the monorepo workspace with three packages (`@tcg/shared`, `@tcg/worker`,
 
 | Block | Items | Dependencies |
 |-------|-------|-------------|
-| A | Root configs | None |
-| B | `@tcg/shared` package | None (pure TS) |
-| C | `supabase/` config + migration | None |
-| D | `@tcg/worker` package | B (shared) |
-| E | `@tcg/frontend` package | B + D (shared + worker types) |
+| A | Shared schema updates | None |
+| B | Worker dependency + install | A (schemas referenced by routes) |
+| C | DB client + auth middleware | B (uses supabase-js) |
+| D | Auth routes | A + C |
+| E | Mount routes in index.ts | D |
 
-Blocks A, B, C can run in parallel. D follows B. E follows B + D.
-
-## Mapping: Requirements → Implementation
-
-| Spec Req | Implementation | Files |
-|----------|---------------|-------|
-| INF-001 to INF-005 | Root `package.json`, `tsconfig.base.json`, `.prettierrc`, `.eslintrc.cjs`, `.gitignore` | Root directory |
-| SHARED-001 to SHARED-005 | `packages/shared/` with package.json, tsconfig, src/ | `packages/shared/` |
-| WRKR-001 to WRKR-007 | `packages/worker/` with package.json, wrangler.jsonc, Hono app | `packages/worker/` |
-| FE-001 to FE-006 | `packages/frontend/` — Quasar SPA (scaffold via `pnpm create quasar`, then adjust) | `packages/frontend/` |
-| DB-001 to DB-004 | `supabase/config.toml`, migration SQL, seed.sql | `supabase/` |
-| TOOL-001 to TOOL-003 | ESLint, Prettier, tsconfig inheritance | Root + package tsconfigs |
+Blocks A can start immediately. B follows A. C follows B. D follows C. E follows D.
 
 ## Technical Decisions
 
-1. **Root package.json**: Use `pnpm -F` to delegate to package scripts. Scripts: `dev`, `build`, `test`, `lint`, `format`.
-2. **TypeScript**: Single `tsconfig.base.json` at root with `strict: true`, `moduleResolution: "bundler"`. Each package extends it with package-specific overrides.
-3. **Shared package**: Compile with `tsc` to `dist/`. `main` and `types` in package.json point to `dist/index.js` and `dist/index.d.ts`.
-4. **Worker package**: Hono v4, ES module format (`"type": "module"` in package.json). Export `app` type for `hono/client`.
-5. **Frontend package**: Scaffold with `pnpm create quasar@latest packages/frontend --template app --preset typescript,pinia,eslint,i18n --defaults --no-git -i pnpm`, then:
-   - Update `package.json` to add `@tcg/shared` and `@tcg/worker` workspace dependencies
-   - Add `src/composables/` directory
-   - Add `src/stores/useAuthStore.ts` and `useAppStore.ts` scaffolds
-   - Add `src/i18n/en-US.ts` and `pt-BR.ts` with empty exports
-   - Add `src/router/routes.ts` with initial route definitions
-   - Add `.env.example`
-6. **Supabase**: Use Supabase CLI config format. Migration filename uses timestamp format `YYYYMMDDHHMMSS`.
-7. **ESLint**: Use flat config or traditional `.eslintrc.cjs` with TypeScript + Quasar presets. Based on Quasar defaults, use `.eslintrc.cjs`.
-8. **pnpm version**: Pin to `11.13.0` in root package.json `packageManager` field.
+1. **Supabase client factory**: Single factory function `createSecretClient` that takes URL + key. Separate function `createAuthClient` for JWT verification using the publishable key.
+2. **Middleware architecture**: One composable middleware function `authMiddleware` that both verifies JWT and checks the ban status. Uses `c.set("user", ...)` to pass user context.
+3. **Route organization**: All auth routes in `packages/worker/src/auth/index.ts` using `Hono().route()` pattern. Each handler is a standalone function or inline.
+4. **Error responses**: Consistent `{ data, error, meta }` envelope. Zod errors formatted as `{ data: null, error: "Validation failed: field: message", meta: null }`.
+5. **Onboarding flow**: GET checks admin existence (COUNT query). POST creates Supabase Auth user via `supabase.auth.admin.createUser()`, then inserts into `public.users`, then inserts consent.
+6. **Account deletion**: Uses `supabase.auth.admin.deleteUser()` for the Auth user, then UPDATE on `public.users` for anonymization.
 
 ## Concrete File List
 
-### Root (6 files)
-- `package.json` — workspace scripts, packageManager, devDependencies (typescript, prettier, eslint)
-- `tsconfig.base.json` — strict mode, bundler module resolution
-- `.prettierrc` — singleQuote, trailingComma: "all", printWidth: 100
-- `.eslintrc.cjs` — extends TypeScript + Prettier
-- `.gitignore` — node_modules, dist, .env, .wrangler, .supabase
-- `pnpm-workspace.yaml` — already exists: `packages: ['packages/*']`
+### Modified files
 
-### packages/shared/ (7 files)
-- `package.json` — name @tcg/shared, workspace:*, build script "tsc"
-- `tsconfig.json` — extends ../../tsconfig.base.json, outDir dist, rootDir src
-- `src/schemas/common.ts` — PaginationSchema, CursorSchema, ApiResponseSchema
-- `src/schemas/user.ts` — SignupSchema, LoginSchema, UserSchema, ProfileUpdateSchema
-- `src/types/index.ts` — re-exports from schemas
-- `src/constants.ts` — empty shell
-- `src/index.ts` — re-exports everything
+| File | Change |
+|------|--------|
+| `packages/worker/package.json` | Add `@supabase/supabase-js` dependency |
+| `packages/worker/src/index.ts` | Import and mount auth router |
+| `packages/shared/src/schemas/user.ts` | Add onboarding/response schemas + types |
 
-### packages/worker/ (6 files)
-- `package.json` — name @tcg/worker, dependencies: hono, @tcg/shared
-- `tsconfig.json` — extends base, types: @cloudflare/workers-types
-- `wrangler.jsonc` — main, compatibility_date, compatibility_flags, no routes yet
-- `.env.example` — SUPABASE_URL, SUPABASE_SECRET_KEY, etc.
-- `src/index.ts` — Hono app with CORS, JSON body parser, error handler, 404 handler, export app type
+### New files
 
-### packages/frontend/ (scaffolded by quasar create + modifications)
-- Scaffold: `pnpm create quasar@latest packages/frontend --template app --preset typescript,pinia,eslint,i18n,sass --defaults --no-git -i pnpm`
-- Then modify:
-  - `package.json` — add workspace deps on @tcg/shared + @tcg/worker
-  - `src/router/routes.ts` — define initial routes
-  - `src/stores/useAuthStore.ts` — stub
-  - `src/stores/useAppStore.ts` — stub
-  - `src/i18n/en-US.ts` — basic translations
-  - `src/i18n/pt-BR.ts` — basic translations
-  - `src/composables/` — create empty directory
-  - `.env.example` — VITE_* variables
-
-### supabase/ (3 files)
-- `config.toml` — project config with postgis enabled
-- `migrations/YYYYMMDDHHMMSS_project_infrastructure.sql` — PostGIS + users + consents
-- `seed.sql` — empty
+| File | Purpose |
+|------|---------|
+| `packages/worker/src/db/client.ts` | Supabase client factories (secret + auth) |
+| `packages/worker/src/middleware/auth.ts` | JWT verification + banned check middleware |
+| `packages/worker/src/auth/index.ts` | All auth routes mounted under `/api/auth` |
 
 ## Acceptance Criteria Check
 
 | AC | How to verify |
 |----|--------------|
-| AC-001 | `pnpm install` exits 0 |
-| AC-002 | `pnpm -F @tcg/shared exec tsc --noEmit` exits 0 |
-| AC-003 | `pnpm -F @tcg/worker exec tsc --noEmit` exits 0 |
-| AC-004 | `pnpm -F @tcg/frontend exec quasar build` exits 0 |
-| AC-005 | `wrangler dev` (manual check — starts on 8787) |
-| AC-006 | Requires supabase stack — noted as blocking |
-| AC-007 | `pnpm lint` exits 0 |
-| AC-008 | Manual verify migration SQL creates users table |
-| AC-009 | Manual verify migration SQL creates consents table |
-| AC-010 | Manual verify migration SQL has `CREATE EXTENSION postgis` |
-| AC-011 | Verify imports resolve in worker and frontend tsconfig |
+| AC-001 to AC-012 | Via Vitest route tests with mocked Supabase client |
+| AC-013 | `pnpm -F @tcg/worker exec tsc --noEmit` |
+| AC-014 | `pnpm -F @tcg/shared exec tsc --noEmit` |

@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-002: auth system
+  - `@supabase/supabase-js` dependency for Worker
+  - Supabase client factory (`packages/worker/src/db/client.ts`) — secret key for DB, auth client for JWT verify
+  - JWT verification + banned check middleware (`packages/worker/src/middleware/auth.ts`)
+  - Auth API routes under `/api/auth`:
+    - `GET /api/auth/onboarding` — check if admin exists
+    - `POST /api/auth/onboarding` — create first admin
+    - `GET /api/auth/me` — current user profile
+    - `PATCH /api/auth/profile` — update display_name
+    - `POST /api/auth/suspend` — suspend account
+    - `POST /api/auth/export` — export personal data (LGPD)
+    - `DELETE /api/auth/account` — delete account (with last admin protection)
+  - Updated shared schemas: `OnboardingStatusSchema`, `UserResponseSchema`, `AccountActionResponseSchema`
+  - All routes return consistent `{ data, error, meta }` envelope
+
+## [0.1.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-001: project infrastructure scaffolding
+  - Root configs: `package.json`, `tsconfig.base.json`, `.prettierrc`, `.eslintrc.cjs`, `.gitignore`
+  - `@tcg/shared` package: Zod schemas (`common.ts`, `user.ts`), types, constants
+  - `@tcg/worker` package: Hono app skeleton with CORS, `wrangler.jsonc`, env template
+  - `@tcg/frontend` package: Quasar SPA scaffolded with TypeScript, Pinia, ESLint, i18n, Sass — routes, stores, layouts, stub pages
+  - `supabase/` config and initial migration (PostGIS + `public.users` + `public.consents` tables with RLS)
+- SDD commit step: added `Commit` as step 5 in AGENTS.md workflow
+
+### Changed
+
+- AGENTS.md: SDD workflow extended from `Spec → Plan → Tasks → Code` to `Spec → Plan → Tasks → Code → Commit`
+
 ## [0.0.0] — 2026-07-14
 
 ### Added

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tcg/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.49.0",
     "hono": "^4.7.0"
   },
   "devDependencies": {

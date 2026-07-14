@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { authRouter } from "./auth/index.js";
 
 type Bindings = {
   SUPABASE_URL: string;
@@ -11,7 +12,16 @@ type Bindings = {
   NOMINATIM_USER_AGENT: string;
 };
 
-const app = new Hono<{ Bindings: Bindings }>();
+type Variables = {
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    role: "player" | "organizer" | "admin";
+  };
+};
+
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 app.use(
   "*",
@@ -22,6 +32,8 @@ app.use(
 );
 
 app.get("/health", (c) => c.json({ status: "ok" }));
+
+app.route("/api/auth", authRouter);
 
 app.notFound((c) => c.json({ data: null, error: "Not found", meta: null }, 404));
 
