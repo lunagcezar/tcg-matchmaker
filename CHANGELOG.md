@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.26.0] — 2026-07-14
+
+### Changed
+
+- supabase/config.toml regenerated to CLI v2 format
+- Storage buckets configured: avatars (private, JPEG, 2MB) + logos (public, JPEG, 2MB)
+- README prerequisites: Docker Desktop required for local Supabase
+
 ## [0.25.0] — 2026-07-14
 
 ### Added
