@@ -2,16 +2,17 @@
 
 ## 1. User Roles
 
-| Role | Description |
-|------|-------------|
-| **Visitor** | Unauthenticated user — can browse public matches and tournaments |
-| **Player** | Authenticated user — can create/join matches, participate in tournaments |
-| **Organizer** | Player who can create and manage tournaments (user or store manager) |
-| **Admin** | Manages TCGs/formats, moderates content, bans/unbans users |
+| Role          | Description                                                              |
+| ------------- | ------------------------------------------------------------------------ |
+| **Visitor**   | Unauthenticated user — can browse public matches and tournaments         |
+| **Player**    | Authenticated user — can create/join matches, participate in tournaments |
+| **Organizer** | Player who can create and manage tournaments (user or store manager)     |
+| **Admin**     | Manages TCGs/formats, moderates content, bans/unbans users               |
 
 ## 2. Functional Requirements
 
 ### 2.1 Authentication & Profile
+
 - FR-01: On first deployment, the platform has no users. A dedicated onboarding flow creates the first admin user.
 - FR-02: Onboarding page is accessible only while no admin user exists. Once an admin exists, onboarding is never shown again.
 - FR-03: Visitor can sign up with email + password (Supabase Auth). Signup form includes Turnstile CAPTCHA.
@@ -29,11 +30,13 @@
 - FR-10: User profile displays username, display_name, avatar, event history (active + completed)
 
 ### 2.2 TCGs & Formats (Admin)
+
 - FR-11: Admin can create, edit, and soft-delete TCGs
 - FR-12: Admin can create, edit, and soft-delete Formats under a TCG
 - FR-13: Soft-deleted TCGs/Formats are hidden from new match/tournament creation but preserved in existing records (via snapshot)
 
 ### 2.3 Game Stores
+
 - FR-14: Any authenticated user can create a game store (name, address, phone, logo, etc.)
 - FR-15: Store creator becomes the owner and can add managers and staff
 - FR-16: Store owner can transfer ownership to another member
@@ -49,6 +52,7 @@
 All event types share a unified data model with type-specific behavior.
 
 **Matches** (playing a game):
+
 - FR-23: Player can create a match specifying:
   - TCG, format, date/time
   - Location (existing game store OR custom location with autocomplete geocoding)
@@ -67,6 +71,7 @@ All event types share a unified data model with type-specific behavior.
 - FR-33: Matches support flexible player counts (1v1, 4-player Commander pods, etc.)
 
 **Trading Sessions** (trading cards, not playing):
+
 - FR-34: Player can create a trading session specifying:
   - TCG (optional — null means general trading, any TCG)
   - Date/time and location (store or custom)
@@ -78,6 +83,7 @@ All event types share a unified data model with type-specific behavior.
 - FR-37: Session creator can invite registered users; invited users receive a notification and can accept or decline
 
 **Tournaments** (structured competition):
+
 - FR-38: Organizer (user or store member) can create a tournament with:
   - TCG, format, bracket type, max participants, location, date
   - Organizer: self or one of the user's stores
@@ -93,7 +99,9 @@ All event types share a unified data model with type-specific behavior.
 - FR-48: Organizer can invite registered users; invited users receive a notification and can accept or decline
 
 ### 2.5 Event Status Lifecycles
+
 **Match:**
+
 ```
 open ──(enough confirmed participants)──▶ confirmed
 open ──(challenge sent)──▶ challenged ──(accept)──▶ confirmed
@@ -102,23 +110,27 @@ any ──(cancel)──▶ cancelled
 ```
 
 **Tournament:**
+
 ```
 draft ──(publish)──▶ open ──(start)──▶ in_progress ──(final match)──▶ completed
 any ──(cancel)──▶ cancelled
 ```
 
 **Trading session:**
+
 ```
 planned ──(publish)──▶ active ──(date passed)──▶ completed
 any ──(cancel)──▶ cancelled
 ```
 
 ### 2.6 Notifications
+
 - FR-49: System sends in-app notifications for event invitations, RSVPs, confirmations, cancellations, bracket advances, and moderation actions
 - FR-50: Frontend subscribes to user's notifications via Supabase Realtime and shows an unread badge
 - FR-51: User can opt in to browser push notifications (Web Push API); push messages are triggered by the same notification inserts
 
 ### 2.7 Moderation (Admin & Community)
+
 - FR-52: Any authenticated user can report a store, user, or event for impersonation, abuse, or incorrect information
 - FR-53: Admin reviews reports and can resolve or dismiss them
 - FR-54: Admin can remove any user's avatar
@@ -131,6 +143,7 @@ any ──(cancel)──▶ cancelled
 - FR-61: Admin role is polymorphic — admins can create stores, tournaments, trading sessions, and matches like any other user
 
 ### 2.8 Geocoding, Maps & Geolocation
+
 - FR-62: Address autocomplete — user types a name, gets suggestions with lat/lng + address components (via Nominatim proxied through Hono)
 - FR-63: Map view (Leaflet) for browsing events by location
 - FR-64: "Find near me" button uses browser Geolocation API to center the map on user's current location
@@ -138,6 +151,7 @@ any ──(cancel)──▶ cancelled
 - FR-66: Trading sessions, matches, and tournaments all appear on the same map with distinct markers by type
 
 ### 2.9 LGPD Compliance
+
 - FR-67: Data export endpoint returns all user personal data in JSON format (portability)
 - FR-68: Consent recorded at signup with timestamp and version of privacy policy
 - FR-69: Account suspension option — temporarily blocks account without data deletion
@@ -146,25 +160,32 @@ any ──(cancel)──▶ cancelled
 ## 3. Non-Functional Requirements
 
 ### 3.1 Performance & Availability
+
 - NFR-01: API runs on Cloudflare Workers (always warm, no cold starts)
 - NFR-02: Frontend deployed on Cloudflare Pages (CDN, global edge)
 - NFR-03: Geocoding results cached in Cloudflare KV to minimize external API calls
 - NFR-04: Supabase Realtime provides live updates for RSVPs, match confirmations, and bracket changes
 
 ### 3.2 Security
+
 - NFR-05: All API requests go through Hono Workers (never direct DB access from browser)
 - NFR-06: Auth via Supabase Auth JWT, verified in Hono middleware
 - NFR-07: Banned users rejected at middleware level
 - NFR-08: File upload limited to JPG, max 2MB, validated server-side
 - NFR-09: **Turnstile** (Cloudflare, free) CAPTCHA on signup form — blocks automated bot registrations
-- NFR-10: Rate limiting in Hono middleware via KV:
-  - Signup: max 3 requests per IP per hour
-  - Login: max 5 requests per IP per 15 minutes
-  - Password reset: max 3 requests per IP per hour
+- NFR-10: Rate limiting in Hono middleware via KV (`packages/worker/src/middleware/rate-limit.ts`):
+  - Composite key strategy: authenticated routes use `{userId}:{ip}`, unauthenticated use `{ip}` only
+  - This prevents shared IPs (e.g., game store wifi) from blocking legitimate users
+  - Applied endpoints:
+    - `POST /api/auth/onboarding`: 3 requests per IP per hour (unauthenticated, IP-only key)
+    - `DELETE /api/auth/account`: 5 requests per {userId}:{ip} per 15 minutes (authenticated, composite key)
+  - Middleware factory: `rateLimitMiddleware(action, maxRequests, windowSeconds, userId?)`
+  - KV key format: `ratelimit:{action}:{discriminator}` where discriminator = `{userId}:{ip}` or just `{ip}`
 - NFR-11: Account locking — after 5 consecutive failed login attempts, set `locked_until` (15 min) on user record; checked in Hono middleware before any action
 - NFR-12: Custom SMTP via **Resend** for transactional emails (prevents Supabase suspension from bounced emails to fake addresses)
 
 ### 3.3 Data & Privacy
+
 - NFR-13: Soft deletes on all entities (no hard deletes)
 - NFR-14: User deletion permanently removes Supabase Auth user (email erased); public record anonymized ("Deleted User #N") for FK integrity
 - NFR-15: TCG/format deletion preserves match/tournament history via snapshot fields
@@ -173,12 +194,14 @@ any ──(cancel)──▶ cancelled
 - NFR-18: RLS enabled on all tables as defense-in-depth (Hono bypasses via secret key)
 
 ### 3.4 Internationalization & Theming
+
 - NFR-19: UI in Brazilian Portuguese (pt-BR) and English (en-US)
 - NFR-20: Default language detected from `navigator.language` on first visit; user can switch, preference persisted in Pinia + localStorage
 - NFR-21: Locations default to Brasil, Ceará, Fortaleza
 - NFR-22: Dark/light mode detected from `prefers-color-scheme` system preference; user can toggle, preference persisted
 
 ### 3.5 Code Quality
+
 - NFR-23: SOLID and DRY principles
 - NFR-24: Stateful logic extracted to composables (`useMatch`, `useAuth`, `useGeolocation`, etc.)
 - NFR-25: Components organized with atomic design (atoms / molecules / organisms)
@@ -187,6 +210,7 @@ any ──(cancel)──▶ cancelled
 - NFR-28: Tests use **Vitest** for all API endpoints, composables, and utility functions
 
 ### 3.6 Observability & Error Tracking
+
 - NFR-29: **Sentry** integrated in both frontend (Quasar) and backend (Hono Workers) for error tracking
 - NFR-30: Centralized structured logger with pluggable transports (console, Sentry) — same interface used in both frontend and backend
 - NFR-31: Logger sanitizes sensitive data before sending to Sentry (LGPD compliance):
@@ -198,6 +222,7 @@ any ──(cancel)──▶ cancelled
 - NFR-33: `debug` level only active in development; `critical` always logs stack traces
 
 ### 3.8 SEO & Discoverability
+
 - NFR-34: Semantic HTML5 structure (`<header>`, `<nav>`, `<main>`, `<article>`, `<section>`, `<footer>`) on all pages
 - NFR-35: Unique `<title>` and `<meta name="description">` per page; dynamic for event, store, tournament, trading session, and profile detail pages
 - NFR-36: Canonical URL (`<link rel="canonical">`) on every page
@@ -216,5 +241,6 @@ any ──(cancel)──▶ cancelled
   - Public dynamic detail routes (`/matches/:id`, `/trading/:id`, `/tournaments/:id`, `/stores/:id`, `/profile/:username`) are served as a SPA to users, but a Cloudflare Worker (or Pages Function) detects crawler user-agents and returns a minimal HTML shell with the correct meta tags and JSON-LD fetched from the Hono API.
 
 ### 3.9 Browsers & Devices
+
 - NFR-44: Responsive design — desktop and mobile via Quasar
 - NFR-45: PWA support (installable, offline-capable)

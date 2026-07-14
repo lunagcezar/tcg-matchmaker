@@ -6,28 +6,28 @@ A community TCG (Trading Card Game) matchmaker platform. Users find and schedule
 
 ## Tech Stack
 
-| Layer | Technology | Notes |
-|-------|------------|-------|
-| Frontend | **Quasar** (Vue 3 + Vite + TypeScript) | Responsive SPA, PWA-ready |
-| State | **Pinia** | Global state (auth, app preferences) |
-| Utilities | **VueUse** | Composable utilities (geolocation, storage, debounce) |
-| API | **Hono** on Cloudflare Workers | Always warm, no cold starts |
-| API client | **Hono RPC** (`hono/client`) | Fully typed client from Hono routes |
-| Validation | **Zod** | Schema validation for forms + API |
-| Database | **Supabase** (PostgreSQL + PostGIS) | Geospatial queries for nearby matches |
-| Auth | **Supabase Auth** | JWT verified in Hono middleware |
-| Real-time | **Supabase Realtime** | Live updates for RSVPs, match confirmations, bracket changes |
-| Map | **Leaflet** + OpenStreetMap tiles | Free map display |
-| Bracket rendering | **D3.js** | Tree layouts for bracket visualization (single elim, double elim, pool play) |
-| Geocoding | **Nominatim** (proxied through Hono) | Address autocomplete |
-| Tests | **Vitest** + **@vue/test-utils** | Unit + integration + component tests |
-| Mocking | **MSW** | API mocking in tests |
-| Date/time | **Luxon** | Timezone-aware date formatting |
-| Observability | **Sentry** | Error tracking with sanitized logging |
-| CI/CD | Cloudflare Pages (frontend) + Workers (API) | |
-| Bot protection | **Turnstile** (Cloudflare) | On signup form |
-| Email | **Resend** (custom SMTP) | Custom SMTP for Supabase Auth + app notifications |
-| Cache/Rate limiting | **Cloudflare KV** | Rate limiting counters, geocoding cache |
+| Layer               | Technology                                  | Notes                                                                        |
+| ------------------- | ------------------------------------------- | ---------------------------------------------------------------------------- |
+| Frontend            | **Quasar** (Vue 3 + Vite + TypeScript)      | Responsive SPA, PWA-ready                                                    |
+| State               | **Pinia**                                   | Global state (auth, app preferences)                                         |
+| Utilities           | **VueUse**                                  | Composable utilities (geolocation, storage, debounce)                        |
+| API                 | **Hono** on Cloudflare Workers              | Always warm, no cold starts                                                  |
+| API client          | **Hono RPC** (`hono/client`)                | Fully typed client from Hono routes                                          |
+| Validation          | **Zod**                                     | Schema validation for forms + API                                            |
+| Database            | **Supabase** (PostgreSQL + PostGIS)         | Geospatial queries for nearby matches                                        |
+| Auth                | **Supabase Auth**                           | JWT verified in Hono middleware                                              |
+| Real-time           | **Supabase Realtime**                       | Live updates for RSVPs, match confirmations, bracket changes                 |
+| Map                 | **Leaflet** + OpenStreetMap tiles           | Free map display                                                             |
+| Bracket rendering   | **D3.js**                                   | Tree layouts for bracket visualization (single elim, double elim, pool play) |
+| Geocoding           | **Nominatim** (proxied through Hono)        | Address autocomplete                                                         |
+| Tests               | **Vitest** + **@vue/test-utils**            | Unit + integration + component tests                                         |
+| Mocking             | **MSW**                                     | API mocking in tests                                                         |
+| Date/time           | **Luxon**                                   | Timezone-aware date formatting                                               |
+| Observability       | **Sentry**                                  | Error tracking with sanitized logging                                        |
+| CI/CD               | Cloudflare Pages (frontend) + Workers (API) |                                                                              |
+| Bot protection      | **Turnstile** (Cloudflare)                  | On signup form                                                               |
+| Email               | **Resend** (custom SMTP)                    | Custom SMTP for Supabase Auth + app notifications                            |
+| Cache/Rate limiting | **Cloudflare KV**                           | Rate limiting counters, geocoding cache                                      |
 
 ## Development Methodology
 
@@ -160,30 +160,30 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 
 This project has custom skills in `.agents/skills/`. Always consult the relevant skill before starting work:
 
-| Skill | When to use |
-|-------|-------------|
-| `create-specification/SKILL.md` | Before creating any spec document |
-| `agents-md/SKILL.md` | When creating or updating AGENTS.md |
-| `skill-writer/SKILL.md` | When creating or updating skills |
-| `test-driven-development/SKILL.md` | Before writing any code (TDD cycle) |
-| `tdd/SKILL.md` | Additional TDD guidance (seams, anti-patterns) |
-| `supabase/SKILL.md` | When working with Supabase auth, DB, or storage |
-| `supabase-postgres-best-practices/` | When writing SQL migrations or queries |
-| `frontend-design/SKILL.md` | When building UI components |
-| `design-taste-frontend/SKILL.md` | When making design decisions |
-| `brainstorming/SKILL.md` | When exploring solutions with the human |
-| `cloudflare/SKILL.md` | General Cloudflare platform guidance |
-| `wrangler/SKILL.md` | Before running wrangler CLI commands |
-| `workers-best-practices/` | When writing or reviewing Worker code |
-| `agents-sdk/SKILL.md` | When building stateful agents or durable workflows |
-| `durable-objects/SKILL.md` | When using Durable Objects |
-| `cloudflare-email-service/SKILL.md` | When sending or receiving emails |
-| `turnstile-spin/SKILL.md` | When setting up Turnstile CAPTCHA |
-| `web-perf/SKILL.md` | When auditing or optimizing performance |
-| `code-review/SKILL.md` | When performing code reviews |
-| `code-simplifier/SKILL.md` | When simplifying complex code |
-| `security-review/SKILL.md` | When auditing security |
-| `sandbox-sdk/SKILL.md` | When building sandboxed code execution |
+| Skill                               | When to use                                        |
+| ----------------------------------- | -------------------------------------------------- |
+| `create-specification/SKILL.md`     | Before creating any spec document                  |
+| `agents-md/SKILL.md`                | When creating or updating AGENTS.md                |
+| `skill-writer/SKILL.md`             | When creating or updating skills                   |
+| `test-driven-development/SKILL.md`  | Before writing any code (TDD cycle)                |
+| `tdd/SKILL.md`                      | Additional TDD guidance (seams, anti-patterns)     |
+| `supabase/SKILL.md`                 | When working with Supabase auth, DB, or storage    |
+| `supabase-postgres-best-practices/` | When writing SQL migrations or queries             |
+| `frontend-design/SKILL.md`          | When building UI components                        |
+| `design-taste-frontend/SKILL.md`    | When making design decisions                       |
+| `brainstorming/SKILL.md`            | When exploring solutions with the human            |
+| `cloudflare/SKILL.md`               | General Cloudflare platform guidance               |
+| `wrangler/SKILL.md`                 | Before running wrangler CLI commands               |
+| `workers-best-practices/`           | When writing or reviewing Worker code              |
+| `agents-sdk/SKILL.md`               | When building stateful agents or durable workflows |
+| `durable-objects/SKILL.md`          | When using Durable Objects                         |
+| `cloudflare-email-service/SKILL.md` | When sending or receiving emails                   |
+| `turnstile-spin/SKILL.md`           | When setting up Turnstile CAPTCHA                  |
+| `web-perf/SKILL.md`                 | When auditing or optimizing performance            |
+| `code-review/SKILL.md`              | When performing code reviews                       |
+| `code-simplifier/SKILL.md`          | When simplifying complex code                      |
+| `security-review/SKILL.md`          | When auditing security                             |
+| `sandbox-sdk/SKILL.md`              | When building sandboxed code execution             |
 
 ## External Documentation
 
@@ -332,9 +332,19 @@ Swiss is particularly relevant for MTG (standard for competitive MTG tournaments
 
 Bracket visualization uses **D3.js** — its tree layout (`d3-hierarchy`) handles single and double elimination bracket layouts natively. Use `d3-shape` for drawing connector lines between matches. Swiss and round robin display as tables (QTable) rather than tree brackets. Wrap D3 in a `useBracketD3` composable to isolate it from Vue's reactivity.
 
+### Rate limiting
+
+A KV-backed `rateLimitMiddleware` protects auth endpoints from abuse. Composite key strategy:
+
+- **Authenticated routes**: keyed by `{userId}:{ip}` — prevents a game store's shared wifi IP from blocking all its customers. The user ID is auto-detected from `c.var.user.id` (set by `authMiddleware`).
+- **Unauthenticated routes**: keyed by `{ip}` only — conservative limits (3/hour) mean normal users won't trigger it even behind NAT.
+
+Factory: `rateLimitMiddleware(action, maxRequests, windowSeconds, userId?)`. KV key format: `ratelimit:{action}:{discriminator}`. See `packages/worker/src/middleware/rate-limit.ts`.
+
 ### Environment variables
 
 Worker secrets via `wrangler secret put`:
+
 - `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SUPABASE_PUBLISHABLE_KEY`
 - `RESEND_API_KEY`
 - `TURNSTILE_SECRET_KEY`
@@ -342,6 +352,7 @@ Worker secrets via `wrangler secret put`:
 - `NOMINATIM_USER_AGENT`
 
 Frontend env via `.env` files:
+
 - `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
 - `VITE_TURNSTILE_SITE_KEY`
 - `VITE_SENTRY_DSN`
