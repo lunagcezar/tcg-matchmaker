@@ -1,0 +1,18 @@
+[project]
+name = "tcg-matchmaker"
+major_version = 15
+
+[auth]
+enabled = true
+
+[auth.email]
+enable_confirmations = false
+
+[api]
+enabled = true
+
+[db]
+enabled_extensions = ["postgis"]
+
+[analytics]
+enabled = false

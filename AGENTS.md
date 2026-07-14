@@ -39,11 +39,12 @@ A community TCG (Trading Card Game) matchmaker platform. Users find and schedule
   - `docs/use-cases.md` — User interaction flows
   - `docs/pages.md` — Route map and component structure
 - Specifications follow the template in `.agents/skills/create-specification/SKILL.md`
-- Workflow: **Spec → Plan → Tasks → Code**
+- Workflow: **Spec → Plan → Tasks → Code → Commit**
   1. **Spec**: Write a numbered spec in `/spec/spec-NNN-purpose.md` using the template
   2. **Plan**: Generate `plan.md` in the same spec directory mapping requirements to technical decisions
   3. **Tasks**: Derive executable tasks from the plan, mark parallelizable items
   4. **Code**: Implement test-first following TDD discipline
+  5. **Commit**: After all code is implemented and tests pass, commit with a conventional commit message scoped to the spec (e.g., `feat(worker): implement spec-001`) — see Commit Convention below
 - Specs are saved in `/spec/` directory as `spec-NNN-purpose.md` where NNN is sequential (001, 002, etc.)
 - Every spec includes acceptance criteria in Given-When-Then format
 - Test scenarios are part of the spec, not written after implementation
