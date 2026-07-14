@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-003: complete database schema
+  - Second Supabase migration with 12 tables: tcgs, formats, game_stores, store_memberships, events, event_participants, bracket_rounds, bracket_matches, notifications, push_subscriptions, reports, audit_log
+  - All tables have RLS enabled, UUID PKs, FKs with appropriate ON DELETE behavior, CHECK constraints
+  - Partial unique index on store_memberships to enforce one owner per store
+  - Event organizer constraint (exactly one of organizer_user_id / organizer_store_id)
+  - Shared package Zod schemas: tcg, store, event, tournament, notification, report
+  - Types for all new domain entities
+
 ## [0.2.0] — 2026-07-14
 
 ### Added
