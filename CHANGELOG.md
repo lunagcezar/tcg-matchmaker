@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-021: Domain Composables
+  - `@vueuse/core` installed — useGeolocation, useStorage, etc.
+  - `useTcg` — list, create, remove TCGs
+  - `useStore` — list, get, create, update, getMembers
+  - `useEvent` — list (with filters), get, create, join, confirm, decline
+  - `useTournament` — list, get, create, register, publish, start, getBracket
+  - `useGeolocation` — wraps VueUse useGeolocation + Nominatim search
+  - All composables use VITE_API_URL for API base URL
+
 ## [0.20.0] — 2026-07-14
 
 ### Added

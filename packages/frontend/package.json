@@ -20,6 +20,7 @@
     "@supabase/supabase-js": "^2.110.3",
     "@tcg/shared": "workspace:*",
     "@tcg/worker": "workspace:*",
+    "@vueuse/core": "^14.3.0",
     "hono": "^4.12.30",
     "pinia": "^3.0.1",
     "quasar": "^2.21.1",
