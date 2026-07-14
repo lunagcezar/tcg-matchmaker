@@ -4,7 +4,7 @@ vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(),
 }));
 
-import { tournamentRouter, bracketMatchRouter } from "../index.js";
+import { tournamentRouter } from "../index.js";
 import { env, testUserId, chain, makeApp, userChain, authMock } from "../../test-utils/supabase.js";
 
 const tournamentId = "00000000-0000-0000-0000-000000000100";

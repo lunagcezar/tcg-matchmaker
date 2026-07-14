@@ -4,7 +4,6 @@ import {
   ProfileUpdateSchema,
   OnboardingStatusSchema,
   UserResponseSchema,
-  AccountActionResponseSchema,
 } from "@tcg/shared";
 import type { AuthUser } from "../middleware/auth.js";
 import { authMiddleware } from "../middleware/auth.js";

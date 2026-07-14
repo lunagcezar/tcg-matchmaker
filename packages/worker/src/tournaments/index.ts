@@ -3,12 +3,10 @@ import {
   CreateEventSchema,
   EventSchema,
   EventParticipantSchema,
-  BracketRoundSchema,
   BracketMatchSchema,
 } from "@tcg/shared";
 import type { AuthUser } from "../middleware/auth.js";
 import { authMiddleware } from "../middleware/auth.js";
-import { adminMiddleware } from "../middleware/admin.js";
 import { createSecretClient } from "../db/client.js";
 
 type Bindings = {
@@ -149,7 +147,7 @@ async function generateSingleEliminationBracket(supabase: ReturnType<typeof crea
     .eq("status", "checked_in")
     .order("seed", { ascending: true });
 
-  const ids = participants?.map((p: any) => p.user_id) ?? [];
+  const ids = participants?.map((p: { user_id: string }) => p.user_id) ?? [];
   const totalRounds = Math.ceil(Math.log2(ids.length));
   const roundNames = ["Finals", "Semifinals", "Quarterfinals", "Round 4", "Round 5", "Round 6"];
 

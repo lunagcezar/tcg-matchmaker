@@ -4,9 +4,8 @@ vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(),
 }));
 
-import { Hono } from "hono";
-import { tcgRouter, formatRouter } from "../index.js";
-import { env, testUserId, testUserId2, chain, makeApp, userChain, authMock } from "../../test-utils/supabase.js";
+import { tcgRouter } from "../index.js";
+import { env, testUserId2, chain, makeApp, authMock } from "../../test-utils/supabase.js";
 
 function createTcgApp() {
   return makeApp().route("/api/tcgs", tcgRouter);
