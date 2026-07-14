@@ -1,7 +1,15 @@
 <template>
   <q-page class="row items-center justify-center">
     <AppCard :title="$t('auth.signUp')">
-      <AuthForm :submit-label="$t('auth.signUp')" :on-submit="handleSignup" :fields="['email', 'username', 'displayName', 'password']">
+      <AuthForm
+        :submit-label="$t('auth.signUp')"
+        :on-submit="handleSignup"
+        :fields="['email', 'username', 'displayName', 'password']"
+        :loading="loading"
+      >
+        <template #extra>
+          <TurnstileWidget v-if="siteKey" :site-key="siteKey" @token="turnstileToken = $event" />
+        </template>
         <template #footer>
           <p>{{ $t('auth.haveAccount') }} <router-link to="/login">{{ $t('auth.signIn') }}</router-link></p>
         </template>
@@ -11,16 +19,39 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
+import TurnstileWidget from '@/components/molecules/TurnstileWidget.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
+const loading = ref(false);
+const turnstileToken = ref('');
 
-async function handleSignup(data: { email: string; password: string; username?: string; displayName?: string }) {
-  await authStore.signUp(data.email, data.password);
-  void router.push('/');
+const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+
+async function handleSignup(data: { email: string; password: string }) {
+  loading.value = true;
+  try {
+    if (turnstileToken.value) {
+      const verifyRes = await fetch(`${apiUrl}/api/verify-turnstile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: turnstileToken.value }),
+      });
+      const verifyBody = await verifyRes.json();
+      if (!verifyBody.data?.success) {
+        return;
+      }
+    }
+    await authStore.signUp(data.email, data.password);
+    void router.push('/');
+  } finally {
+    loading.value = false;
+  }
 }
 </script>

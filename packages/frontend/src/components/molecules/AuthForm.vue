@@ -4,6 +4,9 @@
     <q-input v-if="showField('username')" v-model="form.username" :label="$t('auth.username')" required outlined />
     <q-input v-if="showField('displayName')" v-model="form.displayName" :label="$t('auth.displayName')" required outlined />
     <q-input v-if="showField('password')" v-model="form.password" :label="$t('auth.password')" type="password" required outlined />
+    <div v-if="$slots.extra">
+      <slot name="extra" />
+    </div>
     <div v-if="$slots.footer" class="text-center">
       <slot name="footer" />
     </div>

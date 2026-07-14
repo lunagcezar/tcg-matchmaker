@@ -6,5 +6,20 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
-  }
+  },
+  "vars": {
+    "NOMINATIM_USER_AGENT": "TCGMatchmaker/0.0"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "GEOCODING_KV",
+      "id": "GEOCODING_KV_ID",
+      "preview_id": "GEOCODING_KV_PREVIEW_ID"
+    },
+    {
+      "binding": "RATE_LIMIT_KV",
+      "id": "RATE_LIMIT_KV_ID",
+      "preview_id": "RATE_LIMIT_KV_PREVIEW_ID"
+    }
+  ]
 }

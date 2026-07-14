@@ -125,6 +125,9 @@ importers:
 
   packages/worker:
     dependencies:
+      '@sentry/hono':
+        specifier: ^10.65.0
+        version: 10.65.0(@cloudflare/workers-types@4.20260702.1)(hono@4.12.30)
       '@supabase/supabase-js':
         specifier: ^2.49.0
         version: 2.110.3
@@ -1494,6 +1497,13 @@ packages:
       }
     engines: { node: '>= 8' }
 
+  '@opentelemetry/api@1.9.1':
+    resolution:
+      {
+        integrity: sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q==,
+      }
+    engines: { node: '>=8.0.0' }
+
   '@oxc-project/types@0.139.0':
     resolution:
       {
@@ -2160,6 +2170,48 @@ packages:
       }
     cpu: [x64]
     os: [win32]
+
+  '@sentry/conventions@0.15.1':
+    resolution:
+      {
+        integrity: sha512-ZLP8bRdMON3prWE2tJyImuYscCxdcJeIPIhrOs/rgyFm3C1nCh1B6gdvPj3AZ5zW08oSFFCsq7T+tYEW3h8MNA==,
+      }
+    engines: { node: '>=14' }
+
+  '@sentry/core@10.65.0':
+    resolution:
+      {
+        integrity: sha512-3aqtmM5NgNGo45BNaaBzi0LPQZAw//NEL4HKS5fXm12pJMa4KEkze8DEKnkTEIrGnWaOJKamecHKlnNg/Mqf/Q==,
+      }
+    engines: { node: '>=18' }
+
+  '@sentry/hono@10.65.0':
+    resolution:
+      {
+        integrity: sha512-rsIYVcxy4VrrwpCF8pip10jVNG8O0khRNUWTfxurNhEQ3I8UCq/YEsZUJWtWCkXxDq8Wr4LHN4xEEa2SnoDLTg==,
+      }
+    engines: { node: '>=18' }
+    peerDependencies:
+      '@cloudflare/workers-types': ^4.x
+      '@hono/node-server': ^1.x || ^2.x
+      '@sentry/bun': 10.65.0
+      '@sentry/cloudflare': 10.65.0
+      '@sentry/deno': 10.65.0
+      '@sentry/node': 10.65.0
+      hono: ^4.x
+    peerDependenciesMeta:
+      '@cloudflare/workers-types':
+        optional: true
+      '@hono/node-server':
+        optional: true
+      '@sentry/bun':
+        optional: true
+      '@sentry/cloudflare':
+        optional: true
+      '@sentry/deno':
+        optional: true
+      '@sentry/node':
+        optional: true
 
   '@supabase/auth-js@2.110.3':
     resolution:
@@ -6589,6 +6641,8 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
+  '@opentelemetry/api@1.9.1': {}
+
   '@oxc-project/types@0.139.0': {}
 
   '@parcel/watcher-android-arm64@2.5.6':
@@ -6957,6 +7011,20 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.62.2':
     optional: true
+
+  '@sentry/conventions@0.15.1': {}
+
+  '@sentry/core@10.65.0':
+    dependencies:
+      '@sentry/conventions': 0.15.1
+
+  '@sentry/hono@10.65.0(@cloudflare/workers-types@4.20260702.1)(hono@4.12.30)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@sentry/core': 10.65.0
+      hono: 4.12.30
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20260702.1
 
   '@supabase/auth-js@2.110.3':
     dependencies:

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-020: Operations Setup
+  - wrangler.jsonc: KV namespace bindings for GEOCODING_KV and RATE_LIMIT_KV
+  - .env.example: updated with KV namespace IDs and all required env vars
+  - Sentry: @sentry/hono dependency added, Sentry transport ready in logger
+  - Turnstile: TurnstileWidget molecule component for CAPTCHA
+  - POST /api/verify-turnstile endpoint in Worker
+  - Signup page: Turnstile widget + token verification before signup
+
 ## [0.19.0] — 2026-07-14
 
 ### Added

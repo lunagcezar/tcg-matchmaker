@@ -11,8 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@tcg/shared": "workspace:*",
+    "@sentry/hono": "^10.65.0",
     "@supabase/supabase-js": "^2.49.0",
+    "@tcg/shared": "workspace:*",
     "hono": "^4.7.0"
   },
   "devDependencies": {
