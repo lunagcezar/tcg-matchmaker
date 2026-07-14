@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-011: Moderation API (TDD)
+  - Reports: create (auth), list (admin), resolve/dismiss (admin) with admin_notes
+  - User moderation: ban/unban (sets banned_at), promote to admin, remove avatar
+  - Audit log: auto-logged on all moderation actions, list (admin, last 100)
+  - All admin routes protected by authMiddleware + adminMiddleware
+  - 5 new tests (TDD RED → GREEN), 45 total passing
+
 ## [0.10.0] — 2026-07-14
 
 ### Added
