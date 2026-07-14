@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.0] — 2026-07-14
+
+### Added
+
+- Implemented spec-019: Onboarding Page & Reusable Auth Components
+  - Onboarding page: checks for existing admin, creates first admin via POST /api/auth/onboarding
+  - AppCard atom: reusable card wrapper with title/content/actions slots
+  - AuthForm molecule: configurable auth form with field selection (email, password, username, displayName)
+  - LoginPage and SignupPage refactored to use AppCard + AuthForm
+  - Components organized in atomic design structure (atoms/, molecules/)
+  - Playwright tests (TDD RED → GREEN) for onboarding and component rendering
+
 ## [0.18.0] — 2026-07-14
 
 ### Added
