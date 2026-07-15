@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.37.0] — 2026-07-14
+
+### Added
+
+- Tournament pages: ListPage (browse with status badges), CreatePage (with bracket type selector)
+- DetailPage: tournament info, register button, participant list, D3 bracket visualization
+- ManagePage: publish draft, start tournament, check-in participants
+- D3.js bracket composable (useBracketD3) with SVG rendering
+- 5 bracket types: single_elimination, double_elimination, round_robin, swiss, pool_play
+- i18n keys: tournament section with all management labels
+
 ## [0.36.0] — 2026-07-14
 
 ### Changed
