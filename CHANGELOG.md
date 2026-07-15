@@ -2,18 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.50.0] — 2026-07-15
+## [0.51.0] — 2026-07-15
 
 ### Added
 
-- Page test coverage (spec-050):
-  - LoginPage: render + signIn behavior (2 tests)
-  - SignupPage: render + signUp behavior (2 tests)
-  - MatchListPage: render + status filter (2 tests)
-  - MatchDetailPage: render + store.get on mount (2 tests)
-  - IndexPage: render + store.list on mount (2 tests)
-  - SettingsPage: render (1 test)
-  - Mock patterns for Pinia stores, Quasar stubs, vue-router, useQuasar, composable mocks
+- Page test coverage expanded:
+  - TradingList, Profile, TournamentList, StoresList: render + API calls (4 tests)
+  - TradingDetail, TournamentDetail, StoreDetail, StoreSettings: render (4 tests)
+  - NotificationPage: render (1 test)
+  - Admin pages: dashboard, TCG list, users, stores, audit log, reports, formats (7 tests)
+  - Total: 27 page tests covering 25 of 31 pages
+  - Frontend tests: 62, total project: 126
+
+## [0.50.0] — 2026-07-15
 
 ## [0.49.0] — 2026-07-15
 
