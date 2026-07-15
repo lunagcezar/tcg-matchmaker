@@ -7,7 +7,7 @@
           {{ $t('app.title') }}
         </q-toolbar-title>
         <template v-for="item in headerNavItems" :key="item.to">
-          <q-btn flat :label="$t(item.labelKey!)" :to="item.to!" class="q-mr-xs" />
+          <q-btn flat :label="$t(item.labelKey!)" :to="item.to!" :exact="item.exact" class="q-mr-xs" active-class="text-weight-bold" />
         </template>
         <ThemeLangSwitcher />
         <UserMenu />

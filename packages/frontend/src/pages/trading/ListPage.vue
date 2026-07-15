@@ -22,6 +22,9 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useEventStore } from '@/stores/useEventStore';
+import { usePageMeta } from '@/composables/usePageMeta';
+
+usePageMeta({ title: 'Trading Sessions', description: 'Browse TCG trading sessions near you' });
 
 const store = useEventStore();
 const sessions = computed(() => store.items as Array<Record<string, string>>);

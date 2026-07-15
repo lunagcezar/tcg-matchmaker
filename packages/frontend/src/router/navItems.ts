@@ -4,6 +4,7 @@ export interface NavItem {
   icon?: string;
   auth?: boolean;
   divider?: boolean;
+  exact?: boolean;
 }
 
 export const eventNavItems: NavItem[] = [
@@ -20,4 +21,7 @@ export const drawerNavItems: NavItem[] = [
   { labelKey: 'nav.settings', to: '/settings', icon: 'settings', auth: true },
 ];
 
-export const headerNavItems = eventNavItems;
+export const headerNavItems = [
+  { labelKey: 'nav.home', to: '/', exact: true },
+  ...eventNavItems,
+];

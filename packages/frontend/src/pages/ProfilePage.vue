@@ -36,11 +36,13 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
+import { usePageMeta } from '@/composables/usePageMeta';
 
 const route = useRoute();
+const username = route.params.username as string;
+usePageMeta({ title: `@${username}`, description: `View ${username}'s TCG event history` });
 const eventStore = useEventStore();
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
-const username = route.params.username as string;
 const loading = ref(true);
 const profile = ref<Record<string, string> | null>(null);
 const events = computed(() => eventStore.items as Array<Record<string, string>>);

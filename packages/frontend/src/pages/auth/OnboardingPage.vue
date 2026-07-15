@@ -16,6 +16,9 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePageMeta } from '@/composables/usePageMeta';
+
+usePageMeta({ title: 'Setup', description: 'Create the first admin account' });
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
 

@@ -22,6 +22,9 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
+import { usePageMeta } from '@/composables/usePageMeta';
+
+usePageMeta({ title: 'Settings', description: 'Manage your TCG Matchmaker profile' });
 
 const authStore = useAuthStore();
 const appStore = useAppStore();

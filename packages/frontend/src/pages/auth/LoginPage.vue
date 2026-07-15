@@ -13,8 +13,11 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePageMeta } from '@/composables/usePageMeta';
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
+
+usePageMeta({ title: 'Sign In', description: 'Sign in to your TCG Matchmaker account' });
 
 const authStore = useAuthStore();
 const router = useRouter();

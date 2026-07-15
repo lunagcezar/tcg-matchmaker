@@ -22,8 +22,11 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePageMeta } from '@/composables/usePageMeta';
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
+
+usePageMeta({ title: 'Sign Up', description: 'Create your TCG Matchmaker account' });
 import TurnstileWidget from '@/components/molecules/TurnstileWidget.vue';
 
 const authStore = useAuthStore();
