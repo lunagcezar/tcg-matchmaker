@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.30.0] — 2026-07-14
+
+### Added
+
+- Trading pages: ListPage (browse), CreatePage (form), DetailPage (info, RSVP, attendees)
+- Playwright tests for trading pages (list, create, detail)
+
 ## [0.29.0] — 2026-07-14
 
 ### Added

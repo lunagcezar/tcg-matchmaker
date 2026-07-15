@@ -1,3 +1,39 @@
 <template>
-  <q-page class="q-pa-md"><h5>Create Trading Session</h5></q-page>
+  <q-page class="q-pa-md row justify-center">
+    <q-card style="width: 600px">
+      <q-card-section><h5 class="q-my-none">Create Trading Session</h5></q-card-section>
+      <q-card-section class="q-gutter-md">
+        <q-input v-model="form.name" label="Name" outlined />
+        <q-input v-model="form.details" label="What are you looking for / offering?" outlined type="textarea" />
+        <q-input v-model="form.scheduled_at" label="Date & Time" type="datetime-local" required outlined />
+        <q-input v-model="form.lat" label="Latitude" type="number" outlined />
+        <q-input v-model="form.lng" label="Longitude" type="number" outlined />
+        <q-input v-model="form.max_participants" label="Max Participants" type="number" outlined />
+        <q-btn color="positive" label="Create Session" class="full-width" :loading="saving" @click="save" />
+        <p v-if="error" class="text-negative text-center">{{ error }}</p>
+      </q-card-section>
+    </q-card>
+  </q-page>
 </template>
+
+<script setup lang="ts">
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useEventStore } from '@/stores/useEventStore';
+
+const store = useEventStore();
+const router = useRouter();
+const saving = ref(false);
+const error = ref('');
+const form = reactive({ name: '', details: '', scheduled_at: '', lat: 0, lng: 0, max_participants: 10 });
+
+async function save() {
+  saving.value = true;
+  error.value = '';
+  try {
+    await store.create({ type: 'trading', ...form, max_participants: Number(form.max_participants) });
+    void router.push('/trading');
+  } catch { error.value = 'Failed to create session'; }
+  finally { saving.value = false; }
+}
+</script>
