@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.50.0] — 2026-07-15
+
+### Added
+
+- Page test coverage (spec-050):
+  - LoginPage: render + signIn behavior (2 tests)
+  - SignupPage: render + signUp behavior (2 tests)
+  - MatchListPage: render + status filter (2 tests)
+  - Mock patterns for Pinia stores, Quasar stubs, composable mocks
+
 ## [0.49.0] — 2026-07-15
 
 ### Added
