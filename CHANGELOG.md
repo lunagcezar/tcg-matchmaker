@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.28.0] — 2026-07-14
+
+### Added
+
+- Store pages: ListPage (browse + search), CreatePage (form), DetailPage (info + members), SettingsPage (edit)
+- Playwright tests for store pages (list, create, detail)
+
 ## [0.27.0] — 2026-07-14
 
 ### Added
