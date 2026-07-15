@@ -33,11 +33,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
-import { useBracketD3 } from '@/composables/useBracketD3';
+import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
 
 const route = useRoute();
 const store = useEventStore();
@@ -46,11 +46,13 @@ const tournamentId = route.params.id as string;
 const participants = ref<Array<Record<string, unknown>>>([]);
 const registering = ref(false);
 const bracketRef = ref<HTMLElement | null>(null);
+const bracketMatches = ref<BracketMatch[]>([]);
 
 const tournament = computed(() => store.current as Record<string, string> | null);
 const loading = computed(() => store.loading);
 
 usePageMeta({ title: tournament.value?.name || 'Tournament' });
+useBracketD3(bracketRef, bracketMatches);
 
 function badgeColor(s: string | undefined) { return s === 'in_progress' ? 'warning' : s === 'completed' ? 'positive' : 'primary'; }
 function formatDate(d: string | undefined) { return d ? new Date(d).toLocaleString() : ''; }
@@ -62,9 +64,13 @@ async function loadBracket() {
     const r = await fetch(`${apiUrl}/api/tournaments/${tournamentId}/bracket`);
     const j = await r.json();
     if (j.data?.matches) {
-      watch(bracketRef, () => {
-        if (bracketRef.value) useBracketD3(bracketRef, ref([]));
-      });
+      bracketMatches.value = j.data.matches.map((m: Record<string, unknown>) => ({
+        id: m.id as string,
+        round: (m.round_number as number) || 1,
+        player1: (m.player1_id as string)?.slice(0, 8) || null,
+        player2: (m.player2_id as string)?.slice(0, 8) || null,
+        winner: (m.winner_id as string)?.slice(0, 8) || null,
+      }));
     }
   } catch { console.warn('bracket load failed'); }
 }
