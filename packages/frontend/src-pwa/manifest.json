@@ -1,0 +1,14 @@
+{
+  "name": "TCG Matchmaker",
+  "short_name": "TCG Matchmaker",
+  "description": "Find TCG matches, trading sessions, and tournaments near you",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "start_url": "/",
+  "theme_color": "#1976d2",
+  "background_color": "#ffffff",
+  "lang": "en-US",
+  "scope": "/",
+  "categories": ["games", "social"],
+  "icons": []
+}
