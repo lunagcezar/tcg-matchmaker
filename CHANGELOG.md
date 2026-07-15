@@ -10,7 +10,10 @@ All notable changes to this project will be documented in this file.
   - LoginPage: render + signIn behavior (2 tests)
   - SignupPage: render + signUp behavior (2 tests)
   - MatchListPage: render + status filter (2 tests)
-  - Mock patterns for Pinia stores, Quasar stubs, composable mocks
+  - MatchDetailPage: render + store.get on mount (2 tests)
+  - IndexPage: render + store.list on mount (2 tests)
+  - SettingsPage: render (1 test)
+  - Mock patterns for Pinia stores, Quasar stubs, vue-router, useQuasar, composable mocks
 
 ## [0.49.0] — 2026-07-15
 
