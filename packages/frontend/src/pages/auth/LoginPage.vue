@@ -17,7 +17,7 @@ import { usePageMeta } from '@/composables/usePageMeta';
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
 
-usePageMeta({ title: 'Sign In', description: 'Sign in to your TCG Matchmaker account' });
+usePageMeta({ titleKey: 'meta.login', descKey: 'meta.loginDesc' });
 
 const authStore = useAuthStore();
 const router = useRouter();

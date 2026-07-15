@@ -24,7 +24,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 
-usePageMeta({ title: 'Settings', description: 'Manage your TCG Matchmaker profile' });
+usePageMeta({ titleKey: 'meta.settings', descKey: 'meta.settingsDesc' });
 
 const authStore = useAuthStore();
 const appStore = useAppStore();

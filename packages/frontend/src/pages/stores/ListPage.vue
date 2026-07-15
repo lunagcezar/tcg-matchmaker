@@ -26,7 +26,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useStoreStore } from '@/stores/useStoreStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 
-usePageMeta({ title: 'Stores', description: 'Browse TCG game stores near you' });
+usePageMeta({ titleKey: 'meta.stores', descKey: 'meta.storesDesc' });
 
 const storeStore = useStoreStore();
 const search = ref('');

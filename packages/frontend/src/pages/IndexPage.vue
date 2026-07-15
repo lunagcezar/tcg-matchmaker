@@ -20,7 +20,7 @@ import FilterBar from '@/components/organisms/home/FilterBar.vue';
 import EventFeed from '@/components/organisms/home/EventFeed.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 
-usePageMeta({ title: 'Home', description: 'Find TCG matches, trading sessions, and tournaments near you' });
+usePageMeta({ titleKey: 'meta.home', descKey: 'meta.homeDesc' });
 
 const eventStore = useEventStore();
 const selectedTypes = ref<string[]>([]);
