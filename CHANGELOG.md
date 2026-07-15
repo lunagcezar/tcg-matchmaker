@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.54.0] — 2026-07-15
+
+### Fixed
+
+- Frontend regressions (spec-053):
+  - Onboarding redirect now triggers when no admin exists — cached API check avoids repeated calls
+  - Removed redundant sidebar drawer from MainLayout
+  - Added Stores link to navbar; removed duplicate Home link (app title already links to `/`)
+  - Navbar links now bold when the current route matches via `isActiveRoute()`
+  - Dark mode toggle now actually applies to the UI via Quasar `Dark` plugin + `$q.dark.set()`
+- Tests: 10 new tests for navItems, useAuthStore onboarding caching, and MainLayout (79 total passing)
+
 ## [0.53.0] — 2026-07-15
 
 ### Added
