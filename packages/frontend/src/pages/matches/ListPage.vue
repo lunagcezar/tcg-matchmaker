@@ -24,6 +24,9 @@
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useEventStore } from '@/stores/useEventStore';
+import { usePageMeta } from '@/composables/usePageMeta';
+
+usePageMeta({ title: 'Matches', description: 'Browse and join TCG matches near you' });
 
 const store = useEventStore();
 const statusFilter = ref<string>('');

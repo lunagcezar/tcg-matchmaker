@@ -1,7 +1,7 @@
 <template>
-  <q-page class="home-page">
+  <q-page class="home-page" style="display: flex; flex-flow: column nowrap">
     <FilterBar v-model="selectedTypes" @geolocate="geolocate" />
-    <div class="row" style="height: calc(100vh - 120px)">
+    <div class="row" style="flex: 1; min-height: 0">
       <div class="col-12 col-md-7 q-pa-sm">
         <EventMap :events="filteredEvents" />
       </div>
@@ -15,9 +15,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useEventStore } from '@/stores/useEventStore';
+import { usePageMeta } from '@/composables/usePageMeta';
 import FilterBar from '@/components/organisms/home/FilterBar.vue';
 import EventFeed from '@/components/organisms/home/EventFeed.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
+
+usePageMeta({ title: 'Home', description: 'Find TCG matches, trading sessions, and tournaments near you' });
 
 const eventStore = useEventStore();
 const selectedTypes = ref<string[]>([]);
@@ -43,5 +46,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.home-page { overflow: hidden; }
+.home-page { overflow: hidden; display: flex; flex-flow: column nowrap; }
 </style>
