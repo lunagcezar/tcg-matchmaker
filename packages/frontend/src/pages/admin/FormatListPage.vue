@@ -1,8 +1,19 @@
 <template>
   <q-page class="q-pa-md">
-    <AdminPageHeader title="Formats" back-to="/admin/tcgs" action-label="New Format" @action="showDialog = true" />
+    <AdminPageHeader
+      title="Formats"
+      back-to="/admin/tcgs"
+      action-label="New Format"
+      @action="showDialog = true"
+    />
     <AdminTable :rows="formats" :columns="columns" :loading="loading" />
-    <AdminFormDialog v-model="showDialog" title="New Format" submit-label="Create" :saving="saving" @submit="createFormat">
+    <AdminFormDialog
+      v-model="showDialog"
+      title="New Format"
+      submit-label="Create"
+      :saving="saving"
+      @submit="createFormat"
+    >
       <q-input v-model="form.name" label="Name" outlined required />
       <q-input v-model="form.slug" label="Slug" outlined required />
     </AdminFormDialog>
@@ -31,14 +42,28 @@ const columns = [
 
 async function fetchFormats() {
   loading.value = true;
-  try { const r = await fetch(`${apiUrl}/api/tcgs/${tcgId}/formats`); const b = await r.json(); formats.value = b.data ?? []; } finally { loading.value = false; }
+  try {
+    const r = await fetch(`${apiUrl}/api/tcgs/${tcgId}/formats`);
+    const b = await r.json();
+    formats.value = b.data ?? [];
+  } finally {
+    loading.value = false;
+  }
 }
 async function createFormat() {
   saving.value = true;
   try {
-    await fetch(`${apiUrl}/api/tcgs/${tcgId}/formats`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form.value, tcg_id: tcgId }) });
-    showDialog.value = false; form.value = { name: '', slug: '' }; await fetchFormats();
-  } finally { saving.value = false; }
+    await fetch(`${apiUrl}/api/tcgs/${tcgId}/formats`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form.value, tcg_id: tcgId }),
+    });
+    showDialog.value = false;
+    form.value = { name: '', slug: '' };
+    await fetchFormats();
+  } finally {
+    saving.value = false;
+  }
 }
 onMounted(fetchFormats);
 </script>

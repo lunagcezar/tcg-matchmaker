@@ -8,7 +8,13 @@ export function useTournament() {
 
   async function list() {
     loading.value = true;
-    try { const r = await fetch(`${apiUrl}/api/tournaments`); const j = await r.json(); items.value = j.data ?? []; } finally { loading.value = false; }
+    try {
+      const r = await fetch(`${apiUrl}/api/tournaments`);
+      const j = await r.json();
+      items.value = j.data ?? [];
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function get(id: string) {
@@ -17,7 +23,11 @@ export function useTournament() {
   }
 
   async function create(input: Record<string, unknown>) {
-    const r = await fetch(`${apiUrl}/api/tournaments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+    const r = await fetch(`${apiUrl}/api/tournaments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
     return (await r.json()).data;
   }
 

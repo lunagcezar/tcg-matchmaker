@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.46.0] — 2026-07-15
+
+### Added
+
+- Root ESLint v9 flat config with Prettier and Vue support (spec-046):
+  - `eslint.config.mjs` at workspace root, shared by `frontend`, `worker`, and `shared`
+  - `eslint-plugin-prettier` reports formatting issues as ESLint errors
+  - `eslint-plugin-vue` `flat/recommended` rules for Vue SFCs
+  - `--cache` enabled on all ESLint commands for fast incremental runs
+  - Per-package `eslint.config.js` files for `packages/worker` and `packages/shared`
+  - `lint:fix` and `format:check` root scripts
+
+### Changed
+
+- Refactored `packages/frontend/eslint.config.js` to extend the root base and keep Quasar-specific rules
+- Removed duplicate `packages/frontend/.prettierrc.json`; root `.prettierrc` is now the single source of truth
+- Updated `lint-staged` to run ESLint + Prettier consistently for all staged source files
+- Fixed inline `as Record<...>` type assertions in Vue templates that Prettier could not parse
+- Fixed type issues in `StoreManageDetailPage.vue` so `vue-tsc --noEmit` passes
+
 ## [0.45.0] — 2026-07-15
 
 ### Added

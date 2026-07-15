@@ -8,8 +8,12 @@ export const useAppStore = defineStore('app', () => {
   watch(locale, (val) => localStorage.setItem('locale', val));
   watch(darkMode, (val) => localStorage.setItem('dark', String(val)));
 
-  function setLocale(l: string) { locale.value = l; }
-  function toggleDarkMode() { darkMode.value = !darkMode.value; }
+  function setLocale(l: string) {
+    locale.value = l;
+  }
+  function toggleDarkMode() {
+    darkMode.value = !darkMode.value;
+  }
 
   return { locale, darkMode, setLocale, toggleDarkMode };
 });

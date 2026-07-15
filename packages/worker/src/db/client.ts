@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 export function createSecretClient(url: string, secretKey: string) {
   return createClient(url, secretKey, {

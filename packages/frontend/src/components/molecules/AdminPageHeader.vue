@@ -4,7 +4,13 @@
       <q-btn v-if="backTo" flat dense icon="arrow_back" :to="backTo" class="q-mr-sm" />
       <h5 class="q-my-none">{{ title }}</h5>
     </div>
-    <q-btn v-if="actionLabel" color="primary" icon="add" :label="actionLabel" @click="$emit('action')" />
+    <q-btn
+      v-if="actionLabel"
+      color="primary"
+      icon="add"
+      :label="actionLabel"
+      @click="$emit('action')"
+    />
   </div>
 </template>
 

@@ -1,6 +1,1 @@
-export type {
-  SignupInput,
-  LoginInput,
-  User,
-  ProfileUpdate,
-} from "../schemas/user.js";
+export type { SignupInput, LoginInput, User, ProfileUpdate } from '../schemas/user.js';

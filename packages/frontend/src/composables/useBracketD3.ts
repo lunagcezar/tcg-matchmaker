@@ -32,7 +32,8 @@ export function useBracketD3(containerRef: Ref<HTMLElement | null>, matches: Ref
       const x = 20 + (round - 1) * colW;
       const boxW = colW * 0.75;
 
-      svg.append('text')
+      svg
+        .append('text')
         .attr('x', x + boxW / 2)
         .attr('y', 16)
         .attr('text-anchor', 'middle')
@@ -54,17 +55,31 @@ export function useBracketD3(containerRef: Ref<HTMLElement | null>, matches: Ref
           .attr('rx', 4);
 
         const cx = x + colW / 2;
-        g.append('text').attr('x', cx).attr('y', y + 14).attr('text-anchor', 'middle').attr('font-size', '11px')
-          .attr('font-weight', m.winner === m.player1 ? 'bold' : 'normal').text(m.player1 || 'TBD');
-        g.append('text').attr('x', cx).attr('y', y + 28).attr('text-anchor', 'middle').attr('font-size', '11px')
-          .attr('font-weight', m.winner === m.player2 ? 'bold' : 'normal').text(m.player2 || 'TBD');
+        g.append('text')
+          .attr('x', cx)
+          .attr('y', y + 14)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '11px')
+          .attr('font-weight', m.winner === m.player1 ? 'bold' : 'normal')
+          .text(m.player1 || 'TBD');
+        g.append('text')
+          .attr('x', cx)
+          .attr('y', y + 28)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '11px')
+          .attr('font-weight', m.winner === m.player2 ? 'bold' : 'normal')
+          .text(m.player2 || 'TBD');
 
         if (i % 2 === 0 && i + 1 < ms.length) {
           const ny = y + rowH + gap / 2;
-          svg.append('line')
-            .attr('x1', x + colW).attr('y1', y + rowH / 2)
-            .attr('x2', x + colW + 4).attr('y2', ny + rowH / 2)
-            .attr('stroke', '#bbb').attr('stroke-width', 1);
+          svg
+            .append('line')
+            .attr('x1', x + colW)
+            .attr('y1', y + rowH / 2)
+            .attr('x2', x + colW + 4)
+            .attr('y2', ny + rowH / 2)
+            .attr('stroke', '#bbb')
+            .attr('stroke-width', 1);
         }
       });
     }

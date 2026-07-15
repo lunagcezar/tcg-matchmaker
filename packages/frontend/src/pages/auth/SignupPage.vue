@@ -11,7 +11,10 @@
           <TurnstileWidget v-if="siteKey" :site-key="siteKey" @token="turnstileToken = $event" />
         </template>
         <template #footer>
-          <p>{{ $t('auth.haveAccount') }} <router-link to="/login">{{ $t('auth.signIn') }}</router-link></p>
+          <p>
+            {{ $t('auth.haveAccount') }}
+            <router-link to="/login">{{ $t('auth.signIn') }}</router-link>
+          </p>
         </template>
       </AuthForm>
     </AppCard>

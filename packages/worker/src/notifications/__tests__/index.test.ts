@@ -4,7 +4,7 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { notificationRouter, pushSubscriptionRouter } from '../index.js';
+import { notificationRouter } from '../index.js';
 import { env, testUserId, chain, makeApp, userChain, authMock } from '../../test-utils/supabase.js';
 
 const notificationId = '00000000-0000-0000-0000-000000000100';

@@ -3,7 +3,9 @@
     <AdminPageHeader title="Audit Log" />
     <AdminTable :rows="entries" :columns="columns" :loading="loading">
       <template #body-cell-action="{ row }">
-        <q-td><q-badge color="primary">{{ row.action }}</q-badge></q-td>
+        <q-td
+          ><q-badge color="primary">{{ row.action }}</q-badge></q-td
+        >
       </template>
     </AdminTable>
   </q-page>
@@ -25,7 +27,13 @@ const columns = [
 
 async function fetchAuditLog() {
   loading.value = true;
-  try { const r = await fetch(`${apiUrl}/api/admin/audit-log`); const b = await r.json(); entries.value = b.data ?? []; } finally { loading.value = false; }
+  try {
+    const r = await fetch(`${apiUrl}/api/admin/audit-log`);
+    const b = await r.json();
+    entries.value = b.data ?? [];
+  } finally {
+    loading.value = false;
+  }
 }
 onMounted(fetchAuditLog);
 </script>

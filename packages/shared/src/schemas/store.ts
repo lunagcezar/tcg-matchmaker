@@ -1,11 +1,11 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const CreateStoreSchema = z.object({
   name: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
-  country: z.string().default("Brasil"),
-  state: z.string().default("Ceará"),
-  city: z.string().default("Fortaleza"),
+  country: z.string().default('Brasil'),
+  state: z.string().default('Ceará'),
+  city: z.string().default('Fortaleza'),
   address: z.string().min(1),
   lat: z.number(),
   lng: z.number(),
@@ -30,7 +30,7 @@ export const StoreSchema = z.object({
   logo_path: z.string().nullable(),
   created_by_user_id: z.string().uuid(),
   is_verified: z.boolean(),
-  status: z.enum(["active", "suspended"]),
+  status: z.enum(['active', 'suspended']),
   suspended_at: z.string().datetime().nullable(),
   suspension_reason: z.string().nullable(),
   created_at: z.string().datetime(),
@@ -42,7 +42,7 @@ export const StoreMembershipSchema = z.object({
   id: z.string().uuid(),
   store_id: z.string().uuid(),
   user_id: z.string().uuid(),
-  role: z.enum(["owner", "manager", "staff"]),
+  role: z.enum(['owner', 'manager', 'staff']),
   created_at: z.string().datetime(),
 });
 

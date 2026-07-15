@@ -13,7 +13,9 @@ export function useEvent() {
       const r = await fetch(`${apiUrl}/api/events${qs}`);
       const j = await r.json();
       items.value = j.data ?? [];
-    } finally { loading.value = false; }
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function get(id: string) {
@@ -22,7 +24,11 @@ export function useEvent() {
   }
 
   async function create(input: Record<string, unknown>) {
-    const r = await fetch(`${apiUrl}/api/events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+    const r = await fetch(`${apiUrl}/api/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
     return (await r.json()).data;
   }
 

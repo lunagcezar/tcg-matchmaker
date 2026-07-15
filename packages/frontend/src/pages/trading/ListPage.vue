@@ -6,15 +6,25 @@
     </div>
     <div v-if="loading" class="text-center q-py-xl"><q-spinner size="lg" /></div>
     <div v-else>
-      <q-card v-for="s in sessions" :key="(s.id as string)" clickable :to="`/trading/${s.id}`" class="q-mb-sm">
+      <q-card
+        v-for="s in sessions"
+        :key="s.id as string"
+        clickable
+        :to="`/trading/${s.id}`"
+        class="q-mb-sm"
+      >
         <q-card-section class="q-py-sm row items-center">
           <q-badge color="positive" class="q-mr-sm">{{ s.status }}</q-badge>
-          <div class="text-body2">{{ (s as Record<string, string | undefined>).name || 'Trading' }}</div>
+          <div class="text-body2">{{ (s as TradingSession).name || 'Trading' }}</div>
           <q-space />
-          <div class="text-caption text-grey">{{ formatDate((s as Record<string, string | undefined>).scheduled_at) }}</div>
+          <div class="text-caption text-grey">
+            {{ formatDate((s as TradingSession).scheduled_at) }}
+          </div>
         </q-card-section>
       </q-card>
-      <div v-if="sessions.length === 0" class="text-center text-grey q-py-xl">{{ $t('common.noResults') }}</div>
+      <div v-if="sessions.length === 0" class="text-center text-grey q-py-xl">
+        {{ $t('common.noResults') }}
+      </div>
     </div>
   </q-page>
 </template>
@@ -26,9 +36,13 @@ import { usePageMeta } from '@/composables/usePageMeta';
 
 usePageMeta({ titleKey: 'meta.trading', descKey: 'meta.tradingDesc' });
 
+type TradingSession = Record<string, string | undefined>;
+
 const store = useEventStore();
-const sessions = computed(() => store.items as Array<Record<string, string>>);
+const sessions = computed(() => store.items as Array<TradingSession>);
 const loading = computed(() => store.loading);
-function formatDate(d: string | undefined) { return d ? new Date(d).toLocaleDateString() : ''; }
+function formatDate(d: string | undefined) {
+  return d ? new Date(d).toLocaleDateString() : '';
+}
 onMounted(() => store.list({ type: 'trading' }));
 </script>

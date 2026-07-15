@@ -90,12 +90,10 @@ describe('Tournament routes', () => {
     it('changes status from draft to open', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       const eChain = chain({
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: { ...draftEvent, created_by_user_id: organizerId, status: 'draft' },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: { ...draftEvent, created_by_user_id: organizerId, status: 'draft' },
+          error: null,
+        }),
         update: vi.fn().mockReturnThis(),
       });
 
@@ -126,17 +124,15 @@ describe('Tournament routes', () => {
     it('generates bracket and sets status to in_progress', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       const eChain = chain({
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: {
-              ...draftEvent,
-              created_by_user_id: organizerId,
-              status: 'open',
-              bracket_type: 'single_elimination',
-            },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            ...draftEvent,
+            created_by_user_id: organizerId,
+            status: 'open',
+            bracket_type: 'single_elimination',
+          },
+          error: null,
+        }),
         update: vi.fn().mockReturnThis(),
       });
       const pChain = chain({
@@ -176,20 +172,18 @@ describe('Tournament routes', () => {
     it('returns rounds with matches', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       const rChain = chain({
-        order: vi
-          .fn()
-          .mockResolvedValue({
-            data: [
-              {
-                id: roundId,
-                event_id: tournamentId,
-                round_number: 1,
-                name: 'Quarterfinals',
-                created_at: '2026-07-14T00:00:00.000Z',
-              },
-            ],
-            error: null,
-          }),
+        order: vi.fn().mockResolvedValue({
+          data: [
+            {
+              id: roundId,
+              event_id: tournamentId,
+              round_number: 1,
+              name: 'Quarterfinals',
+              created_at: '2026-07-14T00:00:00.000Z',
+            },
+          ],
+          error: null,
+        }),
       });
 
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -218,32 +212,28 @@ describe('Tournament routes', () => {
     it('registers a participant', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       const eChain = chain({
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: { ...draftEvent, status: 'open', max_participants: null },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: { ...draftEvent, status: 'open', max_participants: null },
+          error: null,
+        }),
       });
       const pChain = chain({
         maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: {
-              id: '00000000-0000-0000-0000-000000000010',
-              event_id: tournamentId,
-              user_id: testUserId,
-              role: 'participant',
-              status: 'pending',
-              confirmed_at: null,
-              score: null,
-              placement: null,
-              seed: null,
-              created_at: '2026-07-14T00:00:00.000Z',
-            },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: '00000000-0000-0000-0000-000000000010',
+            event_id: tournamentId,
+            user_id: testUserId,
+            role: 'participant',
+            status: 'pending',
+            confirmed_at: null,
+            score: null,
+            placement: null,
+            seed: null,
+            created_at: '2026-07-14T00:00:00.000Z',
+          },
+          error: null,
+        }),
         insert: vi.fn().mockReturnThis(),
       });
 

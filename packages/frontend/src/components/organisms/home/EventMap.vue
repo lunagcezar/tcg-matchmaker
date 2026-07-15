@@ -15,7 +15,11 @@ let markers: L.Marker[] = [];
 const defaultCenter: [number, number] = [-3.7184, -38.5434]; // Fortaleza
 
 function iconForType(type: string) {
-  const colors: Record<string, string> = { match: '#1976D2', trading: '#21BA45', tournament: '#F2C037' };
+  const colors: Record<string, string> = {
+    match: '#1976D2',
+    trading: '#21BA45',
+    tournament: '#F2C037',
+  };
   const color = colors[type] || '#1976D2';
   return L.divIcon({
     className: '',
@@ -37,21 +41,25 @@ onUnmounted(() => {
   map?.remove();
 });
 
-watch(() => props.events, (events) => {
-  markers.forEach((m) => map?.removeLayer(m));
-  markers = [];
-  events.forEach((e) => {
-    const lat = e.lat as number;
-    const lng = e.lng as number;
-    if (!lat || !lng) return;
-    const marker = L.marker([lat, lng], { icon: iconForType(e.type as string) })
-      .addTo(map!)
-      .bindPopup(`<b>${(e.name || e.type) as string}</b>`);
-    markers.push(marker);
-  });
-  if (markers.length > 0) {
-    const group = L.featureGroup(markers);
-    map?.fitBounds(group.getBounds().pad(0.1));
-  }
-}, { deep: true });
+watch(
+  () => props.events,
+  (events) => {
+    markers.forEach((m) => map?.removeLayer(m));
+    markers = [];
+    events.forEach((e) => {
+      const lat = e.lat as number;
+      const lng = e.lng as number;
+      if (!lat || !lng) return;
+      const marker = L.marker([lat, lng], { icon: iconForType(e.type as string) })
+        .addTo(map!)
+        .bindPopup(`<b>${(e.name || e.type) as string}</b>`);
+      markers.push(marker);
+    });
+    if (markers.length > 0) {
+      const group = L.featureGroup(markers);
+      map?.fitBounds(group.getBounds().pad(0.1));
+    }
+  },
+  { deep: true },
+);
 </script>

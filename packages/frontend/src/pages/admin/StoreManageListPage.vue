@@ -3,7 +3,11 @@
     <AdminPageHeader title="Manage Stores" />
     <AdminTable :rows="stores" :columns="columns" :loading="loading">
       <template #body-cell-status="{ row }">
-        <q-td><q-badge :color="row.status === 'active' ? 'positive' : 'negative'">{{ row.status }}</q-badge></q-td>
+        <q-td
+          ><q-badge :color="row.status === 'active' ? 'positive' : 'negative'">{{
+            row.status
+          }}</q-badge></q-td
+        >
       </template>
     </AdminTable>
   </q-page>
@@ -25,7 +29,13 @@ const columns = [
 
 async function fetchStores() {
   loading.value = true;
-  try { const r = await fetch(`${apiUrl}/api/stores`); const b = await r.json(); stores.value = b.data ?? []; } finally { loading.value = false; }
+  try {
+    const r = await fetch(`${apiUrl}/api/stores`);
+    const b = await r.json();
+    stores.value = b.data ?? [];
+  } finally {
+    loading.value = false;
+  }
 }
 onMounted(fetchStores);
 </script>

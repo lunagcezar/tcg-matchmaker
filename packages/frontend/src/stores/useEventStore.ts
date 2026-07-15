@@ -15,7 +15,9 @@ export const useEventStore = defineStore('events', () => {
       const r = await fetch(`${apiUrl}/api/events${qs}`);
       const j = await r.json();
       items.value = j.data ?? [];
-    } finally { loading.value = false; }
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function get(id: string) {
@@ -26,7 +28,8 @@ export const useEventStore = defineStore('events', () => {
 
   async function create(input: Record<string, unknown>) {
     const r = await fetch(`${apiUrl}/api/events`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     });
     const data = (await r.json()).data;

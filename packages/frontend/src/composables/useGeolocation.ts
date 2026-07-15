@@ -9,13 +9,18 @@ export function useGeolocation() {
   const searching = ref(false);
 
   async function search(query: string) {
-    if (!query.trim()) { suggestions.value = []; return; }
+    if (!query.trim()) {
+      suggestions.value = [];
+      return;
+    }
     searching.value = true;
     try {
       const r = await fetch(`${apiUrl}/api/geocode/search?q=${encodeURIComponent(query)}`);
       const j = await r.json();
       suggestions.value = j.data ?? [];
-    } finally { searching.value = false; }
+    } finally {
+      searching.value = false;
+    }
   }
 
   return {

@@ -3,18 +3,35 @@ const SITE_URL = 'https://tcg-matchmaker.pages.dev';
 const APP_NAME = 'TCG Matchmaker';
 
 const CRAWLER_PATTERNS = [
-  /Googlebot/i, /Bingbot/i, /Slurp/i, /DuckDuckBot/i,
-  /Baiduspider/i, /YandexBot/i, /facebookexternalhit/i,
-  /Twitterbot/i, /LinkedInBot/i, /WhatsApp/i,
-  /Applebot/i, /SemrushBot/i, /PetalBot/i,
-  /AwarioSmartBot/i, /SeekportBot/i, /DotBot/i,
+  /Googlebot/i,
+  /Bingbot/i,
+  /Slurp/i,
+  /DuckDuckBot/i,
+  /Baiduspider/i,
+  /YandexBot/i,
+  /facebookexternalhit/i,
+  /Twitterbot/i,
+  /LinkedInBot/i,
+  /WhatsApp/i,
+  /Applebot/i,
+  /SemrushBot/i,
+  /PetalBot/i,
+  /AwarioSmartBot/i,
+  /SeekportBot/i,
+  /DotBot/i,
 ];
 
 function isCrawler(userAgent: string): boolean {
   return CRAWLER_PATTERNS.some((p) => p.test(userAgent));
 }
 
-function htmlShell(title: string, description: string, url: string, type: string, jsonld: string): string {
+function htmlShell(
+  title: string,
+  description: string,
+  url: string,
+  type: string,
+  jsonld: string,
+): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,7 +94,7 @@ function storeJsonLd(store: Record<string, unknown>): string {
 async function fetchJson(path: string): Promise<Record<string, unknown> | null> {
   try {
     const res = await fetch(`${API_BASE}${path}`);
-    const body = await res.json() as { data: Record<string, unknown> | null };
+    const body = (await res.json()) as { data: Record<string, unknown> | null };
     return body.data ?? null;
   } catch {
     return null;
@@ -96,7 +113,11 @@ function profileMatch(pathname: string): RegExpMatchArray | null {
   return pathname.match(/^\/profile\/([a-zA-Z0-9_-]+)$/i);
 }
 
-export async function onRequest(context: { request: Request; next: () => Promise<Response>; waitUntil: (p: Promise<unknown>) => void }): Promise<Response> {
+export async function onRequest(context: {
+  request: Request;
+  next: () => Promise<Response>;
+  waitUntil: (p: Promise<unknown>) => void;
+}): Promise<Response> {
   const url = new URL(context.request.url);
   const { pathname } = url;
   const userAgent = context.request.headers.get('User-Agent') || '';
@@ -193,28 +214,34 @@ function handleSitemap(context: { waitUntil: (p: Promise<unknown>) => void }): R
     { loc: '/signup', priority: '0.3' },
   ];
 
-  context.waitUntil((async () => {
-    try {
-      const [eventsRes, storesRes] = await Promise.all([
-        fetch(`${API_BASE}/api/events`),
-        fetch(`${API_BASE}/api/stores`),
-      ]);
-      const events = (await eventsRes.json() as { data: Array<Record<string, unknown>> }).data || [];
-      const stores = (await storesRes.json() as { data: Array<Record<string, unknown>> }).data || [];
-      for (const e of events) {
-        const t = String(e.type);
-        const segment = t === 'match' ? 'matches' : t === 'trading' ? 'trading' : 'tournaments';
-        entries.push({ loc: `/${segment}/${String(e.id)}`, priority: '0.6' });
+  context.waitUntil(
+    (async () => {
+      try {
+        const [eventsRes, storesRes] = await Promise.all([
+          fetch(`${API_BASE}/api/events`),
+          fetch(`${API_BASE}/api/stores`),
+        ]);
+        const events =
+          ((await eventsRes.json()) as { data: Array<Record<string, unknown>> }).data || [];
+        const stores =
+          ((await storesRes.json()) as { data: Array<Record<string, unknown>> }).data || [];
+        for (const e of events) {
+          const t = String(e.type);
+          const segment = t === 'match' ? 'matches' : t === 'trading' ? 'trading' : 'tournaments';
+          entries.push({ loc: `/${segment}/${String(e.id)}`, priority: '0.6' });
+        }
+        for (const s of stores) {
+          entries.push({ loc: `/stores/${String(s.id)}`, priority: '0.6' });
+        }
+      } catch {
+        /* best-effort */
       }
-      for (const s of stores) {
-        entries.push({ loc: `/stores/${String(s.id)}`, priority: '0.6' });
-      }
-    } catch { /* best-effort */ }
-  })());
+    })(),
+  );
 
-  const urls = entries.map(
-    (e) => `  <url><loc>${SITE_URL}${e.loc}</loc><priority>${e.priority}</priority></url>`,
-  ).join('\n');
+  const urls = entries
+    .map((e) => `  <url><loc>${SITE_URL}${e.loc}</loc><priority>${e.priority}</priority></url>`)
+    .join('\n');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

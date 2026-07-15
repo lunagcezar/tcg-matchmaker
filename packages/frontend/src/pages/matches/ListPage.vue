@@ -7,15 +7,25 @@
     <q-btn-toggle v-model="statusFilter" :options="statusOptions" outline rounded class="q-mb-md" />
     <div v-if="loading" class="text-center q-py-xl"><q-spinner size="lg" /></div>
     <div v-else>
-      <q-card v-for="m in matches" :key="(m.id as string)" clickable :to="`/matches/${m.id}`" class="q-mb-sm">
+      <q-card
+        v-for="m in matches"
+        :key="m.id as string"
+        clickable
+        :to="`/matches/${m.id}`"
+        class="q-mb-sm"
+      >
         <q-card-section class="q-py-sm row items-center">
           <q-badge color="primary" class="q-mr-sm">{{ m.status }}</q-badge>
-          <div class="text-body2">{{ ((m as Record<string, string>).tcg_name) || $t('event.anyTcg') }}</div>
+          <div class="text-body2">{{ (m as MatchListItem).tcg_name || $t('event.anyTcg') }}</div>
           <q-space />
-          <div class="text-caption text-grey">{{ formatDate((m as Record<string, string | undefined>).scheduled_at) }}</div>
+          <div class="text-caption text-grey">
+            {{ formatDate((m as MatchListItem).scheduled_at) }}
+          </div>
         </q-card-section>
       </q-card>
-      <div v-if="matches.length === 0" class="text-center text-grey q-py-xl">{{ $t('common.noResults') }}</div>
+      <div v-if="matches.length === 0" class="text-center text-grey q-py-xl">
+        {{ $t('common.noResults') }}
+      </div>
     </div>
   </q-page>
 </template>
@@ -27,6 +37,8 @@ import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 
 usePageMeta({ titleKey: 'meta.matches', descKey: 'meta.matchesDesc' });
+
+type MatchListItem = Record<string, string | undefined>;
 
 const store = useEventStore();
 const statusFilter = ref<string>('');

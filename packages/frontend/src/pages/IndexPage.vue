@@ -34,8 +34,12 @@ const filteredEvents = computed(() => {
 function geolocate() {
   if ('geolocation' in navigator) {
     navigator.geolocation.getCurrentPosition(
-      () => { /* map already centers on user via Leaflet */ },
-      () => { /* permission denied, stay at default */ },
+      () => {
+        /* map already centers on user via Leaflet */
+      },
+      () => {
+        /* permission denied, stay at default */
+      },
     );
   }
 }
@@ -46,5 +50,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.home-page { overflow: hidden; display: flex; flex-flow: column nowrap; }
+.home-page {
+  overflow: hidden;
+  display: flex;
+  flex-flow: column nowrap;
+}
 </style>

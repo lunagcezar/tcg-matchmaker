@@ -9,7 +9,13 @@
       multiple
       color="primary"
     />
-    <q-btn flat dense icon="my_location" :label="$t('home.findNearMe')" @click="$emit('geolocate')" />
+    <q-btn
+      flat
+      dense
+      icon="my_location"
+      :label="$t('home.findNearMe')"
+      @click="$emit('geolocate')"
+    />
   </div>
 </template>
 

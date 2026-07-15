@@ -8,24 +8,55 @@
         </q-card-section>
         <q-card-section>
           <div class="row q-col-gutter-sm">
-            <div class="col-6"><strong>{{ $t('event.date') }}:</strong> {{ formatDate((match as Record<string, string | undefined>).scheduled_at) }}</div>
-            <div class="col-6"><strong>{{ $t('event.players') }}:</strong> {{ (match as Record<string, string | undefined>).max_participants || 2 }}</div>
+            <div class="col-6">
+              <strong>{{ $t('event.date') }}:</strong>
+              {{ formatDate((match as MatchDetails).scheduled_at) }}
+            </div>
+            <div class="col-6">
+              <strong>{{ $t('event.players') }}:</strong>
+              {{ (match as MatchDetails).max_participants || 2 }}
+            </div>
           </div>
         </q-card-section>
         <q-card-actions class="q-pa-md q-gutter-sm">
-          <q-btn v-if="!myParticipation && match.status === 'open'" color="primary" :label="$t('event.join')" @click="join" :loading="joining" />
-          <q-btn v-if="myParticipation?.status === 'pending'" color="positive" :label="$t('event.confirm')" @click="confirmAttendance" :loading="confirming" />
-          <q-btn v-if="myParticipation?.status === 'pending'" color="negative" flat :label="$t('event.decline')" @click="declineAttendance" :loading="declining" />
-          <q-badge v-if="myParticipation?.status === 'confirmed'" color="positive">{{ $t('event.confirmed') }}</q-badge>
+          <q-btn
+            v-if="!myParticipation && match.status === 'open'"
+            color="primary"
+            :label="$t('event.join')"
+            :loading="joining"
+            @click="join"
+          />
+          <q-btn
+            v-if="myParticipation?.status === 'pending'"
+            color="positive"
+            :label="$t('event.confirm')"
+            :loading="confirming"
+            @click="confirmAttendance"
+          />
+          <q-btn
+            v-if="myParticipation?.status === 'pending'"
+            color="negative"
+            flat
+            :label="$t('event.decline')"
+            :loading="declining"
+            @click="declineAttendance"
+          />
+          <q-badge v-if="myParticipation?.status === 'confirmed'" color="positive">{{
+            $t('event.confirmed')
+          }}</q-badge>
         </q-card-actions>
       </q-card>
       <q-card class="q-mt-md">
-        <q-card-section><h6>{{ $t('event.participants') }}</h6></q-card-section>
+        <q-card-section
+          ><h6>{{ $t('event.participants') }}</h6></q-card-section
+        >
         <q-list>
-          <q-item v-for="p in participants" :key="(p.id as string)">
-            <q-item-section>{{ (p as Record<string, string>).user_id?.slice(0, 8) }}</q-item-section>
+          <q-item v-for="p in participants" :key="p.id as string">
+            <q-item-section>{{ (p as Participant).user_id?.slice(0, 8) }}</q-item-section>
             <q-item-section side>
-              <q-badge :color="badgeColor((p as Record<string, string>).status)">{{ (p as Record<string, string>).status }}</q-badge>
+              <q-badge :color="badgeColor((p as Participant).status)">{{
+                (p as Participant).status
+              }}</q-badge>
             </q-item-section>
           </q-item>
         </q-list>
@@ -51,36 +82,76 @@ const declining = ref(false);
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const matchId = route.params.id as string;
 
+type MatchDetails = Record<string, string | undefined>;
+type Participant = Record<string, string>;
+
 const match = computed(() => store.current as Record<string, string> | null);
 const loading = computed(() => store.loading);
 
 const myParticipation = computed(() => {
   if (!authStore.user) return null;
-  return participants.value.find((p) => (p as Record<string, string>).user_id === authStore.user?.id) as Record<string, string> | null ?? null;
+  return (
+    (participants.value.find(
+      (p) => (p as Participant).user_id === authStore.user?.id,
+    ) as Participant | null) ?? null
+  );
 });
 
-function formatDate(d: string | undefined) { return d ? new Date(d).toLocaleString() : ''; }
-function badgeColor(s: string | undefined) { return s === 'confirmed' ? 'positive' : s === 'declined' ? 'negative' : 'warning'; }
-function statusColor(s: string | undefined) { return s === 'open' ? 'primary' : s === 'confirmed' ? 'positive' : s === 'cancelled' ? 'negative' : 'grey'; }
+function formatDate(d: string | undefined) {
+  return d ? new Date(d).toLocaleString() : '';
+}
+function badgeColor(s: string | undefined) {
+  return s === 'confirmed' ? 'positive' : s === 'declined' ? 'negative' : 'warning';
+}
+function statusColor(s: string | undefined) {
+  return s === 'open'
+    ? 'primary'
+    : s === 'confirmed'
+      ? 'positive'
+      : s === 'cancelled'
+        ? 'negative'
+        : 'grey';
+}
 
 async function join() {
   joining.value = true;
-  try { await store.join(matchId); await loadData(); } finally { joining.value = false; }
+  try {
+    await store.join(matchId);
+    await loadData();
+  } finally {
+    joining.value = false;
+  }
 }
 
 async function confirmAttendance() {
   confirming.value = true;
-  try { await store.confirm(matchId); await loadData(); } finally { confirming.value = false; }
+  try {
+    await store.confirm(matchId);
+    await loadData();
+  } finally {
+    confirming.value = false;
+  }
 }
 
 async function declineAttendance() {
   declining.value = true;
-  try { await store.decline(matchId); await loadData(); } finally { declining.value = false; }
+  try {
+    await store.decline(matchId);
+    await loadData();
+  } finally {
+    declining.value = false;
+  }
 }
 
 async function loadData() {
   await store.get(matchId);
-  try { const r = await fetch(`${apiUrl}/api/events/${matchId}/participants`); const j = await r.json(); participants.value = j.data ?? []; } catch { /* ignore */ }
+  try {
+    const r = await fetch(`${apiUrl}/api/events/${matchId}/participants`);
+    const j = await r.json();
+    participants.value = j.data ?? [];
+  } catch {
+    /* ignore */
+  }
 }
 
 onMounted(loadData);

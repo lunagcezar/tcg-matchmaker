@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import * as Sentry from '@sentry/hono';
 import { authRouter } from './auth/index.js';
 import { tcgRouter, formatRouter } from './tcgs/index.js';
 import { storeRouter } from './stores/index.js';

@@ -3,7 +3,9 @@
     <AdminPageHeader :title="$t('admin.manageUsers')" />
     <AdminTable :rows="users" :columns="columns" :loading="loading">
       <template #body-cell-role="{ row }">
-        <q-td><q-badge :color="row.role === 'admin' ? 'red' : 'primary'">{{ row.role }}</q-badge></q-td>
+        <q-td
+          ><q-badge :color="row.role === 'admin' ? 'red' : 'primary'">{{ row.role }}</q-badge></q-td
+        >
       </template>
       <template #body-cell-status="{ row }">
         <q-td>
@@ -13,9 +15,30 @@
       </template>
       <template #body-cell-actions="{ row }">
         <q-td>
-          <q-btn v-if="!row.banned_at" flat dense icon="block" color="negative" @click="banUser(row.id as string)" />
-          <q-btn v-else flat dense icon="check_circle" color="positive" @click="unbanUser(row.id as string)" />
-          <q-btn v-if="row.role !== 'admin'" flat dense icon="admin_panel_settings" color="warning" @click="promoteUser(row.id as string)" />
+          <q-btn
+            v-if="!row.banned_at"
+            flat
+            dense
+            icon="block"
+            color="negative"
+            @click="banUser(row.id as string)"
+          />
+          <q-btn
+            v-else
+            flat
+            dense
+            icon="check_circle"
+            color="positive"
+            @click="unbanUser(row.id as string)"
+          />
+          <q-btn
+            v-if="row.role !== 'admin'"
+            flat
+            dense
+            icon="admin_panel_settings"
+            color="warning"
+            @click="promoteUser(row.id as string)"
+          />
         </q-td>
       </template>
     </AdminTable>
@@ -40,10 +63,25 @@ const columns = [
 
 async function fetchUsers() {
   loading.value = true;
-  try { const r = await fetch(`${apiUrl}/api/auth/me`); const b = await r.json(); users.value = b.data ? [b.data] : []; } finally { loading.value = false; }
+  try {
+    const r = await fetch(`${apiUrl}/api/auth/me`);
+    const b = await r.json();
+    users.value = b.data ? [b.data] : [];
+  } finally {
+    loading.value = false;
+  }
 }
-async function banUser(id: string) { await fetch(`${apiUrl}/api/admin/users/${id}/ban`, { method: 'POST' }); await fetchUsers(); }
-async function unbanUser(id: string) { await fetch(`${apiUrl}/api/admin/users/${id}/unban`, { method: 'POST' }); await fetchUsers(); }
-async function promoteUser(id: string) { await fetch(`${apiUrl}/api/admin/users/${id}/promote`, { method: 'POST' }); await fetchUsers(); }
+async function banUser(id: string) {
+  await fetch(`${apiUrl}/api/admin/users/${id}/ban`, { method: 'POST' });
+  await fetchUsers();
+}
+async function unbanUser(id: string) {
+  await fetch(`${apiUrl}/api/admin/users/${id}/unban`, { method: 'POST' });
+  await fetchUsers();
+}
+async function promoteUser(id: string) {
+  await fetch(`${apiUrl}/api/admin/users/${id}/promote`, { method: 'POST' });
+  await fetchUsers();
+}
 onMounted(fetchUsers);
 </script>

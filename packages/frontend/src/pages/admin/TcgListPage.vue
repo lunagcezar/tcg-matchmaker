@@ -1,6 +1,10 @@
 <template>
   <q-page class="q-pa-md">
-    <AdminPageHeader :title="$t('admin.manageTcgs')" action-label="New TCG" @action="showDialog = true" />
+    <AdminPageHeader
+      :title="$t('admin.manageTcgs')"
+      action-label="New TCG"
+      @action="showDialog = true"
+    />
     <AdminTable :rows="tcgs" :columns="columns" :loading="loading">
       <template #body-cell-actions="{ row }">
         <q-td>
@@ -9,7 +13,13 @@
         </q-td>
       </template>
     </AdminTable>
-    <AdminFormDialog v-model="showDialog" title="New TCG" submit-label="Create" :saving="saving" @submit="createTcg">
+    <AdminFormDialog
+      v-model="showDialog"
+      title="New TCG"
+      submit-label="Create"
+      :saving="saving"
+      @submit="createTcg"
+    >
       <q-input v-model="form.name" label="Name" outlined required />
       <q-input v-model="form.slug" label="Slug" outlined required hint="URL-friendly identifier" />
     </AdminFormDialog>
@@ -37,15 +47,32 @@ const columns = [
 
 async function fetchTcgs() {
   loading.value = true;
-  try { const r = await fetch(`${apiUrl}/api/tcgs`); const b = await r.json(); tcgs.value = b.data ?? []; } finally { loading.value = false; }
+  try {
+    const r = await fetch(`${apiUrl}/api/tcgs`);
+    const b = await r.json();
+    tcgs.value = b.data ?? [];
+  } finally {
+    loading.value = false;
+  }
 }
 async function createTcg() {
   saving.value = true;
   try {
-    await fetch(`${apiUrl}/api/tcgs`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form.value) });
-    showDialog.value = false; form.value = { name: '', slug: '' }; await fetchTcgs();
-  } finally { saving.value = false; }
+    await fetch(`${apiUrl}/api/tcgs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form.value),
+    });
+    showDialog.value = false;
+    form.value = { name: '', slug: '' };
+    await fetchTcgs();
+  } finally {
+    saving.value = false;
+  }
 }
-async function deleteTcg(id: string) { await fetch(`${apiUrl}/api/tcgs/${id}`, { method: 'DELETE' }); await fetchTcgs(); }
+async function deleteTcg(id: string) {
+  await fetch(`${apiUrl}/api/tcgs/${id}`, { method: 'DELETE' });
+  await fetchTcgs();
+}
 onMounted(fetchTcgs);
 </script>

@@ -7,7 +7,14 @@
           {{ $t('app.title') }}
         </q-toolbar-title>
         <template v-for="item in headerNavItems" :key="item.to">
-          <q-btn flat :label="$t(item.labelKey!)" :to="item.to!" :exact="item.exact" class="q-mr-xs" active-class="text-weight-bold" />
+          <q-btn
+            flat
+            :label="$t(item.labelKey!)"
+            :to="item.to!"
+            :exact="item.exact"
+            class="q-mr-xs"
+            active-class="text-weight-bold"
+          />
         </template>
         <ThemeLangSwitcher />
         <NotificationBell />
@@ -19,7 +26,7 @@
         <template v-for="item in drawerNavItems" :key="item.to || item.labelKey">
           <q-separator v-if="item.divider" />
           <q-item v-else-if="!item.auth || authStore.user" clickable :to="item.to!">
-            <q-item-section avatar v-if="item.icon"><q-icon :name="item.icon" /></q-item-section>
+            <q-item-section v-if="item.icon" avatar><q-icon :name="item.icon" /></q-item-section>
             <q-item-section>{{ $t(item.labelKey!) }}</q-item-section>
           </q-item>
         </template>
@@ -41,5 +48,7 @@ import { headerNavItems, drawerNavItems } from '@/router/navItems';
 
 const authStore = useAuthStore();
 const leftDrawerOpen = ref(false);
-onMounted(() => { void authStore.restoreSession(); });
+onMounted(() => {
+  void authStore.restoreSession();
+});
 </script>

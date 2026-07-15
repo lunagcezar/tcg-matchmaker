@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const BracketRoundSchema = z.object({
   id: z.string().uuid(),
@@ -16,7 +16,7 @@ export const BracketMatchSchema = z.object({
   winner_id: z.string().uuid().nullable(),
   score_player1: z.number().int().nullable(),
   score_player2: z.number().int().nullable(),
-  status: z.enum(["pending", "in_progress", "completed", "walkover"]),
+  status: z.enum(['pending', 'in_progress', 'completed', 'walkover']),
   next_match_id: z.string().uuid().nullable(),
   next_match_player_slot: z.number().int().nullable(),
   scheduled_at: z.string().datetime().nullable(),

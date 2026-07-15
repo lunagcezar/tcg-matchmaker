@@ -24,7 +24,10 @@ describe('useAccountManagement', () => {
 
   it('handles delete account error', async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ data: null, error: 'Promote another admin before deleting your account' }),
+      json: vi.fn().mockResolvedValue({
+        data: null,
+        error: 'Promote another admin before deleting your account',
+      }),
     });
 
     const { deleteAccount } = await import('../useAccountManagement');

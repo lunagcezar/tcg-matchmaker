@@ -2,11 +2,22 @@ import { describe, it, expect } from 'vitest';
 
 // Replicate the exact functions from _middleware.ts for testing
 const CRAWLER_PATTERNS = [
-  /Googlebot/i, /Bingbot/i, /Slurp/i, /DuckDuckBot/i,
-  /Baiduspider/i, /YandexBot/i, /facebookexternalhit/i,
-  /Twitterbot/i, /LinkedInBot/i, /WhatsApp/i,
-  /Applebot/i, /SemrushBot/i, /PetalBot/i,
-  /AwarioSmartBot/i, /SeekportBot/i, /DotBot/i,
+  /Googlebot/i,
+  /Bingbot/i,
+  /Slurp/i,
+  /DuckDuckBot/i,
+  /Baiduspider/i,
+  /YandexBot/i,
+  /facebookexternalhit/i,
+  /Twitterbot/i,
+  /LinkedInBot/i,
+  /WhatsApp/i,
+  /Applebot/i,
+  /SemrushBot/i,
+  /PetalBot/i,
+  /AwarioSmartBot/i,
+  /SeekportBot/i,
+  /DotBot/i,
 ];
 
 function isCrawler(userAgent: string): boolean {
@@ -41,7 +52,13 @@ function eventJsonLd(event: Record<string, unknown>): string {
   });
 }
 
-function htmlShell(title: string, description: string, url: string, type: string, jsonld: string): string {
+function htmlShell(
+  title: string,
+  description: string,
+  url: string,
+  type: string,
+  jsonld: string,
+): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,15 +86,21 @@ function htmlShell(title: string, description: string, url: string, type: string
 
 describe('Crawler detection', () => {
   it('detects Googlebot', () => {
-    expect(isCrawler('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')).toBe(true);
+    expect(
+      isCrawler('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'),
+    ).toBe(true);
   });
 
   it('detects Bingbot', () => {
-    expect(isCrawler('Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)')).toBe(true);
+    expect(
+      isCrawler('Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)'),
+    ).toBe(true);
   });
 
   it('detects Facebook crawler', () => {
-    expect(isCrawler('facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)')).toBe(true);
+    expect(
+      isCrawler('facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'),
+    ).toBe(true);
   });
 
   it('detects Twitterbot', () => {
@@ -85,7 +108,9 @@ describe('Crawler detection', () => {
   });
 
   it('does not detect regular browsers', () => {
-    expect(isCrawler('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0')).toBe(false);
+    expect(
+      isCrawler('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0'),
+    ).toBe(false);
   });
 
   it('does not detect empty user agent', () => {
@@ -131,7 +156,13 @@ describe('URL matching', () => {
 
 describe('HTML shell generation', () => {
   it('generates valid HTML with meta tags', () => {
-    const html = htmlShell('Test Match', 'A test match', 'https://example.com/matches/1', 'Event', '{}');
+    const html = htmlShell(
+      'Test Match',
+      'A test match',
+      'https://example.com/matches/1',
+      'Event',
+      '{}',
+    );
     expect(html).toContain('<title>Test Match | TCG Matchmaker</title>');
     expect(html).toContain('<meta name="description" content="A test match" />');
     expect(html).toContain('<meta property="og:title" content="Test Match" />');
@@ -144,7 +175,14 @@ describe('HTML shell generation', () => {
 
 describe('JSON-LD generation', () => {
   it('generates Event JSON-LD', () => {
-    const event = { id: '1', type: 'match', name: 'Test Match', description: 'A test', scheduled_at: '2026-07-15T10:00:00Z', city: 'Fortaleza' };
+    const event = {
+      id: '1',
+      type: 'match',
+      name: 'Test Match',
+      description: 'A test',
+      scheduled_at: '2026-07-15T10:00:00Z',
+      city: 'Fortaleza',
+    };
     const ld = eventJsonLd(event);
     expect(ld).toContain('"@type":"Event"');
     expect(ld).toContain('"name":"Test Match"');

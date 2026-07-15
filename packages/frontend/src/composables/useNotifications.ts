@@ -31,7 +31,7 @@ export function useNotifications() {
     error.value = null;
     try {
       const res = await fetch(`${API_BASE}/api/notifications`);
-      const json = await res.json() as { data: Notification[] };
+      const json = (await res.json()) as { data: Notification[] };
       notifications.value = json.data ?? [];
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to fetch notifications';
@@ -43,7 +43,7 @@ export function useNotifications() {
   async function fetchUnreadCount() {
     try {
       const res = await fetch(`${API_BASE}/api/notifications/unread-count`);
-      const json = await res.json() as { data: { unread_count: number } };
+      const json = (await res.json()) as { data: { unread_count: number } };
       unreadCount.value = json.data?.unread_count ?? 0;
     } catch {
       // silent fail

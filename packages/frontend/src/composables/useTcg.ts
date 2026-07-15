@@ -12,7 +12,9 @@ export function useTcg() {
       const res = await fetch(`${apiUrl}/api/tcgs`);
       const json = await res.json();
       items.value = json.data ?? [];
-    } finally { loading.value = false; }
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function create(input: { name: string; slug: string }) {

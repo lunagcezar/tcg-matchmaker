@@ -1,5 +1,5 @@
 <template>
-  <q-btn-dropdown flat icon="notifications" v-if="authStore.user">
+  <q-btn-dropdown v-if="authStore.user" flat icon="notifications">
     <template #label>
       <q-icon name="notifications" />
       <q-badge v-if="unreadCount > 0" floating color="red" rounded>
@@ -17,7 +17,8 @@ import { useNotifications } from '@/composables/useNotifications';
 import NotificationList from './NotificationList.vue';
 
 const authStore = useAuthStore();
-const { unreadCount, fetchUnreadCount, subscribeRealtime, unsubscribeRealtime } = useNotifications();
+const { unreadCount, fetchUnreadCount, subscribeRealtime, unsubscribeRealtime } =
+  useNotifications();
 
 const displayCount = computed(() => (unreadCount.value > 99 ? '99+' : String(unreadCount.value)));
 

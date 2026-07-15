@@ -3,7 +3,10 @@
     <AppCard :title="$t('auth.signIn')">
       <AuthForm :submit-label="$t('auth.signIn')" :on-submit="handleLogin">
         <template #footer>
-          <p>{{ $t('auth.noAccount') }} <router-link to="/signup">{{ $t('auth.signUp') }}</router-link></p>
+          <p>
+            {{ $t('auth.noAccount') }}
+            <router-link to="/signup">{{ $t('auth.signUp') }}</router-link>
+          </p>
         </template>
       </AuthForm>
     </AppCard>

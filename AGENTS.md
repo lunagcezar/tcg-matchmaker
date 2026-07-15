@@ -129,8 +129,13 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 
 ### Code Quality
 
-- **ESLint** with TypeScript rules and Quasar preset
-- **Prettier** for consistent formatting (single quotes, trailing commas, 100 print width)
+- **ESLint v9 flat config** (`eslint.config.mjs`) at the workspace root, shared by all packages
+  - TypeScript rules via `typescript-eslint` and `@vue/eslint-config-typescript`
+  - Vue rules via `eslint-plugin-vue` (`flat/recommended`)
+  - Quasar-specific rules layered in `packages/frontend/eslint.config.js`
+  - Prettier formatting issues reported as ESLint errors via `eslint-plugin-prettier`
+  - All lint commands use `--cache` for incremental runs
+- **Prettier** for consistent formatting (single quotes, trailing commas, 100 print width); root `.prettierrc` is the single source of truth
 - **Husky** + **lint-staged** — pre-commit hook runs ESLint + Prettier on staged files only; prevents broken commits
 - **No `any` types** — never use `any` in production code. Use `unknown`, proper types, or Zod schemas instead. In tests, prefer `as Type` assertions over `as any`. Configure TypeScript with `strict: true` to enforce this.
 
@@ -394,7 +399,9 @@ Public detail pages (`/matches/:id`, `/tournaments/:id`, `/stores/:id`, `/profil
 | `pnpm test`                     | Run all Vitest tests (worker unit + frontend)   |
 | `pnpm test:e2e`                 | Playwright auto-starts services, runs e2e tests |
 | `pnpm lint`                     | ESLint check across all packages                |
-| `pnpm format`                   | Prettier format                                 |
+| `pnpm lint:fix`                 | ESLint check with `--fix` across all packages   |
+| `pnpm format`                   | Prettier format across all packages             |
+| `pnpm format:check`             | Prettier check across all packages              |
 | `supabase start`                | Start local Supabase stack (Docker)             |
 | `supabase stop`                 | Stop local Supabase                             |
 | `supabase db diff`              | Generate migration from schema changes          |

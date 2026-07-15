@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const PaginationSchema = z.object({
   limit: z.number().int().min(1).max(100).default(20),

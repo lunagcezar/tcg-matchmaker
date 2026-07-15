@@ -2,7 +2,7 @@
   <q-page class="q-pa-md">
     <h5>Admin Dashboard</h5>
     <div class="row q-col-gutter-md">
-      <div class="col-12 col-sm-6 col-md-4" v-for="card in cards" :key="card.to">
+      <div v-for="card in cards" :key="card.to" class="col-12 col-sm-6 col-md-4">
         <q-card clickable :to="card.to" class="q-pa-md">
           <q-card-section class="text-center">
             <q-icon :name="card.icon" size="48px" color="primary" />

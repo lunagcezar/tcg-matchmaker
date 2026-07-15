@@ -14,7 +14,9 @@ export const useStoreStore = defineStore('stores', () => {
       const r = await fetch(`${apiUrl}/api/stores`);
       const j = await r.json();
       items.value = j.data ?? [];
-    } finally { loading.value = false; }
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function get(id: string) {
@@ -25,7 +27,8 @@ export const useStoreStore = defineStore('stores', () => {
 
   async function create(input: Record<string, unknown>) {
     const r = await fetch(`${apiUrl}/api/stores`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     });
     const data = (await r.json()).data;

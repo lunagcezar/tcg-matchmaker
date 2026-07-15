@@ -1,8 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const CreateTcgSchema = z.object({
   name: z.string().min(1).max(100),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/),
   description: z.string().max(500).optional(),
   logo_path: z.string().optional(),
 });
@@ -32,20 +36,34 @@ export const FormatSchema = z.object({
 export const CreateFormatSchema = z.object({
   tcg_id: z.string().uuid(),
   name: z.string().min(1).max(100),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/),
   description: z.string().max(500).optional(),
 });
 
 export const UpdateTcgSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional(),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
   description: z.string().max(500).optional(),
   logo_path: z.string().optional(),
 });
 
 export const UpdateFormatSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional(),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
   description: z.string().max(500).optional(),
 });
 

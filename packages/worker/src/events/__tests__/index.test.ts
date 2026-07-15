@@ -149,37 +149,33 @@ describe('Event routes', () => {
     it('adds participant with pending status', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       const eChain = chain({
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: {
-              id: eventId,
-              type: 'match',
-              status: 'open',
-              max_participants: null,
-              created_by_user_id: testUserId2,
-            },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: eventId,
+            type: 'match',
+            status: 'open',
+            max_participants: null,
+            created_by_user_id: testUserId2,
+          },
+          error: null,
+        }),
       });
       const pChain = chain({
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: {
-              id: '00000000-0000-0000-0000-000000000010',
-              event_id: eventId,
-              user_id: testUserId,
-              role: 'opponent',
-              status: 'pending',
-              confirmed_at: null,
-              score: null,
-              placement: null,
-              seed: null,
-              created_at: '2026-07-14T00:00:00.000Z',
-            },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: '00000000-0000-0000-0000-000000000010',
+            event_id: eventId,
+            user_id: testUserId,
+            role: 'opponent',
+            status: 'pending',
+            confirmed_at: null,
+            score: null,
+            placement: null,
+            seed: null,
+            created_at: '2026-07-14T00:00:00.000Z',
+          },
+          error: null,
+        }),
         insert: vi.fn().mockReturnThis(),
       });
 
@@ -211,12 +207,10 @@ describe('Event routes', () => {
     it('returns 403 when user is not the creator', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       const eChain = chain({
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: { id: eventId, created_by_user_id: testUserId2 },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: { id: eventId, created_by_user_id: testUserId2 },
+          error: null,
+        }),
       });
 
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({

@@ -3,8 +3,26 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.stubGlobal('fetch', vi.fn());
 
 const mockNotifications = [
-  { id: '1', user_id: 'u1', type: 'match_invite', title: 'Match Invite', body: 'You are invited!', data: { path: '/matches/1' }, read_at: null, created_at: '2026-07-15T10:00:00Z' },
-  { id: '2', user_id: 'u1', type: 'bracket_advance', title: 'You advanced!', body: 'Next round awaits', data: { path: '/tournaments/1' }, read_at: '2026-07-15T11:00:00Z', created_at: '2026-07-15T09:00:00Z' },
+  {
+    id: '1',
+    user_id: 'u1',
+    type: 'match_invite',
+    title: 'Match Invite',
+    body: 'You are invited!',
+    data: { path: '/matches/1' },
+    read_at: null,
+    created_at: '2026-07-15T10:00:00Z',
+  },
+  {
+    id: '2',
+    user_id: 'u1',
+    type: 'bracket_advance',
+    title: 'You advanced!',
+    body: 'Next round awaits',
+    data: { path: '/tournaments/1' },
+    read_at: '2026-07-15T11:00:00Z',
+    created_at: '2026-07-15T09:00:00Z',
+  },
 ];
 
 describe('useNotifications', () => {
@@ -54,7 +72,9 @@ describe('useNotifications', () => {
 
   it('marks a notification as read', async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ data: { ...mockNotifications[0]!, read_at: '2026-07-15T12:00:00Z' } }),
+      json: vi
+        .fn()
+        .mockResolvedValue({ data: { ...mockNotifications[0]!, read_at: '2026-07-15T12:00:00Z' } }),
     });
 
     const { useNotifications } = await import('../useNotifications');

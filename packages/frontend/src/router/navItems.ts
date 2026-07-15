@@ -22,7 +22,4 @@ export const drawerNavItems: NavItem[] = [
   { labelKey: 'nav.settings', to: '/settings', icon: 'settings', auth: true },
 ];
 
-export const headerNavItems = [
-  { labelKey: 'nav.home', to: '/', exact: true },
-  ...eventNavItems,
-];
+export const headerNavItems = [{ labelKey: 'nav.home', to: '/', exact: true }, ...eventNavItems];

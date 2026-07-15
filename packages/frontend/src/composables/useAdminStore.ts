@@ -8,7 +8,7 @@ interface ApiResult {
 export async function fetchStore(id: string): Promise<ApiResult | null> {
   try {
     const res = await fetch(`${API_BASE}/api/stores/${id}`);
-    const json = await res.json() as { data: ApiResult | null };
+    const json = (await res.json()) as { data: ApiResult | null };
     return json.data ?? null;
   } catch {
     return null;
@@ -18,7 +18,7 @@ export async function fetchStore(id: string): Promise<ApiResult | null> {
 export async function verifyStore(id: string): Promise<ApiResult | null> {
   try {
     const res = await fetch(`${API_BASE}/api/stores/${id}/verify`, { method: 'POST' });
-    const json = await res.json() as { data: ApiResult | null; error: string | null };
+    const json = (await res.json()) as { data: ApiResult | null; error: string | null };
     if (json.error) return { error: json.error };
     return json.data ?? { success: true };
   } catch {
@@ -33,7 +33,7 @@ export async function suspendStore(id: string, reason: string): Promise<ApiResul
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reason }),
     });
-    const json = await res.json() as { data: ApiResult | null; error: string | null };
+    const json = (await res.json()) as { data: ApiResult | null; error: string | null };
     if (json.error) return { error: json.error };
     return json.data ?? { success: true };
   } catch {
@@ -44,7 +44,7 @@ export async function suspendStore(id: string, reason: string): Promise<ApiResul
 export async function deleteStore(id: string): Promise<ApiResult | null> {
   try {
     const res = await fetch(`${API_BASE}/api/stores/${id}`, { method: 'DELETE' });
-    const json = await res.json() as { data: ApiResult | null; error: string | null };
+    const json = (await res.json()) as { data: ApiResult | null; error: string | null };
     if (json.error) return { error: json.error };
     return json.data ?? { success: true };
   } catch {
@@ -52,14 +52,17 @@ export async function deleteStore(id: string): Promise<ApiResult | null> {
   }
 }
 
-export async function updateStore(id: string, data: Record<string, unknown>): Promise<ApiResult | null> {
+export async function updateStore(
+  id: string,
+  data: Record<string, unknown>,
+): Promise<ApiResult | null> {
   try {
     const res = await fetch(`${API_BASE}/api/stores/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    const json = await res.json() as { data: ApiResult | null; error: string | null };
+    const json = (await res.json()) as { data: ApiResult | null; error: string | null };
     if (json.error) return { error: json.error };
     return json.data ?? { success: true };
   } catch {

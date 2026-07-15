@@ -3,9 +3,17 @@
     <div v-if="events.length === 0" class="text-center q-py-xl text-grey">
       {{ $t('home.noEvents') }}
     </div>
-    <q-card v-for="event in events" :key="(event.id as string)" clickable class="q-mb-sm" :to="detailRoute(event)">
+    <q-card
+      v-for="event in events"
+      :key="event.id as string"
+      clickable
+      class="q-mb-sm"
+      :to="detailRoute(event)"
+    >
       <q-card-section class="q-py-sm row items-center">
-        <q-badge :color="badgeColor(event.type as string)" class="q-mr-sm">{{ event.type }}</q-badge>
+        <q-badge :color="badgeColor(event.type as string)" class="q-mr-sm">{{
+          event.type
+        }}</q-badge>
         <div class="text-body2 text-weight-medium">{{ event.name || event.type }}</div>
         <q-space />
         <div class="text-caption text-grey">{{ timeAgo(event.scheduled_at as string) }}</div>

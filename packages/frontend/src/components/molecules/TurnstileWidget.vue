@@ -14,7 +14,10 @@ let widgetId: string | null = null;
 declare global {
   interface Window {
     turnstile?: {
-      render: (container: HTMLElement, opts: { sitekey: string; callback: (token: string) => void }) => string;
+      render: (
+        container: HTMLElement,
+        opts: { sitekey: string; callback: (token: string) => void },
+      ) => string;
       reset: (widgetId: string) => void;
       remove: (widgetId: string) => void;
     };
@@ -44,9 +47,12 @@ function renderWidget() {
   });
 }
 
-watch(() => props.siteKey, () => {
-  if (widgetId && window.turnstile) {
-    window.turnstile.reset(widgetId);
-  }
-});
+watch(
+  () => props.siteKey,
+  () => {
+    if (widgetId && window.turnstile) {
+      window.turnstile.reset(widgetId);
+    }
+  },
+);
 </script>

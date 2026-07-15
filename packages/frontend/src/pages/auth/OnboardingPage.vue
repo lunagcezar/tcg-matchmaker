@@ -36,7 +36,12 @@ onMounted(async () => {
   }
 });
 
-async function handleOnboarding(data: { email: string; password: string; username?: string; displayName?: string }) {
+async function handleOnboarding(data: {
+  email: string;
+  password: string;
+  username?: string;
+  displayName?: string;
+}) {
   loading.value = true;
   error.value = '';
   try {

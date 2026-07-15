@@ -112,19 +112,17 @@ describe('Moderation routes', () => {
       const { createClient } = await import('@supabase/supabase-js');
       const adminId = '00000000-0000-0000-0000-00000000000a';
       const adminUChain = chain({
-        single: vi
-          .fn()
-          .mockResolvedValue({
-            data: {
-              id: adminId,
-              email: 'a@b.com',
-              username: 'admin',
-              role: 'admin',
-              banned_at: null,
-              deleted_at: null,
-            },
-            error: null,
-          }),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: adminId,
+            email: 'a@b.com',
+            username: 'admin',
+            role: 'admin',
+            banned_at: null,
+            deleted_at: null,
+          },
+          error: null,
+        }),
       });
       const targetChain = chain({
         update: vi.fn().mockReturnThis(),
@@ -180,7 +178,7 @@ describe('Moderation routes', () => {
 
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
         ...authMock(adminId),
-        from: vi.fn().mockImplementation((t: string) => chainCalls),
+        from: vi.fn().mockImplementation((_t: string) => chainCalls),
       });
 
       const res = await makeApp()

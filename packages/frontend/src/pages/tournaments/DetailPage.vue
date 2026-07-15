@@ -5,25 +5,45 @@
         <q-card-section>
           <div class="row items-center">
             <h5 class="q-my-none">{{ tournament.name || $t('tournament.details') }}</h5>
-            <q-badge :color="badgeColor(tournament.status)" class="q-ml-sm">{{ tournament.status }}</q-badge>
+            <q-badge :color="badgeColor(tournament.status)" class="q-ml-sm">{{
+              tournament.status
+            }}</q-badge>
           </div>
-          <div class="text-caption text-grey q-mt-sm">{{ $t('event.date') }}: {{ formatDate(tournament.scheduled_at) }}</div>
+          <div class="text-caption text-grey q-mt-sm">
+            {{ $t('event.date') }}: {{ formatDate(tournament.scheduled_at) }}
+          </div>
         </q-card-section>
         <q-card-actions v-if="tournament.status === 'open'" class="q-pa-md">
-          <q-btn color="warning" :label="$t('tournament.register')" @click="register" :loading="registering" />
+          <q-btn
+            color="warning"
+            :label="$t('tournament.register')"
+            :loading="registering"
+            @click="register"
+          />
         </q-card-actions>
       </q-card>
-      <q-card v-if="tournament.status === 'in_progress' || tournament.status === 'completed'" class="q-mt-md">
-        <q-card-section><h6>{{ $t('tournament.bracket') }}</h6></q-card-section>
+      <q-card
+        v-if="tournament.status === 'in_progress' || tournament.status === 'completed'"
+        class="q-mt-md"
+      >
+        <q-card-section
+          ><h6>{{ $t('tournament.bracket') }}</h6></q-card-section
+        >
         <div ref="bracketRef" class="bracket-container"></div>
       </q-card>
       <q-card class="q-mt-md">
-        <q-card-section><h6>{{ $t('tournament.participants') }}</h6></q-card-section>
-        <q-card-section v-if="participants.length === 0" class="text-grey">{{ $t('tournament.noParticipants') }}</q-card-section>
+        <q-card-section
+          ><h6>{{ $t('tournament.participants') }}</h6></q-card-section
+        >
+        <q-card-section v-if="participants.length === 0" class="text-grey">{{
+          $t('tournament.noParticipants')
+        }}</q-card-section>
         <q-list v-else>
-          <q-item v-for="p in participants" :key="(p.id as string)">
-            <q-item-section>{{ (p as Record<string, string>).user_id?.slice(0, 8) }}</q-item-section>
-            <q-item-section side><q-badge>{{ (p as Record<string, string>).status }}</q-badge></q-item-section>
+          <q-item v-for="p in participants" :key="p.id as string">
+            <q-item-section>{{ (p as Participant).user_id?.slice(0, 8) }}</q-item-section>
+            <q-item-section side
+              ><q-badge>{{ (p as Participant).status }}</q-badge></q-item-section
+            >
           </q-item>
         </q-list>
       </q-card>
@@ -43,6 +63,8 @@ const route = useRoute();
 const store = useEventStore();
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const tournamentId = route.params.id as string;
+type Participant = Record<string, string>;
+
 const participants = ref<Array<Record<string, unknown>>>([]);
 const registering = ref(false);
 const bracketRef = ref<HTMLElement | null>(null);
@@ -54,10 +76,22 @@ const loading = computed(() => store.loading);
 usePageMeta({ title: tournament.value?.name || 'Tournament' });
 useBracketD3(bracketRef, bracketMatches);
 
-function badgeColor(s: string | undefined) { return s === 'in_progress' ? 'warning' : s === 'completed' ? 'positive' : 'primary'; }
-function formatDate(d: string | undefined) { return d ? new Date(d).toLocaleString() : ''; }
+function badgeColor(s: string | undefined) {
+  return s === 'in_progress' ? 'warning' : s === 'completed' ? 'positive' : 'primary';
+}
+function formatDate(d: string | undefined) {
+  return d ? new Date(d).toLocaleString() : '';
+}
 
-async function register() { registering.value = true; try { await store.join(tournamentId); await store.get(tournamentId); } finally { registering.value = false; } }
+async function register() {
+  registering.value = true;
+  try {
+    await store.join(tournamentId);
+    await store.get(tournamentId);
+  } finally {
+    registering.value = false;
+  }
+}
 
 async function loadBracket() {
   try {
@@ -72,12 +106,20 @@ async function loadBracket() {
         winner: (m.winner_id as string)?.slice(0, 8) || null,
       }));
     }
-  } catch { console.warn('bracket load failed'); }
+  } catch {
+    console.warn('bracket load failed');
+  }
 }
 
 onMounted(async () => {
   await store.get(tournamentId);
-  try { const r = await fetch(`${apiUrl}/api/events/${tournamentId}/participants`); const j = await r.json(); participants.value = j.data ?? []; } catch { console.warn('failed to load participants'); }
+  try {
+    const r = await fetch(`${apiUrl}/api/events/${tournamentId}/participants`);
+    const j = await r.json();
+    participants.value = j.data ?? [];
+  } catch {
+    console.warn('failed to load participants');
+  }
   if (tournament.value?.status === 'in_progress' || tournament.value?.status === 'completed') {
     await loadBracket();
   }
@@ -85,5 +127,8 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.bracket-container { min-height: 300px; overflow-x: auto; }
+.bracket-container {
+  min-height: 300px;
+  overflow-x: auto;
+}
 </style>

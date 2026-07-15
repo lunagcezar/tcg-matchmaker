@@ -44,5 +44,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 const drawerOpen = ref(false);
-function toggleDrawer() { drawerOpen.value = !drawerOpen.value; }
+function toggleDrawer() {
+  drawerOpen.value = !drawerOpen.value;
+}
 </script>
