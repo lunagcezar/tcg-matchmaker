@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.49.0] — 2026-07-15
+
+### Added
+
+- Domain types from `@tcg/shared` Zod schemas:
+  - `src/types/domain.ts` re-exporting `Event`, `Store`, `Notification`, `UserResponse`, `StoreMembership`, etc.
+  - Stores now use proper types: `Event[]` instead of `Record<string, unknown>[]`
+  - Removed dozens of `as Record<string, string>` casts across all pages
+  - Fixed 6 post-migration type errors (implicit any, filter signatures)
+
 ## [0.48.0] — 2026-07-15
 
 ### Added
