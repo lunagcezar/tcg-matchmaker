@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.41.0] — 2026-07-15
+
+### Added
+
+- Account management settings (spec-041):
+  - Account deletion with last-admin protection and confirmation dialog
+  - Account suspension with confirmation dialog (temporary block)
+  - LGPD data export as JSON download
+  - `useAccountManagement` composable with deleteAccount, suspendAccount, exportData
+  - i18n strings (en-US + pt-BR)
+  - Quasar dialog confirmation + notify feedback for all destructive actions
+
+## [0.40.0] — 2026-07-15
+
+### Added
+
+- Notifications UI (spec-040):
+  - `useNotifications` composable with list, unread count, mark read, mark all read, Realtime subscription
+  - `NotificationBell` component with unread badge in navbar
+  - `NotificationList` dropdown panel (5 most recent notifications, deep-link, relative timestamps)
+  - Notification page at `/notifications` with full list, mark-read buttons, "Mark all as read"
+  - Realtime subscription for live notification updates
+  - Push notification opt-in toggle on settings page
+  - i18n strings (en-US + pt-BR)
+  - Route, nav item, UserMenu link for notifications
+
+### Fixed
+
+- Router.push calls now properly voided for lint compliance
+
 ## [0.39.0] — 2026-07-14
 
 ### Added

@@ -8,6 +8,10 @@
         {{ displayName }}
       </template>
       <q-list>
+        <q-item clickable v-close-popup to="/notifications">
+          <q-item-section avatar><q-icon name="notifications" /></q-item-section>
+          <q-item-section>{{ $t('nav.notifications') }}</q-item-section>
+        </q-item>
         <q-item clickable v-close-popup to="/settings">
           <q-item-section avatar><q-icon name="settings" /></q-item-section>
           <q-item-section>{{ $t('nav.settings') }}</q-item-section>

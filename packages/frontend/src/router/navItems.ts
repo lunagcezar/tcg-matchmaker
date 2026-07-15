@@ -18,6 +18,7 @@ export const drawerNavItems: NavItem[] = [
   { labelKey: 'nav.stores', to: '/stores', icon: 'store' },
   { divider: true },
   ...eventNavItems,
+  { labelKey: 'nav.notifications', to: '/notifications', icon: 'notifications', auth: true },
   { labelKey: 'nav.settings', to: '/settings', icon: 'settings', auth: true },
 ];
 

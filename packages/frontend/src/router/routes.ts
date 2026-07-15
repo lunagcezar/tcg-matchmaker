@@ -25,6 +25,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'stores/new', name: 'store-create', component: () => import('@/pages/stores/CreatePage.vue'), meta: { requiresAuth: true } },
       { path: 'stores/:id', name: 'store-detail', component: () => import('@/pages/stores/DetailPage.vue') },
       { path: 'stores/:id/settings', name: 'store-settings', component: () => import('@/pages/stores/SettingsPage.vue'), meta: { requiresAuth: true } },
+      { path: 'notifications', name: 'notifications', component: () => import('@/pages/notifications/NotificationPage.vue'), meta: { requiresAuth: true } },
     ],
   },
   {

@@ -10,6 +10,7 @@
           <q-btn flat :label="$t(item.labelKey!)" :to="item.to!" :exact="item.exact" class="q-mr-xs" active-class="text-weight-bold" />
         </template>
         <ThemeLangSwitcher />
+        <NotificationBell />
         <UserMenu />
       </q-toolbar>
     </q-header>
@@ -35,6 +36,7 @@ import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/useAuthStore';
 import ThemeLangSwitcher from '@/components/molecules/ThemeLangSwitcher.vue';
 import UserMenu from '@/components/molecules/UserMenu.vue';
+import NotificationBell from '@/components/molecules/NotificationBell.vue';
 import { headerNavItems, drawerNavItems } from '@/router/navItems';
 
 const authStore = useAuthStore();
