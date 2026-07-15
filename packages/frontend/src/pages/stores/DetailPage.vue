@@ -37,6 +37,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStoreStore } from '@/stores/useStoreStore';
+import { getApiBase } from '@/lib/api';
 
 const route = useRoute();
 type StoreMember = Record<string, string>;
@@ -45,13 +46,12 @@ const storeStore = useStoreStore();
 const members = ref<Array<Record<string, unknown>>>([]);
 
 const store = computed(() => storeStore.current as Record<string, string> | null);
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const storeId = route.params.id as string;
 
 onMounted(async () => {
   await storeStore.get(storeId);
   try {
-    const r = await fetch(`${apiUrl}/api/stores/${storeId}/members`);
+    const r = await fetch(`${getApiBase()}/api/stores/${storeId}/members`);
     const j = await r.json();
     members.value = j.data ?? [];
   } catch {

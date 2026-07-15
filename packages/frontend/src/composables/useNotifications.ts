@@ -2,7 +2,8 @@ import { ref, type Ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+import { getApiBase } from '@/lib/api';
+const API_BASE = getApiBase();
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;

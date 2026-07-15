@@ -21,13 +21,12 @@ import { usePageMeta } from '@/composables/usePageMeta';
 usePageMeta({ titleKey: 'meta.onboarding', descKey: 'meta.onboardingDesc' });
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
+import { getApiBase } from '@/lib/api';
 
 const authStore = useAuthStore();
 const router = useRouter();
 const loading = ref(false);
 const error = ref('');
-
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
 onMounted(async () => {
   const needsOnboarding = await authStore.checkOnboarding();
@@ -45,7 +44,7 @@ async function handleOnboarding(data: {
   loading.value = true;
   error.value = '';
   try {
-    const res = await fetch(`${apiUrl}/api/auth/onboarding`, {
+    const res = await fetch(`${getApiBase()}/api/auth/onboarding`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

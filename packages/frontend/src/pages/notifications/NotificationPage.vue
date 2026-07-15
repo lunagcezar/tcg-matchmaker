@@ -21,13 +21,17 @@
         @click="handleClick(n)"
       >
         <q-item-section avatar>
-          <q-icon :name="iconForType(n.type)" :color="n.read_at ? 'grey' : 'primary'" size="md" />
+          <q-icon
+            :name="notificationIcon(n.type)"
+            :color="n.read_at ? 'grey' : 'primary'"
+            size="md"
+          />
         </q-item-section>
         <q-item-section>
           <q-item-label :class="{ 'text-weight-bold': !n.read_at }">{{ n.title }}</q-item-label>
           <q-item-label caption>{{ n.body }}</q-item-label>
           <q-item-label caption class="text-caption text-grey">{{
-            formattedDate(n.created_at)
+            formatDate(n.created_at)
           }}</q-item-label>
         </q-item-section>
         <q-item-section v-if="!n.read_at" side>
@@ -60,6 +64,8 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useNotifications } from '@/composables/useNotifications';
+import { formatDate } from '@/lib/format';
+import { notificationIcon } from '@/lib/colors';
 
 const router = useRouter();
 const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead } =
@@ -68,19 +74,6 @@ const { notifications, unreadCount, loading, fetchNotifications, markAsRead, mar
 onMounted(() => {
   void fetchNotifications();
 });
-
-function iconForType(type: string): string {
-  if (type.includes('invite') || type.includes('challenge')) return 'mail';
-  if (type.includes('bracket') || type.includes('advance') || type.includes('tournament'))
-    return 'emoji_events';
-  if (type.includes('store') || type.includes('moderation')) return 'gavel';
-  if (type.includes('rsvp') || type.includes('confirm')) return 'event';
-  return 'notifications';
-}
-
-function formattedDate(iso: string): string {
-  return new Date(iso).toLocaleString();
-}
 
 async function handleClick(n: {
   id: string;

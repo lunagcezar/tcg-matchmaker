@@ -51,37 +51,23 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { getApiBase } from '@/lib/api';
+import { formatDate } from '@/lib/format';
+import { roleColor, eventColor } from '@/lib/colors';
+import { eventRoute } from '@/lib/router';
 
 const route = useRoute();
 const username = route.params.username as string;
 usePageMeta({ title: `@${username}`, description: `View ${username}'s TCG event history` });
 const eventStore = useEventStore();
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const loading = ref(true);
 const profile = ref<Record<string, string> | null>(null);
 const events = computed(() => eventStore.items as Array<Record<string, string>>);
 
-function formatDate(d: string | undefined) {
-  return d ? new Date(d).toLocaleDateString() : '';
-}
-function roleColor(r: string | undefined) {
-  return r === 'admin' ? 'red' : r === 'organizer' ? 'warning' : 'primary';
-}
-function eventColor(t: string | undefined) {
-  return t === 'match' ? 'primary' : t === 'trading' ? 'positive' : 'warning';
-}
-function eventRoute(e: Record<string, string>) {
-  const t = e.type;
-  const id = e.id;
-  if (t === 'match') return `/matches/${id}`;
-  if (t === 'trading') return `/trading/${id}`;
-  return `/tournaments/${id}`;
-}
-
 onMounted(async () => {
   loading.value = true;
   try {
-    const r = await fetch(`${apiUrl}/api/auth/me`);
+    const r = await fetch(`${getApiBase()}/api/auth/me`);
     const j = await r.json();
     profile.value = j.data ?? null;
     if (profile.value?.username === username) {

@@ -40,8 +40,8 @@
 import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
+import { getApiBase } from '@/lib/api';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const reports = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
 const columns = [
@@ -55,7 +55,7 @@ const columns = [
 async function fetchReports() {
   loading.value = true;
   try {
-    const r = await fetch(`${apiUrl}/api/reports`);
+    const r = await fetch(`${getApiBase()}/api/reports`);
     const b = await r.json();
     reports.value = b.data ?? [];
   } finally {
@@ -63,7 +63,7 @@ async function fetchReports() {
   }
 }
 async function resolveReport(id: string) {
-  await fetch(`${apiUrl}/api/reports/${id}`, {
+  await fetch(`${getApiBase()}/api/reports/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status: 'resolved' }),
@@ -71,7 +71,7 @@ async function resolveReport(id: string) {
   await fetchReports();
 }
 async function dismissReport(id: string) {
-  await fetch(`${apiUrl}/api/reports/${id}`, {
+  await fetch(`${getApiBase()}/api/reports/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status: 'dismissed' }),

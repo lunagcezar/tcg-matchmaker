@@ -1,7 +1,8 @@
 import { ref } from 'vue';
 import { useGeolocation as useVueuseGeolocation } from '@vueuse/core';
+import { getApiBase } from '@/lib/api';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+const apiUrl = getApiBase();
 
 export function useGeolocation() {
   const { coords, resume, pause, isSupported } = useVueuseGeolocation();

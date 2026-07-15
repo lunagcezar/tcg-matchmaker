@@ -76,6 +76,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { deleteAccount, suspendAccount, exportData } from '@/composables/useAccountManagement';
+import { getApiBase } from '@/lib/api';
 
 usePageMeta({ titleKey: 'meta.settings', descKey: 'meta.settingsDesc' });
 
@@ -84,8 +85,6 @@ const authStore = useAuthStore();
 const appStore = useAppStore();
 const router = useRouter();
 const { locale: i18nLocale, t } = useI18n({ useScope: 'global' });
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
-
 const displayName = ref('');
 const saving = ref(false);
 const message = ref('');
@@ -115,7 +114,7 @@ async function saveProfile() {
   saving.value = true;
   message.value = '';
   try {
-    await fetch(`${apiUrl}/api/auth/profile`, {
+    await fetch(`${getApiBase()}/api/auth/profile`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ display_name: displayName.value }),
@@ -222,7 +221,7 @@ async function logout() {
 
 onMounted(async () => {
   try {
-    const r = await fetch(`${apiUrl}/api/auth/me`);
+    const r = await fetch(`${getApiBase()}/api/auth/me`);
     const j = await r.json();
     if (j.data) displayName.value = j.data.display_name || '';
   } catch {

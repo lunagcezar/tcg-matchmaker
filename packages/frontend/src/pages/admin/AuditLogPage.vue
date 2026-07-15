@@ -15,8 +15,8 @@
 import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
+import { getApiBase } from '@/lib/api';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const entries = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
 const columns = [
@@ -28,7 +28,7 @@ const columns = [
 async function fetchAuditLog() {
   loading.value = true;
   try {
-    const r = await fetch(`${apiUrl}/api/admin/audit-log`);
+    const r = await fetch(`${getApiBase()}/api/admin/audit-log`);
     const b = await r.json();
     entries.value = b.data ?? [];
   } finally {

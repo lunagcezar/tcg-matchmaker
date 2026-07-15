@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+import { getApiBase } from '@/lib/api';
+const API_BASE = getApiBase();
 
 interface ApiResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

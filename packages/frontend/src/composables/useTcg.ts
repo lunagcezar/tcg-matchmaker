@@ -1,6 +1,7 @@
 import { ref } from 'vue';
+import { getApiBase } from '@/lib/api';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+const apiUrl = getApiBase();
 
 export function useTcg() {
   const items = ref<Array<{ id: string; name: string; slug: string }>>([]);

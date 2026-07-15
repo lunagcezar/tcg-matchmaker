@@ -35,6 +35,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { formatDate } from '@/lib/format';
 
 usePageMeta({ titleKey: 'meta.matches', descKey: 'meta.matchesDesc' });
 
@@ -56,11 +57,6 @@ const matches = computed(() => {
   return all.filter((m) => m.status === statusFilter.value);
 });
 const loading = computed(() => store.loading);
-
-function formatDate(d: string | undefined) {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString();
-}
 
 onMounted(() => store.list({ type: 'match' }));
 </script>

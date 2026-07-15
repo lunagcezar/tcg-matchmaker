@@ -36,6 +36,7 @@
 import { computed, onMounted } from 'vue';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { formatDate } from '@/lib/format';
 
 usePageMeta({ titleKey: 'nav.tournaments', descKey: 'meta.homeDesc' });
 
@@ -46,9 +47,5 @@ const loading = computed(() => store.loading);
 function badgeColor(s: string | undefined) {
   return s === 'in_progress' ? 'warning' : s === 'completed' ? 'positive' : 'primary';
 }
-function formatDate(d: string | undefined) {
-  return d ? new Date(d).toLocaleDateString() : '';
-}
-
 onMounted(() => store.list({ type: 'tournament' }));
 </script>

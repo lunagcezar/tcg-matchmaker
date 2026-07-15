@@ -31,6 +31,7 @@ import AuthForm from '@/components/molecules/AuthForm.vue';
 
 usePageMeta({ titleKey: 'meta.signup', descKey: 'meta.signupDesc' });
 import TurnstileWidget from '@/components/molecules/TurnstileWidget.vue';
+import { getApiBase } from '@/lib/api';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -38,13 +39,12 @@ const loading = ref(false);
 const turnstileToken = ref('');
 
 const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
 async function handleSignup(data: { email: string; password: string }) {
   loading.value = true;
   try {
     if (turnstileToken.value) {
-      const verifyRes = await fetch(`${apiUrl}/api/verify-turnstile`, {
+      const verifyRes = await fetch(`${getApiBase()}/api/verify-turnstile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: turnstileToken.value }),

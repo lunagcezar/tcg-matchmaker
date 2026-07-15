@@ -49,8 +49,8 @@
 import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
+import { getApiBase } from '@/lib/api';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const users = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
 const columns = [
@@ -64,7 +64,7 @@ const columns = [
 async function fetchUsers() {
   loading.value = true;
   try {
-    const r = await fetch(`${apiUrl}/api/auth/me`);
+    const r = await fetch(`${getApiBase()}/api/auth/me`);
     const b = await r.json();
     users.value = b.data ? [b.data] : [];
   } finally {
@@ -72,15 +72,15 @@ async function fetchUsers() {
   }
 }
 async function banUser(id: string) {
-  await fetch(`${apiUrl}/api/admin/users/${id}/ban`, { method: 'POST' });
+  await fetch(`${getApiBase()}/api/admin/users/${id}/ban`, { method: 'POST' });
   await fetchUsers();
 }
 async function unbanUser(id: string) {
-  await fetch(`${apiUrl}/api/admin/users/${id}/unban`, { method: 'POST' });
+  await fetch(`${getApiBase()}/api/admin/users/${id}/unban`, { method: 'POST' });
   await fetchUsers();
 }
 async function promoteUser(id: string) {
-  await fetch(`${apiUrl}/api/admin/users/${id}/promote`, { method: 'POST' });
+  await fetch(`${getApiBase()}/api/admin/users/${id}/promote`, { method: 'POST' });
   await fetchUsers();
 }
 onMounted(fetchUsers);

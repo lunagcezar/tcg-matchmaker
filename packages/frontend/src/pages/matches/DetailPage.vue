@@ -71,6 +71,9 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { getApiBase } from '@/lib/api';
+import { formatDate } from '@/lib/format';
+import { badgeColor, statusColor } from '@/lib/colors';
 
 const route = useRoute();
 const store = useEventStore();
@@ -79,7 +82,6 @@ const participants = ref<Array<Record<string, unknown>>>([]);
 const joining = ref(false);
 const confirming = ref(false);
 const declining = ref(false);
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const matchId = route.params.id as string;
 
 type MatchDetails = Record<string, string | undefined>;
@@ -96,22 +98,6 @@ const myParticipation = computed(() => {
     ) as Participant | null) ?? null
   );
 });
-
-function formatDate(d: string | undefined) {
-  return d ? new Date(d).toLocaleString() : '';
-}
-function badgeColor(s: string | undefined) {
-  return s === 'confirmed' ? 'positive' : s === 'declined' ? 'negative' : 'warning';
-}
-function statusColor(s: string | undefined) {
-  return s === 'open'
-    ? 'primary'
-    : s === 'confirmed'
-      ? 'positive'
-      : s === 'cancelled'
-        ? 'negative'
-        : 'grey';
-}
 
 async function join() {
   joining.value = true;
@@ -146,7 +132,7 @@ async function declineAttendance() {
 async function loadData() {
   await store.get(matchId);
   try {
-    const r = await fetch(`${apiUrl}/api/events/${matchId}/participants`);
+    const r = await fetch(`${getApiBase()}/api/events/${matchId}/participants`);
     const j = await r.json();
     participants.value = j.data ?? [];
   } catch {

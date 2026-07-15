@@ -25,12 +25,12 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStoreStore } from '@/stores/useStoreStore';
+import { getApiBase } from '@/lib/api';
 
 const route = useRoute();
 const storeStore = useStoreStore();
 const saving = ref(false);
 const error = ref('');
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const storeId = route.params.id as string;
 const form = reactive({ name: '', address: '', phone: '' });
 
@@ -46,7 +46,7 @@ onMounted(async () => {
 async function save() {
   saving.value = true;
   try {
-    await fetch(`${apiUrl}/api/stores/${storeId}`, {
+    await fetch(`${getApiBase()}/api/stores/${storeId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),

@@ -26,9 +26,9 @@ import { useRoute } from 'vue-router';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import AdminFormDialog from '@/components/molecules/AdminFormDialog.vue';
+import { getApiBase } from '@/lib/api';
 
 const route = useRoute();
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const tcgId = route.params.id as string;
 const formats = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
@@ -43,7 +43,7 @@ const columns = [
 async function fetchFormats() {
   loading.value = true;
   try {
-    const r = await fetch(`${apiUrl}/api/tcgs/${tcgId}/formats`);
+    const r = await fetch(`${getApiBase()}/api/tcgs/${tcgId}/formats`);
     const b = await r.json();
     formats.value = b.data ?? [];
   } finally {
@@ -53,7 +53,7 @@ async function fetchFormats() {
 async function createFormat() {
   saving.value = true;
   try {
-    await fetch(`${apiUrl}/api/tcgs/${tcgId}/formats`, {
+    await fetch(`${getApiBase()}/api/tcgs/${tcgId}/formats`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form.value, tcg_id: tcgId }),

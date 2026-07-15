@@ -15,7 +15,7 @@
         @click="handleClick(n)"
       >
         <q-item-section avatar>
-          <q-icon :name="iconForType(n.type)" :color="n.read_at ? 'grey' : 'primary'" />
+          <q-icon :name="notificationIcon(n.type)" :color="n.read_at ? 'grey' : 'primary'" />
         </q-item-section>
         <q-item-section>
           <q-item-label :class="{ 'text-weight-bold': !n.read_at }">{{ n.title }}</q-item-label>
@@ -47,6 +47,8 @@
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useNotifications } from '@/composables/useNotifications';
+import { relativeTime } from '@/lib/format';
+import { notificationIcon } from '@/lib/colors';
 
 const router = useRouter();
 const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead } =
@@ -57,26 +59,6 @@ const recentNotifications = computed(() => notifications.value.slice(0, 5));
 onMounted(() => {
   void fetchNotifications();
 });
-
-function iconForType(type: string): string {
-  if (type.includes('invite') || type.includes('challenge')) return 'mail';
-  if (type.includes('bracket') || type.includes('advance') || type.includes('tournament'))
-    return 'emoji_events';
-  if (type.includes('store') || type.includes('moderation')) return 'gavel';
-  if (type.includes('rsvp') || type.includes('confirm')) return 'event';
-  return 'notifications';
-}
-
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'now';
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  return `${days}d`;
-}
 
 async function handleClick(n: {
   id: string;

@@ -33,6 +33,7 @@
 import { computed, onMounted } from 'vue';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { formatDate } from '@/lib/format';
 
 usePageMeta({ titleKey: 'meta.trading', descKey: 'meta.tradingDesc' });
 
@@ -41,8 +42,5 @@ type TradingSession = Record<string, string | undefined>;
 const store = useEventStore();
 const sessions = computed(() => store.items as Array<TradingSession>);
 const loading = computed(() => store.loading);
-function formatDate(d: string | undefined) {
-  return d ? new Date(d).toLocaleDateString() : '';
-}
 onMounted(() => store.list({ type: 'trading' }));
 </script>

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { User } from '@supabase/supabase-js';
+import { getApiBase } from '@/lib/api';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -52,8 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function checkOnboarding(): Promise<boolean> {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/api/auth/onboarding`);
+      const res = await fetch(`${getApiBase()}/api/auth/onboarding`);
       const body = await res.json();
       return !body.data?.hasAdmin;
     } catch {

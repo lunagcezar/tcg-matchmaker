@@ -125,6 +125,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { getApiBase } from '@/lib/api';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import {
   fetchStore,
@@ -156,8 +157,6 @@ const editForm = reactive<Record<string, string>>({
   website: '',
 });
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
-
 function memberRoleColor(role: string) {
   return role === 'owner' ? 'red' : role === 'manager' ? 'warning' : 'primary';
 }
@@ -180,7 +179,7 @@ async function loadStore() {
 
 async function loadMembers() {
   try {
-    const res = await fetch(`${apiUrl}/api/stores/${storeId}/members`);
+    const res = await fetch(`${getApiBase()}/api/stores/${storeId}/members`);
     const json = (await res.json()) as { data: Array<Record<string, string>> };
     members.value = json.data ?? [];
   } catch {

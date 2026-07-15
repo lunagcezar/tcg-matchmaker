@@ -58,10 +58,12 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
+import { getApiBase } from '@/lib/api';
+import { formatDate } from '@/lib/format';
+import { badgeColor } from '@/lib/colors';
 
 const route = useRoute();
 const store = useEventStore();
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const tournamentId = route.params.id as string;
 type Participant = Record<string, string>;
 
@@ -76,13 +78,6 @@ const loading = computed(() => store.loading);
 usePageMeta({ title: tournament.value?.name || 'Tournament' });
 useBracketD3(bracketRef, bracketMatches);
 
-function badgeColor(s: string | undefined) {
-  return s === 'in_progress' ? 'warning' : s === 'completed' ? 'positive' : 'primary';
-}
-function formatDate(d: string | undefined) {
-  return d ? new Date(d).toLocaleString() : '';
-}
-
 async function register() {
   registering.value = true;
   try {
@@ -95,7 +90,7 @@ async function register() {
 
 async function loadBracket() {
   try {
-    const r = await fetch(`${apiUrl}/api/tournaments/${tournamentId}/bracket`);
+    const r = await fetch(`${getApiBase()}/api/tournaments/${tournamentId}/bracket`);
     const j = await r.json();
     if (j.data?.matches) {
       bracketMatches.value = j.data.matches.map((m: Record<string, unknown>) => ({
@@ -114,7 +109,7 @@ async function loadBracket() {
 onMounted(async () => {
   await store.get(tournamentId);
   try {
-    const r = await fetch(`${apiUrl}/api/events/${tournamentId}/participants`);
+    const r = await fetch(`${getApiBase()}/api/events/${tournamentId}/participants`);
     const j = await r.json();
     participants.value = j.data ?? [];
   } catch {

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { getApiBase } from '@/lib/api';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+const apiUrl = getApiBase();
 
 export const useStoreStore = defineStore('stores', () => {
   const items = ref<Array<Record<string, unknown>>>([]);
