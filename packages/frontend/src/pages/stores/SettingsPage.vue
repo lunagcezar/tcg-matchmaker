@@ -34,7 +34,7 @@ const storeId = route.params.id as string;
 const form = reactive({ name: '', address: '', phone: '' });
 
 onMounted(async () => {
-  const s = (await storeStore.get(storeId)) as Record<string, string> | null;
+  const s = await storeStore.get(storeId);
   if (s) {
     form.name = s.name || '';
     form.address = s.address || '';

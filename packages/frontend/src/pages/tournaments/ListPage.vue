@@ -41,7 +41,7 @@ import { formatDate } from '@/lib/format';
 usePageMeta({ titleKey: 'nav.tournaments', descKey: 'meta.homeDesc' });
 
 const store = useEventStore();
-const tournaments = computed(() => store.items as Array<Record<string, string>>);
+const tournaments = computed(() => store.items);
 const loading = computed(() => store.loading);
 
 function badgeColor(s: string | undefined) {

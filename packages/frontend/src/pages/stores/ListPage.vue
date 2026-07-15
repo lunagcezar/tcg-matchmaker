@@ -43,7 +43,7 @@ const storeStore = useStoreStore();
 const search = ref('');
 
 const stores = computed(() => {
-  const items = storeStore.items as Array<Record<string, string>>;
+  const items = storeStore.items;
   if (!search.value) return items;
   const q = search.value.toLowerCase();
   return items.filter(

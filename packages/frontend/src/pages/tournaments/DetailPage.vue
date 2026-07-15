@@ -72,7 +72,7 @@ const registering = ref(false);
 const bracketRef = ref<HTMLElement | null>(null);
 const bracketMatches = ref<BracketMatch[]>([]);
 
-const tournament = computed(() => store.current as Record<string, string> | null);
+const tournament = computed(() => store.current);
 const loading = computed(() => store.loading);
 
 usePageMeta({ title: tournament.value?.name || 'Tournament' });

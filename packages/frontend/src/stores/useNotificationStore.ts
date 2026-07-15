@@ -3,21 +3,11 @@ import { ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { apiGet, apiPost, apiPatch } from '@/composables/useApi';
+import type { Notification } from '@/types/domain';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
-
-export interface Notification {
-  id: string;
-  user_id: string;
-  type: string;
-  title: string;
-  body: string;
-  data: Record<string, unknown> | null;
-  read_at: string | null;
-  created_at: string;
-}
 
 export const useNotificationStore = defineStore('notifications', () => {
   const notifications = ref<Notification[]>([]);
@@ -54,7 +44,7 @@ export const useNotificationStore = defineStore('notifications', () => {
   async function markAsRead(id: string) {
     try {
       await apiPatch(`/api/notifications/${id}/read`, {});
-      const n = notifications.value.find((n) => n.id === id);
+      const n = notifications.value.find((item) => item.id === id);
       if (n) {
         n.read_at = new Date().toISOString();
         unreadCount.value = Math.max(0, unreadCount.value - 1);

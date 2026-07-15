@@ -28,7 +28,7 @@ const selectedTypes = ref<string[]>([]);
 const filteredEvents = computed(() => {
   const events = eventStore.items;
   if (selectedTypes.value.length === 0) return events;
-  return events.filter((e) => selectedTypes.value.includes(e.type as string));
+  return events.filter((e) => selectedTypes.value.includes(e.type));
 });
 
 function geolocate() {

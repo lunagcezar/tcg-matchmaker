@@ -10,11 +10,11 @@
           <div class="row q-col-gutter-sm">
             <div class="col-6">
               <strong>{{ $t('event.date') }}:</strong>
-              {{ formatDate((match as MatchDetails).scheduled_at) }}
+              {{ formatDate((match as unknown as MatchDetails).scheduled_at) }}
             </div>
             <div class="col-6">
               <strong>{{ $t('event.players') }}:</strong>
-              {{ (match as MatchDetails).max_participants || 2 }}
+              {{ (match as unknown as MatchDetails).max_participants || 2 }}
             </div>
           </div>
         </q-card-section>
@@ -87,7 +87,7 @@ const matchId = route.params.id as string;
 type MatchDetails = Record<string, string | undefined>;
 type Participant = Record<string, string>;
 
-const match = computed(() => store.current as Record<string, string> | null);
+const match = computed(() => store.current);
 const loading = computed(() => store.loading);
 
 const myParticipation = computed(() => {

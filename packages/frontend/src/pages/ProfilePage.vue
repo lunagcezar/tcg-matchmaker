@@ -62,7 +62,7 @@ usePageMeta({ title: `@${username}`, description: `View ${username}'s TCG event 
 const eventStore = useEventStore();
 const loading = ref(true);
 const profile = ref<Record<string, string> | null>(null);
-const events = computed(() => eventStore.items as Array<Record<string, string>>);
+const events = computed(() => eventStore.items);
 
 onMounted(async () => {
   loading.value = true;

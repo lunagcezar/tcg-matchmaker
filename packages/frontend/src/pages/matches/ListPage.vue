@@ -16,10 +16,12 @@
       >
         <q-card-section class="q-py-sm row items-center">
           <q-badge color="primary" class="q-mr-sm">{{ m.status }}</q-badge>
-          <div class="text-body2">{{ (m as MatchListItem).tcg_name || $t('event.anyTcg') }}</div>
+          <div class="text-body2">
+            {{ (m as unknown as MatchListItem).tcg_name || $t('event.anyTcg') }}
+          </div>
           <q-space />
           <div class="text-caption text-grey">
-            {{ formatDate((m as MatchListItem).scheduled_at) }}
+            {{ formatDate((m as unknown as MatchListItem).scheduled_at) }}
           </div>
         </q-card-section>
       </q-card>
@@ -52,7 +54,7 @@ const statusOptions = [
 ];
 
 const matches = computed(() => {
-  const all = store.items as Array<Record<string, string>>;
+  const all = store.items;
   if (!statusFilter.value) return all;
   return all.filter((m) => m.status === statusFilter.value);
 });

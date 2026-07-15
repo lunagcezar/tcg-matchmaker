@@ -1,18 +1,19 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { apiGet, apiPost } from '@/composables/useApi';
+import type { Event } from '@/types/domain';
 
 export const useEventStore = defineStore('events', () => {
-  const items = ref<Array<Record<string, unknown>>>([]);
+  const items = ref<Event[]>([]);
   const loading = ref(false);
-  const current = ref<Record<string, unknown> | null>(null);
+  const current = ref<Event | null>(null);
 
   async function list(params?: Record<string, string>) {
     loading.value = true;
     try {
       const query = params ? '?' + new URLSearchParams(params).toString() : '';
       const j = await apiGet('/api/events' + query);
-      items.value = (j.data ?? []) as Record<string, unknown>[];
+      items.value = (j.data ?? []) as Event[];
     } finally {
       loading.value = false;
     }
@@ -20,7 +21,7 @@ export const useEventStore = defineStore('events', () => {
 
   async function get(id: string) {
     const j = await apiGet(`/api/events/${id}`);
-    current.value = j.data as Record<string, unknown> | null;
+    current.value = j.data as Event | null;
     return current.value;
   }
 

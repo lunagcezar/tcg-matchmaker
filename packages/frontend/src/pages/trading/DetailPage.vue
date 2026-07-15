@@ -81,7 +81,7 @@ const confirming = ref(false);
 const declining = ref(false);
 const sessionId = route.params.id as string;
 
-const session = computed(() => store.current as Record<string, string> | null);
+const session = computed(() => store.current);
 const loading = computed(() => store.loading);
 
 const myParticipation = computed(() => {

@@ -44,7 +44,7 @@ type StoreMember = Record<string, string>;
 const storeStore = useStoreStore();
 const members = ref<Array<Record<string, unknown>>>([]);
 
-const store = computed(() => storeStore.current as Record<string, string> | null);
+const store = computed(() => storeStore.current);
 const storeId = route.params.id as string;
 
 onMounted(async () => {
