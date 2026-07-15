@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.27.0] — 2026-07-14
+
+### Added
+
+- `pnpm db:types` script for generating Supabase DB types
+- Production wrangler.jsonc with KV namespace bindings and routing
+- Deployment documentation with all required env vars and secrets
+- Worker routing patterns for `api/*` endpoints
+
 ## [0.26.0] — 2026-07-14
 
 ### Changed

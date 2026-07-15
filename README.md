@@ -236,37 +236,58 @@ For Supabase-dependent tests, ensure the local Supabase stack is running first:
 
 ## Deployment
 
+### Database types
+
+Generate TypeScript types from the local Supabase database:
+
+```bash
+pnpm db:types
+# Generates packages/shared/src/database.types.ts
+```
+
+This must be run after every schema migration and requires `supabase start` to be running.
+
 ### Frontend (Cloudflare Pages)
 
 1. Connect your Git repository to Cloudflare Pages.
-2. Set the build command to `pnpm build:frontend`.
-3. Set the output directory to the Quasar build output (e.g., `packages/frontend/dist/spa` or `packages/frontend/dist/pwa`, depending on your mode).
-4. Add the frontend environment variables in the Pages dashboard.
-5. Deploy. Pages will automatically build and deploy on every push.
+2. Build command: `pnpm build:frontend`
+3. Output directory: `packages/frontend/dist/spa`
+4. Environment variables (set in Pages dashboard):
+   - `VITE_SUPABASE_URL` — Supabase project URL
+   - `VITE_SUPABASE_PUBLISHABLE_KEY` — Supabase publishable key
+   - `VITE_TURNSTILE_SITE_KEY` — Cloudflare Turnstile site key
+   - `VITE_SENTRY_DSN` — Sentry DSN (optional)
+   - `VITE_API_URL` — Worker URL (e.g., `https://api.yourdomain.com`)
+5. Deploy. Cloudflare Pages auto-builds and deploys on push.
 
 ### Worker (Cloudflare Workers)
 
-1. Configure `wrangler.jsonc` in `packages/worker/`.
-2. Set all required secrets via `wrangler secret put`.
-3. Deploy:
+1. Configure KV namespaces in the Cloudflare dashboard:
+   - Create `GEOCODING_KV` and `RATE_LIMIT_KV` namespaces
+   - Copy their IDs into `packages/worker/wrangler.jsonc`
+2. Set secrets with `wrangler secret put`:
 
 ```bash
 cd packages/worker
+wrangler secret put SUPABASE_URL
+wrangler secret put SUPABASE_SECRET_KEY
+wrangler secret put SUPABASE_PUBLISHABLE_KEY
+wrangler secret put RESEND_API_KEY
+wrangler secret put TURNSTILE_SECRET_KEY
+wrangler secret put SENTRY_DSN
+```
+
+3. Deploy:
+
+```bash
 wrangler deploy
 ```
 
-### Supabase
-
-Apply migrations to production:
+### Supabase (Production)
 
 ```bash
-supabase db push
-```
-
-Generate TypeScript types after schema changes:
-
-```bash
-supabase gen types typescript --local > packages/shared/src/database.types.ts
+supabase db push          # Apply migrations to production
+pnpm db:types             # Regenerate types after migration
 ```
 
 ## Project documentation

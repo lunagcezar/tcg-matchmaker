@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tcg-matchmaker",
+  "name": "tcg-matchmaker-api",
   "main": "src/index.ts",
   "compatibility_date": "2025-02-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -8,18 +8,22 @@
     "enabled": true
   },
   "vars": {
-    "NOMINATIM_USER_AGENT": "TCGMatchmaker/0.0"
+    "NOMINATIM_USER_AGENT": "TCGMatchmaker/0.0",
+    "SENTRY_DSN": ""
   },
   "kv_namespaces": [
     {
       "binding": "GEOCODING_KV",
-      "id": "GEOCODING_KV_ID",
-      "preview_id": "GEOCODING_KV_PREVIEW_ID"
+      "id": "",
+      "preview_id": ""
     },
     {
       "binding": "RATE_LIMIT_KV",
-      "id": "RATE_LIMIT_KV_ID",
-      "preview_id": "RATE_LIMIT_KV_PREVIEW_ID"
+      "id": "",
+      "preview_id": ""
     }
-  ]
+  ],
+  "routing": {
+    "patterns": ["api/*", "health"]
+  }
 }

@@ -10,7 +10,8 @@
     "test:e2e": "pnpm -F @tcg/frontend test:e2e",
     "lint": "pnpm -r lint && eslint packages/shared/src packages/worker/src --ext .ts",
     "format": "prettier --write \"**/*.{ts,vue,json,md,yaml,yml}\" --ignore-path .gitignore",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts"
   },
   "lint-staged": {
     "packages/shared/src/**/*.ts": [
