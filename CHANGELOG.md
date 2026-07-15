@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.36.0] — 2026-07-14
+
+### Changed
+
+- Meta tags now internationalized via titleKey/descKey — switch with language
+- usePageMeta uses useMeta() factory function for reactive locale switching
+
+## [0.35.0] — 2026-07-14
+
+### Added
+
+- Header nav: active link bold via active-class="text-weight-bold"
+- Nav items: NavItem interface with exact flag, header includes Home button
+- Dynamic meta tags on login, signup, onboarding, profile (with @username), settings
+- usePageMeta composable with Quasar Meta plugin integration
+
+### Fixed
+
+- Home page layout: flex-based instead of calc(100vh - 120px) to avoid header overlap
+
 ## [0.34.0] — 2026-07-14
 
 ### Changed
