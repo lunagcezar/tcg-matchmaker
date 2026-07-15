@@ -13,12 +13,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useNotifications } from '@/composables/useNotifications';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 import NotificationList from './NotificationList.vue';
 
 const authStore = useAuthStore();
-const { unreadCount, fetchUnreadCount, subscribeRealtime, unsubscribeRealtime } =
-  useNotifications();
+const notificationStore = useNotificationStore();
+const { unreadCount, fetchUnreadCount, subscribeRealtime, unsubscribeRealtime } = notificationStore;
 
 const displayCount = computed(() => (unreadCount.value > 99 ? '99+' : String(unreadCount.value)));
 

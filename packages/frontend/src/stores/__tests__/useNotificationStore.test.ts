@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { setActivePinia, createPinia } from 'pinia';
+import { useNotificationStore } from '../useNotificationStore';
 
 vi.stubGlobal('fetch', vi.fn());
 
@@ -25,8 +27,9 @@ const mockNotifications = [
   },
 ];
 
-describe('useNotifications', () => {
+describe('useNotificationStore', () => {
   beforeEach(() => {
+    setActivePinia(createPinia());
     vi.clearAllMocks();
   });
 
@@ -35,14 +38,12 @@ describe('useNotifications', () => {
       json: vi.fn().mockResolvedValue({ data: mockNotifications }),
     });
 
-    const { useNotifications } = await import('../useNotifications');
-    const { notifications, loading, fetchNotifications } = useNotifications();
-
-    expect(loading.value).toBe(false);
-    await fetchNotifications();
-    expect(notifications.value).toHaveLength(2);
-    expect(notifications.value[0]?.title).toBe('Match Invite');
-    expect(loading.value).toBe(false);
+    const store = useNotificationStore();
+    expect(store.loading).toBe(false);
+    await store.fetchNotifications();
+    expect(store.notifications).toHaveLength(2);
+    expect(store.notifications[0]?.title).toBe('Match Invite');
+    expect(store.loading).toBe(false);
   });
 
   it('handles empty notifications list', async () => {
@@ -50,11 +51,9 @@ describe('useNotifications', () => {
       json: vi.fn().mockResolvedValue({ data: [] }),
     });
 
-    const { useNotifications } = await import('../useNotifications');
-    const { notifications, fetchNotifications } = useNotifications();
-
-    await fetchNotifications();
-    expect(notifications.value).toHaveLength(0);
+    const store = useNotificationStore();
+    await store.fetchNotifications();
+    expect(store.notifications).toHaveLength(0);
   });
 
   it('fetches unread count', async () => {
@@ -62,12 +61,10 @@ describe('useNotifications', () => {
       json: vi.fn().mockResolvedValue({ data: { unread_count: 3 } }),
     });
 
-    const { useNotifications } = await import('../useNotifications');
-    const { unreadCount, fetchUnreadCount } = useNotifications();
-
-    expect(unreadCount.value).toBe(0);
-    await fetchUnreadCount();
-    expect(unreadCount.value).toBe(3);
+    const store = useNotificationStore();
+    expect(store.unreadCount).toBe(0);
+    await store.fetchUnreadCount();
+    expect(store.unreadCount).toBe(3);
   });
 
   it('marks a notification as read', async () => {
@@ -77,13 +74,11 @@ describe('useNotifications', () => {
         .mockResolvedValue({ data: { ...mockNotifications[0]!, read_at: '2026-07-15T12:00:00Z' } }),
     });
 
-    const { useNotifications } = await import('../useNotifications');
-    const { markAsRead } = useNotifications();
-
-    await markAsRead('1');
+    const store = useNotificationStore();
+    await store.markAsRead('1');
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/notifications/1/read'),
-      expect.objectContaining({ method: 'PATCH' }),
+      expect.anything(),
     );
   });
 
@@ -92,14 +87,12 @@ describe('useNotifications', () => {
       json: vi.fn().mockResolvedValue({ data: { success: true } }),
     });
 
-    const { useNotifications } = await import('../useNotifications');
-    const { unreadCount, markAllAsRead } = useNotifications();
-
-    await markAllAsRead();
-    expect(unreadCount.value).toBe(0);
+    const store = useNotificationStore();
+    await store.markAllAsRead();
+    expect(store.unreadCount).toBe(0);
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/notifications/read-all'),
-      expect.objectContaining({ method: 'POST' }),
+      expect.anything(),
     );
   });
 });

@@ -63,13 +63,14 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useNotifications } from '@/composables/useNotifications';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 import { formatDate } from '@/lib/format';
 import { notificationIcon } from '@/lib/colors';
 
 const router = useRouter();
+const notificationStore = useNotificationStore();
 const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead } =
-  useNotifications();
+  notificationStore;
 
 onMounted(() => {
   void fetchNotifications();

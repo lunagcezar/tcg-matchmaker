@@ -1,8 +1,9 @@
-import { ref, type Ref } from 'vue';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-
 import { getClient } from '@/composables/useApi';
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
@@ -18,11 +19,11 @@ export interface Notification {
   created_at: string;
 }
 
-export function useNotifications() {
-  const notifications: Ref<Notification[]> = ref([]);
-  const unreadCount: Ref<number> = ref(0);
-  const loading: Ref<boolean> = ref(false);
-  const error: Ref<string | null> = ref(null);
+export const useNotificationStore = defineStore('notifications', () => {
+  const notifications = ref<Notification[]>([]);
+  const unreadCount = ref(0);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
   let channel: RealtimeChannel | null = null;
 
@@ -86,9 +87,7 @@ export function useNotifications() {
         },
         (payload: { new: Notification }) => {
           notifications.value = [payload.new, ...notifications.value];
-          if (!payload.new.read_at) {
-            unreadCount.value += 1;
-          }
+          if (!payload.new.read_at) unreadCount.value += 1;
         },
       )
       .on(
@@ -101,9 +100,7 @@ export function useNotifications() {
         },
         (payload: { new: Notification }) => {
           const idx = notifications.value.findIndex((n) => n.id === payload.new.id);
-          if (idx !== -1) {
-            notifications.value[idx] = payload.new;
-          }
+          if (idx !== -1) notifications.value[idx] = payload.new;
         },
       )
       .subscribe();
@@ -128,4 +125,4 @@ export function useNotifications() {
     subscribeRealtime,
     unsubscribeRealtime,
   };
-}
+});

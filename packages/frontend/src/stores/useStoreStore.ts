@@ -31,5 +31,18 @@ export const useStoreStore = defineStore('stores', () => {
     return data;
   }
 
-  return { items, loading, current, list, get, create };
+  async function update(id: string, input: Record<string, unknown>) {
+    const r = await getClient().api.stores[':id'].$patch({ param: { id }, json: input });
+    const data = (await r.json()).data;
+    await list();
+    return data;
+  }
+
+  async function getMembers(storeId: string) {
+    const r = await getClient().api.stores[':id'].members.$get({ param: { id: storeId } });
+    const j = await r.json();
+    return j.data ?? [];
+  }
+
+  return { items, loading, current, list, get, create, update, getMembers };
 });

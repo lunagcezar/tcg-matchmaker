@@ -46,13 +46,14 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useNotifications } from '@/composables/useNotifications';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 import { relativeTime } from '@/lib/format';
 import { notificationIcon } from '@/lib/colors';
 
 const router = useRouter();
+const notificationStore = useNotificationStore();
 const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead } =
-  useNotifications();
+  notificationStore;
 
 const recentNotifications = computed(() => notifications.value.slice(0, 5));
 
