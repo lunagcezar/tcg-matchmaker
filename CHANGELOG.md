@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.45.0] — 2026-07-15
+
+### Added
+
+- PWA setup (spec-045):
+  - Service worker registration via native `navigator.serviceWorker.register()`
+  - Web app manifest (theme_color #1976d2, standalone display)
+  - `src-pwa/` directory with register-sw.ts, manifest.json
+  - Icon generation documented as TODO in `src-pwa/README.md`
+
+## [0.44.0] — 2026-07-15
+
+### Added
+
+- SEO crawler worker (spec-044):
+  - Cloudflare Pages Function (`functions/_middleware.ts`) detecting crawler user-agents
+  - Dynamic HTML shell rendering for `/matches/:id`, `/trading/:id`, `/tournaments/:id`, `/stores/:id`, `/profile/:username`
+  - OpenGraph, Twitter Card, and JSON-LD structured data for crawlers
+  - `/robots.txt` served from edge with allow/disallow rules
+  - `/sitemap.xml` served from edge with static + dynamic entries
+  - Switched frontend router from hash to history mode
+  - `_redirects` file for SPA fallback on Cloudflare Pages
+  - 15 tests for crawler detection, URL matching, HTML shell, JSON-LD
+- SEO hybrid strategy documentation (`docs/seo-hybrid-strategy.md`)
+
+## [0.43.0] — 2026-07-15
+
+### Added
+
+- Confirmation flow (spec-043):
+  - Match detail page — confirm/decline buttons after joining, status-based UI
+  - Trading detail page — full RSVP → confirm/decline flow
+  - Backend: join route now accepts trading sessions (was match-only)
+  - `useEventStore.decline()` method
+  - i18n strings for decline action (en-US + pt-BR)
+
+## [0.42.0] — 2026-07-15
+
+### Added
+
+- Admin store detail page (spec-042):
+  - Store info display + edit form (name, description, address, phone, website)
+  - Verify button (POST /api/stores/:id/verify)
+  - Suspend with reason prompt dialog (POST /api/stores/:id/suspend)
+  - Soft-delete with confirmation dialog (DELETE /api/stores/:id)
+  - Members list display
+  - `useAdminStore` composable with tests
+
 ## [0.41.0] — 2026-07-15
 
 ### Added
