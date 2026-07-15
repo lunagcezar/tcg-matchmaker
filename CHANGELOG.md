@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.34.0] — 2026-07-14
+
+### Changed
+
+- MainLayout navbar: dark mode toggle, language switcher dropdown (en-US/pt-BR), user avatar dropdown (Settings + Logout)
+- Guest navbar: dark mode, language switcher, Login + Sign Up buttons
+- Drawer: updated links to list pages (/matches, /trading, /tournaments) instead of create pages
+
 ## [0.33.0] — 2026-07-14
 
 ### Added
