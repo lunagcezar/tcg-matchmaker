@@ -320,17 +320,19 @@ In-app notifications use a `notifications` table + Supabase Realtime subscriptio
 
 ### Bracket types
 
-Flexible selection at tournament creation. Supported types (see [Brakto comparison](https://www.brakto.com/blog/tournament-format-comparison)):
+All five bracket types are implemented in the Worker (`packages/worker/src/tournaments/bracket-generators.ts`). The start route selects the correct generator based on `events.bracket_type`:
 
-- **Single elimination** — fastest, dramatic, lose once = out
-- **Double elimination** — second chance, more accurate rankings
-- **Round robin** — everyone plays everyone, most fair, best for small groups
-- **Swiss system** — balanced matchups for large fields, standard for chess/MTG/esports
-- **Pool play + playoffs** — group stage into knockout rounds, World Cup style
+| Type                   | Generator                          | Strategy                                      |
+| ---------------------- | ---------------------------------- | --------------------------------------------- |
+| **Single elimination** | `generateSingleEliminationBracket` | Tree bracket, pair by seed                    |
+| **Double elimination** | `generateDoubleElimination`        | Winners + losers brackets + grand final       |
+| **Round robin**        | `generateRoundRobin`               | Circle method, every player vs every other    |
+| **Swiss system**       | `generateSwiss`                    | Random pairing per round, configurable rounds |
+| **Pool play**          | `generatePoolPlay`                 | Groups of 4 round-robin → knockout round      |
 
-Swiss is particularly relevant for MTG (standard for competitive MTG tournaments). Implement all five bracket types.
+Selection at tournament creation via `q-select` with all five options.
 
-Bracket visualization uses **D3.js** — its tree layout (`d3-hierarchy`) handles single and double elimination bracket layouts natively. Use `d3-shape` for drawing connector lines between matches. Swiss and round robin display as tables (QTable) rather than tree brackets. Wrap D3 in a `useBracketD3` composable to isolate it from Vue's reactivity.
+Bracket visualization uses **D3.js** (`useBracketD3` composable) — SVG rendering with rounds as columns, match boxes with player names, winner highlighting, and connector lines. The ManagePage provides match result reporting (P1 Wins, P2 Wins, Walkover) for tournament organizers.
 
 ### Rate limiting
 

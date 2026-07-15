@@ -22,7 +22,7 @@
 /tournaments                 Browse tournaments with filters
 /tournaments/new             Create a new tournament
 /tournaments/:id             Tournament details — bracket view, registration
-/tournaments/:id/manage      Organizer panel — check-in, advance rounds
+/tournaments/:id/manage      Organizer panel — check-in, publish, start, report match results (P1 Wins, P2 Wins, Walkover)
 
 /stores                      Game store list + map view
 /stores/new                  Create a new game store

@@ -25,7 +25,7 @@ Initially focused on **Fortaleza, Ceará, Brasil**.
 | Validation        | [Zod](https://zod.dev/)                                                              |
 | Maps              | [Leaflet](https://leafletjs.com/) + OpenStreetMap                                    |
 | Geocoding         | [Nominatim](https://nominatim.org/) (proxied through Hono)                           |
-| Bracket rendering | [D3.js](https://d3js.org/api)                                                        |
+| Bracket rendering | [D3.js](https://d3js.org/api) — SVG bracket tree via `useBracketD3` composable       |
 | Tests (unit)      | [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/)     |
 | Tests (e2e)       | [Playwright](https://playwright.dev/)                                                |
 | Date/time         | [Luxon](https://moment.github.io/luxon/)                                             |
