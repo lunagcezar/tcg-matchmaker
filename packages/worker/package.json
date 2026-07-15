@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sentry/cloudflare": "^10.65.0",
     "@sentry/hono": "^10.65.0",
     "@supabase/supabase-js": "^2.49.0",
     "@tcg/shared": "workspace:*",
@@ -23,6 +24,6 @@
     "eslint": "^9.39.4",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0",
-    "wrangler": "^3.100.0"
+    "wrangler": "^4.110.0"
   }
 }

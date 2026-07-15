@@ -14,16 +14,13 @@
   "kv_namespaces": [
     {
       "binding": "GEOCODING_KV",
-      "id": "",
-      "preview_id": ""
+      "id": "__SET_GEOCODING_KV_ID_BEFORE_DEPLOY__",
+      "preview_id": "__SET_GEOCODING_KV_PREVIEW_ID_BEFORE_DEPLOY__"
     },
     {
       "binding": "RATE_LIMIT_KV",
-      "id": "",
-      "preview_id": ""
+      "id": "__SET_RATE_LIMIT_KV_ID_BEFORE_DEPLOY__",
+      "preview_id": "__SET_RATE_LIMIT_KV_PREVIEW_ID_BEFORE_DEPLOY__"
     }
-  ],
-  "routing": {
-    "patterns": ["api/*", "health"]
-  }
+  ]
 }

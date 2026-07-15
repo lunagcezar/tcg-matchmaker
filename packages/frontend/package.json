@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^2.0.0",
+    "@sentry/vue": "^10.65.0",
     "@supabase/supabase-js": "^2.110.3",
     "@tcg/shared": "workspace:*",
     "@tcg/worker": "workspace:*",

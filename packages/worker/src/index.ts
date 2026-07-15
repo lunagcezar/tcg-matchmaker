@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { sentry } from '@sentry/hono/cloudflare';
 import { authRouter } from './auth/index.js';
 import { tcgRouter, formatRouter } from './tcgs/index.js';
 import { storeRouter } from './stores/index.js';
@@ -9,6 +10,7 @@ import { geocodeRouter } from './geocoding/index.js';
 import { reportRouter, adminRouter } from './moderation/index.js';
 import { notificationRouter, pushSubscriptionRouter } from './notifications/index.js';
 import { createLogger } from './middleware/logger.js';
+import { createSentryTransport } from './middleware/sentry.js';
 
 type Bindings = {
   SUPABASE_URL: string;
@@ -32,6 +34,13 @@ type Variables = {
 };
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+app.use(
+  '*',
+  sentry(app, (env) =>
+    env.SENTRY_DSN ? { dsn: env.SENTRY_DSN, shouldHandleError: () => false } : { dsn: '' },
+  ),
+);
 
 app.use(
   '*',
@@ -72,8 +81,8 @@ app.post('/api/verify-turnstile', async (c) => {
 
 app.notFound((c) => c.json({ data: null, error: 'Not found', meta: null }, 404));
 
-// Logger — Sentry transport is configured via env in production
-const logger = createLogger({ level: 'debug' });
+// Logger — Sentry transport sends sanitized events when SENTRY_DSN is configured
+const logger = createLogger({ level: 'debug', sentry: createSentryTransport() });
 
 app.onError((err, c) => {
   logger.critical('Unhandled error', { error: err, path: c.req.path, method: c.req.method });

@@ -264,10 +264,29 @@ This must be run after every schema migration and requires `supabase start` to b
 
 ### Worker (Cloudflare Workers)
 
-1. Configure KV namespaces in the Cloudflare dashboard:
-   - Create `GEOCODING_KV` and `RATE_LIMIT_KV` namespaces
-   - Copy their IDs into `packages/worker/wrangler.jsonc`
-2. Set secrets with `wrangler secret put`:
+1. Requirements:
+   - Wrangler v4 is installed as a dev dependency. If you use a global install, make sure it is v4 or newer.
+   - `packages/worker/wrangler.jsonc` contains placeholder KV namespace IDs (`__SET_*_BEFORE_DEPLOY__`). These must be replaced with real IDs before a production deploy.
+
+2. Configure KV namespaces:
+   - Option A — via Wrangler CLI (after `wrangler login`):
+     ```bash
+     cd packages/worker
+     wrangler kv namespace create GEOCODING_KV --update-config --binding GEOCODING_KV
+     wrangler kv namespace create RATE_LIMIT_KV --update-config --binding RATE_LIMIT_KV
+     ```
+     The `--update-config` flag writes the new IDs into `wrangler.jsonc` automatically.
+   - Option B — create `GEOCODING_KV` and `RATE_LIMIT_KV` in the Cloudflare dashboard and copy their IDs into `packages/worker/wrangler.jsonc` manually.
+
+3. Validate the Worker build (dry-run):
+
+```bash
+pnpm -F @tcg/worker build
+```
+
+This runs `wrangler deploy --dry-run` and verifies that the Worker bundles and its bindings are valid.
+
+4. Set secrets with `wrangler secret put`:
 
 ```bash
 cd packages/worker
@@ -279,7 +298,7 @@ wrangler secret put TURNSTILE_SECRET_KEY
 wrangler secret put SENTRY_DSN
 ```
 
-3. Deploy:
+5. Deploy:
 
 ```bash
 wrangler deploy

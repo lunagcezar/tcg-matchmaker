@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.53.0] — 2026-07-15
+
+### Added
+
+- Sentry integration:
+  - Worker: `@sentry/hono/cloudflare` middleware for request isolation + `@sentry/cloudflare` peer dependency.
+  - Worker: `createSentryTransport()` adapter wires the existing `createLogger` to real Sentry `captureException`/`captureMessage`.
+  - Worker: `SENTRY_DSN` from Cloudflare bindings drives initialization; empty DSN safely disables Sentry.
+  - Worker: automatic error capture stays in the existing `app.onError` handler to preserve LGPD sanitization.
+  - Frontend: `@sentry/vue` boot file initialized from `VITE_SENTRY_DSN` with browser tracing and session replay.
+  - Frontend: `sentry` added to Quasar boot sequence.
+
+### Fixed
+
+- Worker Wrangler build:
+  - Upgraded `wrangler` to v4 (`4.110.0`).
+  - Removed invalid top-level `routing` field from `packages/worker/wrangler.jsonc`.
+  - Replaced empty KV namespace IDs with descriptive placeholders so `wrangler deploy --dry-run` validates.
+  - Documented how to create real KV namespaces via `wrangler kv namespace create --update-config` or the dashboard.
+
 ## [0.52.0] — 2026-07-15
 
 ### Added

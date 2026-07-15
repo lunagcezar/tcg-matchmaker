@@ -5,7 +5,7 @@ type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'critical';
 
 const LEVELS: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3, critical: 4 };
 
-interface SentryTransport {
+export interface SentryTransport {
   captureException(err: Error, context?: Record<string, unknown>): void;
   captureMessage(msg: string, context?: Record<string, unknown>): void;
 }
