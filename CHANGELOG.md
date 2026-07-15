@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.32.0] — 2026-07-14
+
+### Added
+
+- Profile page: avatar, username, role badge, member since, event history
+- i18n keys: profile section (title, memberSince, eventHistory, noEvents, role)
+- Playwright test for profile page
+
 ## [0.31.0] — 2026-07-14
 
 ### Changed
