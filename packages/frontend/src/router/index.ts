@@ -38,12 +38,19 @@ export default defineRouter((/* { store, ssrContext } */) => {
       }
     }
 
-    // Admin guard (simplified — full check would hit the API)
+    // Admin guard
     if (to.meta?.requiresAdmin) {
       const { useAuthStore } = await import('@/stores/useAuthStore');
+      const { apiGet } = await import('@/composables/useApi');
       const auth = useAuthStore();
       if (!auth.user) {
         next({ name: 'login' });
+        return;
+      }
+      const j = await apiGet('/api/auth/me');
+      const profile = j.data as Record<string, unknown> | null;
+      if (profile?.role !== 'admin') {
+        next({ name: 'home' });
         return;
       }
     }
