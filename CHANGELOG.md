@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.39.0] — 2026-07-14
+
+### Added
+
+- BO3/BO5 support: `best_of` field on tournaments (BO1/BO3/BO5 selector)
+- Shared schema: `ReportMatchSchema` with score validation
+- Migration: `best_of` column added to events table
+- Worker: report endpoint validates scores with ReportMatchSchema
+- CreatePage: Best Of selector (BO1/BO3/BO5)
+- ManagePage: score inputs for P1/P2 with auto-winner detection
+- D3 bracket: score1/score2 fields populated from API
+
 ## [0.38.0] — 2026-07-14
 
 ### Added

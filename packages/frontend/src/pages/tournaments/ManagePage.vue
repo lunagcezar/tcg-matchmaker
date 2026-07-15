@@ -29,17 +29,18 @@
       <q-card class="q-mt-md" v-if="bracketMatches.length > 0">
         <q-card-section><h6>{{ $t('tournament.bracket') }}</h6></q-card-section>
         <q-list>
-          <q-item v-for="(m, idx) in bracketMatches" :key="m.id || idx" class="column items-start q-py-sm">
+          <q-item v-for="(m, idx) in bracketMatches" :key="(m.id as string) || idx" class="column items-start q-py-sm">
             <div class="row items-center q-gutter-sm full-width">
-              <span :class="m.winner === m.player1 ? 'text-weight-bold' : ''" class="col-4">{{ m.player1 || 'TBD' }}</span>
+              <span :class="(m.winner as string) === (m.player1 as string) ? 'text-weight-bold' : ''" class="col-4">{{ (m.player1 as string) || 'TBD' }}</span>
               <span class="col-1 text-center">vs</span>
-              <span :class="m.winner === m.player2 ? 'text-weight-bold' : ''" class="col-4">{{ m.player2 || 'TBD' }}</span>
-              <q-badge :color="matchStatusColor(m.status || 'pending')" class="col-2">{{ m.status || 'pending' }}</q-badge>
+              <span :class="(m.winner as string) === (m.player2 as string) ? 'text-weight-bold' : ''" class="col-4">{{ (m.player2 as string) || 'TBD' }}</span>
+              <q-badge :color="matchStatusColor((m.status as string) || 'pending')" class="col-2">{{ (m.status as string) || 'pending' }}</q-badge>
             </div>
-            <div class="row q-gutter-xs q-mt-xs" v-if="m.status === 'pending'">
-              <q-btn v-if="m.player1" dense size="sm" color="primary" label="P1 Wins" @click="reportMatch(m.id!, m.player1!)" />
-              <q-btn v-if="m.player2" dense size="sm" color="secondary" label="P2 Wins" @click="reportMatch(m.id!, m.player2!)" />
-              <q-btn dense size="sm" color="negative" label="W.O." @click="walkover(m.id!, m.player1 || m.player2 || '')" />
+            <div class="row q-gutter-xs q-mt-xs items-center" v-if="(m.status as string) === 'pending'">
+              <q-input :model-value="m.score1" @update:model-value="m.score1 = Number($event)" type="number" label="P1 Score" dense outlined style="width: 80px" min="0" />
+              <q-input :model-value="m.score2" @update:model-value="m.score2 = Number($event)" type="number" label="P2 Score" dense outlined style="width: 80px" min="0" />
+              <q-btn dense size="sm" color="primary" label="Submit" @click="reportMatch(m)" />
+              <q-btn dense size="sm" color="negative" label="W.O." @click="walkover(m.id, m.player1 || m.player2 || '')" />
             </div>
           </q-item>
         </q-list>
@@ -61,7 +62,8 @@ const tournamentId = route.params.id as string;
 const busy = ref(false);
 const checkInUserId = ref('');
 const participants = ref<Array<Record<string, unknown>>>([]);
-const bracketMatches = ref<Array<Record<string, string>>>([]);
+interface BracketRow { id: string; player1?: string; player2?: string; winner?: string; status?: string; score1?: number; score2?: number; round_id?: string; }
+const bracketMatches = ref<BracketRow[]>([]);
 
 const tournament = computed(() => store.current as Record<string, string> | null);
 usePageMeta({ title: `Manage: ${tournament.value?.name || ''}` });
@@ -72,14 +74,34 @@ function matchStatusColor(s: string) { return s === 'completed' ? 'positive' : s
 async function publish() { busy.value = true; try { await fetch(`${apiUrl}/api/tournaments/${tournamentId}/publish`, { method: 'POST' }); await store.get(tournamentId); } finally { busy.value = false; } }
 async function startTournament() { busy.value = true; try { await fetch(`${apiUrl}/api/tournaments/${tournamentId}/start`, { method: 'POST' }); await store.get(tournamentId); await loadBracket(); } finally { busy.value = false; } }
 async function checkIn() { if (!checkInUserId.value) return; await fetch(`${apiUrl}/api/tournaments/${tournamentId}/check-in`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: checkInUserId.value }) }); checkInUserId.value = ''; await loadParticipants(); }
-async function reportMatch(matchId: string, winnerId: string | null) { if (!winnerId) return; await fetch(`${apiUrl}/api/bracket-matches/${matchId}/report`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ winner_id: winnerId }) }); await loadBracket(); }
+async function reportMatch(m: BracketRow) {
+  const winnerId = (m.score1 ?? 0) > (m.score2 ?? 0) ? m.player1 : m.player2;
+  if (!winnerId) return;
+  await fetch(`${apiUrl}/api/bracket-matches/${m.id}/report`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ winner_id: winnerId, score_player1: Number(m.score1 || 0), score_player2: Number(m.score2 || 0) }),
+  });
+  await loadBracket();
+}
 async function walkover(matchId: string, winnerId: string | null) { if (!winnerId) return; await fetch(`${apiUrl}/api/bracket-matches/${matchId}/walkover`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ winner_id: winnerId }) }); await loadBracket(); }
 
 async function loadParticipants() {
   try { const r = await fetch(`${apiUrl}/api/events/${tournamentId}/participants`); const j = await r.json(); participants.value = j.data ?? []; } catch { console.warn('failed to load participants'); }
 }
 async function loadBracket() {
-  try { const r = await fetch(`${apiUrl}/api/tournaments/${tournamentId}/bracket`); const j = await r.json(); bracketMatches.value = j.data?.matches ?? []; } catch { console.warn('failed to load bracket'); }
+  try {
+    const r = await fetch(`${apiUrl}/api/tournaments/${tournamentId}/bracket`);
+    const j = await r.json();
+    bracketMatches.value = (j.data?.matches ?? []).map((m: Record<string, unknown>) => ({
+      id: m.id as string,
+      player1: m.player1_id as string | undefined,
+      player2: m.player2_id as string | undefined,
+      winner: m.winner_id as string | undefined,
+      status: m.status as string | undefined,
+      score1: (m.score_player1 as number) ?? 0,
+      score2: (m.score_player2 as number) ?? 0,
+    }));
+  } catch { console.warn('failed to load bracket'); }
 }
 
 onMounted(async () => { await store.get(tournamentId); await loadParticipants(); if (tournament.value?.status === 'in_progress') await loadBracket(); });

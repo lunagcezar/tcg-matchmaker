@@ -4,6 +4,7 @@ import {
   EventSchema,
   EventParticipantSchema,
   BracketMatchSchema,
+  ReportMatchSchema,
 } from '@tcg/shared';
 import type { AuthUser } from '../middleware/auth.js';
 import { authMiddleware } from '../middleware/auth.js';
@@ -384,9 +385,11 @@ tournamentRouter.get('/:id/bracket', async (c) => {
 bracketMatchRouter.post('/:id/report', authMiddleware, async (c) => {
   const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const winnerId = body.winner_id;
-  const score1 = body.score_player1;
-  const score2 = body.score_player2;
+  const parsed = ReportMatchSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ data: null, error: 'Invalid match report', meta: null }, 400);
+  }
+  const { winner_id: winnerId, score_player1: score1, score_player2: score2 } = parsed.data;
 
   const { data: match } = await supabase
     .from('bracket_matches')

@@ -9,6 +9,7 @@
         <q-input v-model="form.lng" :label="$t('store.longitude')" type="number" outlined />
         <q-input v-model="form.max_participants" :label="$t('event.maxParticipants')" type="number" outlined />
         <q-select v-model="form.bracket_type" :options="BRACKET_OPTIONS" label="Bracket Type" outlined emit-value map-options />
+        <q-select v-model="form.best_of" :options="BEST_OF_OPTIONS" label="Best Of" outlined emit-value map-options />
         <q-btn color="warning" :label="$t('tournament.create')" class="full-width" :loading="saving" @click="save" />
         <p v-if="error" class="text-negative text-center">{{ error }}</p>
       </q-card-section>
@@ -21,7 +22,7 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
-import { BRACKET_OPTIONS } from '@/constants/tournament';
+import { BRACKET_OPTIONS, BEST_OF_OPTIONS } from '@/constants/tournament';
 
 usePageMeta({ titleKey: 'tournament.create' });
 
@@ -29,7 +30,7 @@ const store = useEventStore();
 const router = useRouter();
 const saving = ref(false);
 const error = ref('');
-const form = reactive({ name: '', scheduled_at: '', lat: 0, lng: 0, max_participants: 16, bracket_type: 'single_elimination' });
+const form = reactive({ name: '', scheduled_at: '', lat: 0, lng: 0, max_participants: 16, bracket_type: 'single_elimination', best_of: 1 });
 
 async function save() {
   saving.value = true; error.value = '';
