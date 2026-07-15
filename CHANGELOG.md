@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.29.0] — 2026-07-14
+
+### Added
+
+- Match pages: ListPage (status filter), CreatePage (form), DetailPage (info, join, participants)
+- Playwright tests for match pages (list, create, detail)
+
 ## [0.28.0] — 2026-07-14
 
 ### Added
