@@ -67,9 +67,6 @@ importers:
       quasar:
         specifier: ^2.21.1
         version: 2.21.3
-      register-service-worker:
-        specifier: ^1.7.2
-        version: 1.7.2
       vue:
         specifier: ^3.5.22
         version: 3.5.39(typescript@6.0.3)
@@ -5568,12 +5565,6 @@ packages:
         integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==,
       }
 
-  register-service-worker@1.7.2:
-    resolution:
-      {
-        integrity: sha512-CiD3ZSanZqcMPRhtfct5K9f7i3OLCcBBWsJjLh1gW9RO/nS94sVzY59iS+fgYBOBqaBpf4EzfqUF3j9IG+xo8A==,
-      }
-
   relateurl@0.2.7:
     resolution:
       {
@@ -10140,8 +10131,6 @@ snapshots:
   readdirp@5.0.0: {}
 
   reflect-metadata@0.2.2: {}
-
-  register-service-worker@1.7.2: {}
 
   relateurl@0.2.7: {}
 
