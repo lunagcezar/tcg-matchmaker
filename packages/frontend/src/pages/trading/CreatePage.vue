@@ -1,15 +1,15 @@
 <template>
   <q-page class="q-pa-md row justify-center">
     <q-card style="width: 600px">
-      <q-card-section><h5 class="q-my-none">Create Trading Session</h5></q-card-section>
+      <q-card-section><h5 class="q-my-none">{{ $t('event.createTrading') }}</h5></q-card-section>
       <q-card-section class="q-gutter-md">
-        <q-input v-model="form.name" label="Name" outlined />
-        <q-input v-model="form.details" label="What are you looking for / offering?" outlined type="textarea" />
-        <q-input v-model="form.scheduled_at" label="Date & Time" type="datetime-local" required outlined />
-        <q-input v-model="form.lat" label="Latitude" type="number" outlined />
-        <q-input v-model="form.lng" label="Longitude" type="number" outlined />
-        <q-input v-model="form.max_participants" label="Max Participants" type="number" outlined />
-        <q-btn color="positive" label="Create Session" class="full-width" :loading="saving" @click="save" />
+        <q-input v-model="form.name" :label="$t('event.type')" outlined />
+        <q-input v-model="form.details" :label="$t('event.details')" outlined type="textarea" />
+        <q-input v-model="form.scheduled_at" :label="$t('event.scheduledAt')" type="datetime-local" required outlined />
+        <q-input v-model="form.lat" :label="$t('store.latitude')" type="number" outlined />
+        <q-input v-model="form.lng" :label="$t('store.longitude')" type="number" outlined />
+        <q-input v-model="form.max_participants" :label="$t('event.maxParticipants')" type="number" outlined />
+        <q-btn color="positive" :label="$t('event.createTrading')" class="full-width" :loading="saving" @click="save" />
         <p v-if="error" class="text-negative text-center">{{ error }}</p>
       </q-card-section>
     </q-card>

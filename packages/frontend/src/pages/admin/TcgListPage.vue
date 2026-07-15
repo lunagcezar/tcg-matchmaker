@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
-    <AdminPageHeader title="Manage TCGs" action-label="New TCG" @action="showDialog = true" />
+    <AdminPageHeader :title="$t('admin.manageTcgs')" action-label="New TCG" @action="showDialog = true" />
     <AdminTable :rows="tcgs" :columns="columns" :loading="loading">
       <template #body-cell-actions="{ row }">
         <q-td>

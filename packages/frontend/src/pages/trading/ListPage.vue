@@ -1,8 +1,8 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center justify-between q-mb-md">
-      <h5 class="q-my-none">Trading Sessions</h5>
-      <q-btn color="positive" icon="add" label="New Session" to="/trading/new" />
+      <h5 class="q-my-none">{{ $t('nav.trading') }}</h5>
+      <q-btn color="positive" icon="add" :label="$t('nav.newTrading')" to="/trading/new" />
     </div>
     <div v-if="loading" class="text-center q-py-xl"><q-spinner size="lg" /></div>
     <div v-else>

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.31.0] — 2026-07-14
+
+### Changed
+
+- i18n audit: all hardcoded English strings replaced with $t() calls
+- en-US and pt-BR translation files expanded with 30+ new keys
+- Affected: match pages, trading pages, store pages, admin pages, home page
+- Auth pages already used $t() — no changes needed
+
 ## [0.30.0] — 2026-07-14
 
 ### Added

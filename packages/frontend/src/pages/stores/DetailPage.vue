@@ -5,7 +5,7 @@
         <q-card-section>
           <div class="row items-center">
             <h5 class="q-my-none">{{ store.name }}</h5>
-            <q-badge v-if="store.is_verified" color="positive" class="q-ml-sm">Verified</q-badge>
+            <q-badge v-if="store.is_verified" color="positive" class="q-ml-sm">{{ $t('store.verified') }}</q-badge>
           </div>
           <div class="text-caption text-grey q-mt-sm">{{ store.address }}, {{ store.city }}, {{ store.state }}</div>
         </q-card-section>

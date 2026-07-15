@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
-    <AdminPageHeader title="Manage Users" />
+    <AdminPageHeader :title="$t('admin.manageUsers')" />
     <AdminTable :rows="users" :columns="columns" :loading="loading">
       <template #body-cell-role="{ row }">
         <q-td><q-badge :color="row.role === 'admin' ? 'red' : 'primary'">{{ row.role }}</q-badge></q-td>

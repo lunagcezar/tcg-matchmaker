@@ -3,7 +3,7 @@
     <div v-if="session" style="width: 600px">
       <q-card>
         <q-card-section>
-          <h5 class="q-my-none">{{ session.name || 'Trading Session' }}</h5>
+          <h5 class="q-my-none">{{ session.name || $t('event.tradingDetails') }}</h5>
           <q-badge color="positive" class="q-mt-sm">{{ statusText(session.status) }}</q-badge>
         </q-card-section>
         <q-card-section>
@@ -11,11 +11,11 @@
           <div class="text-caption text-grey">{{ formatDate(session.scheduled_at) }}</div>
         </q-card-section>
         <q-card-actions class="q-pa-md">
-          <q-btn v-if="session.status === 'planned' || session.status === 'active'" color="positive" label="RSVP" @click="rsvp" :loading="rsvping" />
+          <q-btn v-if="session.status === 'planned' || session.status === 'active'" color="positive" :label="$t('event.rsvp')" @click="rsvp" :loading="rsvping" />
         </q-card-actions>
       </q-card>
       <q-card class="q-mt-md">
-        <q-card-section><h6>Attendees</h6></q-card-section>
+        <q-card-section><h6>{{ $t('event.participants') }}</h6></q-card-section>
         <q-list>
           <q-item v-for="p in participants" :key="(p.id as string)">
             <q-item-section>{{ (p as Record<string, string>).user_id?.slice(0, 8) }}</q-item-section>

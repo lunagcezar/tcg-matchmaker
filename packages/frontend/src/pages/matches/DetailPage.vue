@@ -3,21 +3,21 @@
     <div v-if="match" style="width: 600px">
       <q-card>
         <q-card-section>
-          <h5 class="q-my-none">Match Details</h5>
+          <h5 class="q-my-none">{{ $t('event.matchDetails') }}</h5>
           <q-badge color="primary" class="q-mt-sm">{{ match.status }}</q-badge>
         </q-card-section>
         <q-card-section>
           <div class="row q-col-gutter-sm">
-          <div class="col-6"><strong>Date:</strong> {{ formatDate((match as Record<string, string | undefined>).scheduled_at) }}</div>
-          <div class="col-6"><strong>Players:</strong> {{ (match as Record<string, string | undefined>).max_participants || 2 }}</div>
+            <div class="col-6"><strong>{{ $t('event.date') }}:</strong> {{ formatDate((match as Record<string, string | undefined>).scheduled_at) }}</div>
+            <div class="col-6"><strong>{{ $t('event.players') }}:</strong> {{ (match as Record<string, string | undefined>).max_participants || 2 }}</div>
           </div>
         </q-card-section>
         <q-card-actions class="q-pa-md">
-          <q-btn v-if="match.status === 'open'" color="primary" label="Join" @click="join" :loading="joining" />
+          <q-btn v-if="match.status === 'open'" color="primary" :label="$t('event.join')" @click="join" :loading="joining" />
         </q-card-actions>
       </q-card>
       <q-card class="q-mt-md">
-        <q-card-section><h6>Participants</h6></q-card-section>
+        <q-card-section><h6>{{ $t('event.participants') }}</h6></q-card-section>
         <q-list>
           <q-item v-for="p in participants" :key="(p.id as string)">
             <q-item-section>{{ (p as Record<string, string>).user_id?.slice(0, 8) }}</q-item-section>

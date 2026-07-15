@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center justify-between q-mb-md">
-      <h5 class="q-my-none">Stores</h5>
+      <h5 class="q-my-none">{{ $t('nav.stores') }}</h5>
       <q-btn color="primary" icon="add" :label="$t('store.create')" to="/stores/new" />
     </div>
     <q-input v-model="search" :label="$t('common.search')" outlined dense class="q-mb-md" @update:model-value="filtered" />
@@ -12,7 +12,7 @@
           <q-card-section>
             <div class="text-h6">{{ s.name }}</div>
             <div class="text-caption text-grey">{{ s.city }}, {{ s.state }}</div>
-            <q-badge v-if="s.is_verified" color="positive" class="q-mt-sm">Verified</q-badge>
+            <q-badge v-if="s.is_verified" color="positive" class="q-mt-sm">{{ $t('store.verified') }}</q-badge>
           </q-card-section>
         </q-card>
       </div>

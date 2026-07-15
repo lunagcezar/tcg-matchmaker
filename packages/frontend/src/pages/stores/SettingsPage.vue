@@ -2,6 +2,7 @@
   <q-page class="q-pa-md row justify-center">
     <q-card style="width: 600px">
       <q-card-section><h5 class="q-my-none">{{ $t('store.settings') }}</h5></q-card-section>
+      <p v-if="error" class="text-negative text-center q-mt-sm">{{ error }}</p>
       <q-card-section class="q-gutter-md">
         <q-input v-model="form.name" :label="$t('store.name')" outlined />
         <q-input v-model="form.address" :label="$t('store.address')" outlined />
@@ -20,6 +21,7 @@ import { useStoreStore } from '@/stores/useStoreStore';
 const route = useRoute();
 const storeStore = useStoreStore();
 const saving = ref(false);
+const error = ref('');
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 const storeId = route.params.id as string;
 const form = reactive({ name: '', address: '', phone: '' });
