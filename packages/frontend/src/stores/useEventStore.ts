@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getClient } from '@/composables/useApi';
+import { apiGet, apiPost } from '@/composables/useApi';
 
 export const useEventStore = defineStore('events', () => {
   const items = ref<Array<Record<string, unknown>>>([]);
@@ -10,39 +10,38 @@ export const useEventStore = defineStore('events', () => {
   async function list(params?: Record<string, string>) {
     loading.value = true;
     try {
-      const r = await getClient().api.events.$get({ query: params });
-      const j = await r.json();
-      items.value = j.data ?? [];
+      const query = params ? '?' + new URLSearchParams(params).toString() : '';
+      const j = await apiGet('/api/events' + query);
+      items.value = (j.data ?? []) as Record<string, unknown>[];
     } finally {
       loading.value = false;
     }
   }
 
   async function get(id: string) {
-    const r = await getClient().api.events[':id'].$get({ param: { id } });
-    current.value = (await r.json()).data;
+    const j = await apiGet(`/api/events/${id}`);
+    current.value = j.data as Record<string, unknown> | null;
     return current.value;
   }
 
   async function create(input: Record<string, unknown>) {
-    const r = await getClient().api.events.$post({ json: input });
-    const data = (await r.json()).data;
-    return data;
+    const j = await apiPost('/api/events', input);
+    return j.data;
   }
 
   async function join(id: string) {
-    const r = await getClient().api.events[':id'].join.$post({ param: { id } });
-    return (await r.json()).data;
+    const j = await apiPost(`/api/events/${id}/join`);
+    return j.data;
   }
 
   async function confirm(id: string) {
-    const r = await getClient().api.events[':id'].confirm.$post({ param: { id } });
-    return (await r.json()).data;
+    const j = await apiPost(`/api/events/${id}/confirm`);
+    return j.data;
   }
 
   async function decline(id: string) {
-    const r = await getClient().api.events[':id'].decline.$post({ param: { id } });
-    return (await r.json()).data;
+    const j = await apiPost(`/api/events/${id}/decline`);
+    return j.data;
   }
 
   return { items, loading, current, list, get, create, join, confirm, decline };

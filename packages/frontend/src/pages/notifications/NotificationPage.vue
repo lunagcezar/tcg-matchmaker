@@ -88,7 +88,7 @@ async function handleClick(n: {
 
 async function handleMarkAllRead() {
   await markAllAsRead();
-  notifications.value.forEach((n) => {
+  notifications.forEach((n: { read_at: string | null }) => {
     n.read_at = new Date().toISOString();
   });
 }

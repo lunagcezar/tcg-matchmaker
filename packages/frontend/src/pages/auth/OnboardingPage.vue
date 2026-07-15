@@ -21,7 +21,7 @@ import { usePageMeta } from '@/composables/usePageMeta';
 usePageMeta({ titleKey: 'meta.onboarding', descKey: 'meta.onboardingDesc' });
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
-import { getClient } from '@/composables/useApi';
+import { apiPost } from '@/composables/useApi';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -44,16 +44,13 @@ async function handleOnboarding(data: {
   loading.value = true;
   error.value = '';
   try {
-    const res = await getClient().api.auth.onboarding.$post({
-      json: {
-        email: data.email,
-        password: data.password,
-        username: data.username,
-        display_name: data.displayName,
-      },
+    const body = await apiPost('/api/auth/onboarding', {
+      email: data.email,
+      password: data.password,
+      username: data.username,
+      display_name: data.displayName,
     });
-    const body = await res.json();
-    if (!res.ok) {
+    if (body.error) {
       error.value = body.error || 'Failed to create admin';
       return;
     }

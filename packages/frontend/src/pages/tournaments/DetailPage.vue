@@ -58,7 +58,7 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
-import { getClient } from '@/composables/useApi';
+import { apiGet } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
 import { badgeColor } from '@/lib/colors';
 
@@ -90,18 +90,18 @@ async function register() {
 
 async function loadBracket() {
   try {
-    const r = await getClient().api.tournaments[':id'].bracket.$get({
-      param: { id: tournamentId },
-    });
-    const j = await r.json();
-    if (j.data?.matches) {
-      bracketMatches.value = j.data.matches.map((m: Record<string, unknown>) => ({
-        id: m.id as string,
-        round: (m.round_number as number) || 1,
-        player1: (m.player1_id as string)?.slice(0, 8) || null,
-        player2: (m.player2_id as string)?.slice(0, 8) || null,
-        winner: (m.winner_id as string)?.slice(0, 8) || null,
-      }));
+    const j = await apiGet(`/api/tournaments/${tournamentId}/bracket`);
+    const bracketData = j.data as Record<string, unknown> | null;
+    if (bracketData?.matches) {
+      bracketMatches.value = (bracketData.matches as Record<string, unknown>[]).map(
+        (m: Record<string, unknown>) => ({
+          id: m.id as string,
+          round: (m.round_number as number) || 1,
+          player1: (m.player1_id as string)?.slice(0, 8) || null,
+          player2: (m.player2_id as string)?.slice(0, 8) || null,
+          winner: (m.winner_id as string)?.slice(0, 8) || null,
+        }),
+      );
     }
   } catch {
     console.warn('bracket load failed');
@@ -111,11 +111,8 @@ async function loadBracket() {
 onMounted(async () => {
   await store.get(tournamentId);
   try {
-    const r = await getClient().api.events[':id'].participants.$get({
-      param: { id: tournamentId },
-    });
-    const j = await r.json();
-    participants.value = j.data ?? [];
+    const j = await apiGet(`/api/events/${tournamentId}/participants`);
+    participants.value = (j.data ?? []) as Record<string, unknown>[];
   } catch {
     console.warn('failed to load participants');
   }

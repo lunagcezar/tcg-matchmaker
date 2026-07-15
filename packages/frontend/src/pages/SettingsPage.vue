@@ -76,7 +76,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { deleteAccount, suspendAccount, exportData } from '@/composables/useAccountManagement';
-import { getClient } from '@/composables/useApi';
+import { apiGet, apiPatch } from '@/composables/useApi';
 
 usePageMeta({ titleKey: 'meta.settings', descKey: 'meta.settingsDesc' });
 
@@ -114,9 +114,7 @@ async function saveProfile() {
   saving.value = true;
   message.value = '';
   try {
-    await getClient().api.auth.profile.$patch({
-      json: { display_name: displayName.value },
-    });
+    await apiPatch('/api/auth/profile', { display_name: displayName.value });
     message.value = 'Profile updated!';
   } catch {
     message.value = 'Failed to update profile';
@@ -219,9 +217,9 @@ async function logout() {
 
 onMounted(async () => {
   try {
-    const r = await getClient().api.auth.me.$get();
-    const j = await r.json();
-    if (j.data) displayName.value = j.data.display_name || '';
+    const j = await apiGet('/api/auth/me');
+    if (j.data)
+      displayName.value = ((j.data as Record<string, unknown>).display_name as string) || '';
   } catch {
     /* ignore */
   }

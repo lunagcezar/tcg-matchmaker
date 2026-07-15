@@ -40,7 +40,7 @@
 import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
-import { getClient } from '@/composables/useApi';
+import { apiGet, apiPatch } from '@/composables/useApi';
 
 const reports = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
@@ -55,25 +55,18 @@ const columns = [
 async function fetchReports() {
   loading.value = true;
   try {
-    const r = await getClient().api.reports.$get();
-    const b = await r.json();
-    reports.value = b.data ?? [];
+    const b = await apiGet('/api/reports');
+    reports.value = (b.data ?? []) as Record<string, unknown>[];
   } finally {
     loading.value = false;
   }
 }
 async function resolveReport(id: string) {
-  await getClient().api.reports[':id'].$patch({
-    param: { id },
-    json: { status: 'resolved' },
-  });
+  await apiPatch(`/api/reports/${id}`, { status: 'resolved' });
   await fetchReports();
 }
 async function dismissReport(id: string) {
-  await getClient().api.reports[':id'].$patch({
-    param: { id },
-    json: { status: 'dismissed' },
-  });
+  await apiPatch(`/api/reports/${id}`, { status: 'dismissed' });
   await fetchReports();
 }
 onMounted(fetchReports);

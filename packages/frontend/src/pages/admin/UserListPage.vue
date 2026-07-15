@@ -49,7 +49,7 @@
 import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
-import { getClient } from '@/composables/useApi';
+import { apiGet, apiPost } from '@/composables/useApi';
 
 const users = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
@@ -64,23 +64,22 @@ const columns = [
 async function fetchUsers() {
   loading.value = true;
   try {
-    const r = await getClient().api.auth.me.$get();
-    const b = await r.json();
-    users.value = b.data ? [b.data] : [];
+    const b = await apiGet('/api/auth/me');
+    users.value = b.data ? [b.data as Record<string, unknown>] : [];
   } finally {
     loading.value = false;
   }
 }
 async function banUser(id: string) {
-  await getClient().api.admin.users[':id'].ban.$post({ param: { id } });
+  await apiPost(`/api/admin/users/${id}/ban`);
   await fetchUsers();
 }
 async function unbanUser(id: string) {
-  await getClient().api.admin.users[':id'].unban.$post({ param: { id } });
+  await apiPost(`/api/admin/users/${id}/unban`);
   await fetchUsers();
 }
 async function promoteUser(id: string) {
-  await getClient().api.admin.users[':id'].promote.$post({ param: { id } });
+  await apiPost(`/api/admin/users/${id}/promote`);
   await fetchUsers();
 }
 onMounted(fetchUsers);

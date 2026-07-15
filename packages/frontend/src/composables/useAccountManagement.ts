@@ -1,4 +1,4 @@
-import { getClient } from '@/composables/useApi';
+import { apiDelete, apiPost } from '@/composables/useApi';
 
 interface ApiResult {
   success?: boolean;
@@ -9,8 +9,10 @@ interface ApiResult {
 
 export async function deleteAccount(): Promise<ApiResult> {
   try {
-    const res = await getClient().api.auth.account.$delete();
-    const json = (await res.json()) as { data: ApiResult | null; error: string | null };
+    const json = (await apiDelete('/api/auth/account')) as {
+      data: ApiResult | null;
+      error: string | null;
+    };
     if (json.error) return { error: json.error };
     return json.data ?? { success: true };
   } catch {
@@ -20,8 +22,10 @@ export async function deleteAccount(): Promise<ApiResult> {
 
 export async function suspendAccount(): Promise<ApiResult> {
   try {
-    const res = await getClient().api.auth.suspend.$post();
-    const json = (await res.json()) as { data: ApiResult | null; error: string | null };
+    const json = (await apiPost('/api/auth/suspend')) as {
+      data: ApiResult | null;
+      error: string | null;
+    };
     if (json.error) return { error: json.error };
     return json.data ?? { success: true };
   } catch {
@@ -32,8 +36,7 @@ export async function suspendAccount(): Promise<ApiResult> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function exportData(): Promise<any> {
   try {
-    const res = await getClient().api.auth.export.$post();
-    const json = (await res.json()) as { data: unknown; error: string | null };
+    const json = (await apiPost('/api/auth/export')) as { data: unknown; error: string | null };
     if (json.error) return null;
     return json.data;
   } catch {

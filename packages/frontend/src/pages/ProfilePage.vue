@@ -51,7 +51,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
-import { getClient } from '@/composables/useApi';
+import { apiGet } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
 import { roleColor, eventColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
@@ -67,9 +67,8 @@ const events = computed(() => eventStore.items as Array<Record<string, string>>)
 onMounted(async () => {
   loading.value = true;
   try {
-    const r = await getClient().api.auth.me.$get();
-    const j = await r.json();
-    profile.value = j.data ?? null;
+    const j = await apiGet('/api/auth/me');
+    profile.value = (j.data ?? null) as Record<string, string> | null;
     if (profile.value?.username === username) {
       await eventStore.list();
     }

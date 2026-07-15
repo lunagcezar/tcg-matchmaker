@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { getClient } from '@/composables/useApi';
+import { apiGet, apiPost, apiPatch } from '@/composables/useApi';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -31,8 +31,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     loading.value = true;
     error.value = null;
     try {
-      const res = await getClient().api.notifications.$get();
-      const json = (await res.json()) as { data: Notification[] };
+      const json = (await apiGet('/api/notifications')) as { data: Notification[] };
       notifications.value = json.data ?? [];
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to fetch notifications';
@@ -43,8 +42,9 @@ export const useNotificationStore = defineStore('notifications', () => {
 
   async function fetchUnreadCount() {
     try {
-      const res = await getClient().api.notifications['unread-count'].$get();
-      const json = (await res.json()) as { data: { unread_count: number } };
+      const json = (await apiGet('/api/notifications/unread-count')) as {
+        data: { unread_count: number };
+      };
       unreadCount.value = json.data?.unread_count ?? 0;
     } catch {
       // silent fail
@@ -53,7 +53,7 @@ export const useNotificationStore = defineStore('notifications', () => {
 
   async function markAsRead(id: string) {
     try {
-      await getClient().api.notifications[':id'].read.$patch({ param: { id } });
+      await apiPatch(`/api/notifications/${id}/read`, {});
       const n = notifications.value.find((n) => n.id === id);
       if (n) {
         n.read_at = new Date().toISOString();
@@ -66,7 +66,7 @@ export const useNotificationStore = defineStore('notifications', () => {
 
   async function markAllAsRead() {
     try {
-      await getClient().api.notifications['read-all'].$post();
+      await apiPost('/api/notifications/read-all');
       unreadCount.value = 0;
     } catch {
       // silent fail

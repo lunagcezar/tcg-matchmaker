@@ -120,7 +120,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
-import { getClient } from '@/composables/useApi';
+import { apiGet, apiPost } from '@/composables/useApi';
 import { badgeColor, matchStatusColor } from '@/lib/colors';
 
 const route = useRoute();
@@ -149,7 +149,7 @@ usePageMeta({ title: `Manage: ${tournament.value?.name || ''}` });
 async function publish() {
   busy.value = true;
   try {
-    await getClient().api.tournaments[':id'].publish.$post({ param: { id: tournamentId } });
+    await apiPost(`/api/tournaments/${tournamentId}/publish`);
     await store.get(tournamentId);
   } finally {
     busy.value = false;
@@ -158,7 +158,7 @@ async function publish() {
 async function startTournament() {
   busy.value = true;
   try {
-    await getClient().api.tournaments[':id'].start.$post({ param: { id: tournamentId } });
+    await apiPost(`/api/tournaments/${tournamentId}/start`);
     await store.get(tournamentId);
     await loadBracket();
   } finally {
@@ -167,61 +167,49 @@ async function startTournament() {
 }
 async function checkIn() {
   if (!checkInUserId.value) return;
-  await getClient().api.tournaments[':id']['check-in'].$post({
-    param: { id: tournamentId },
-    json: { user_id: checkInUserId.value },
-  });
+  await apiPost(`/api/tournaments/${tournamentId}/check-in`, { user_id: checkInUserId.value });
   checkInUserId.value = '';
   await loadParticipants();
 }
 async function reportMatch(m: BracketRow) {
   const winnerId = (m.score1 ?? 0) > (m.score2 ?? 0) ? m.player1 : m.player2;
   if (!winnerId) return;
-  await getClient().api['bracket-matches'][':id'].report.$post({
-    param: { id: m.id },
-    json: {
-      winner_id: winnerId,
-      score_player1: Number(m.score1 || 0),
-      score_player2: Number(m.score2 || 0),
-    },
+  await apiPost(`/api/bracket-matches/${m.id}/report`, {
+    winner_id: winnerId,
+    score_player1: Number(m.score1 || 0),
+    score_player2: Number(m.score2 || 0),
   });
   await loadBracket();
 }
 async function walkover(matchId: string, winnerId: string | null) {
   if (!winnerId) return;
-  await getClient().api['bracket-matches'][':id'].walkover.$post({
-    param: { id: matchId },
-    json: { winner_id: winnerId },
-  });
+  await apiPost(`/api/bracket-matches/${matchId}/walkover`, { winner_id: winnerId });
   await loadBracket();
 }
 
 async function loadParticipants() {
   try {
-    const r = await getClient().api.events[':id'].participants.$get({
-      param: { id: tournamentId },
-    });
-    const j = await r.json();
-    participants.value = j.data ?? [];
+    const j = await apiGet(`/api/events/${tournamentId}/participants`);
+    participants.value = (j.data ?? []) as Record<string, unknown>[];
   } catch {
     console.warn('failed to load participants');
   }
 }
 async function loadBracket() {
   try {
-    const r = await getClient().api.tournaments[':id'].bracket.$get({
-      param: { id: tournamentId },
-    });
-    const j = await r.json();
-    bracketMatches.value = (j.data?.matches ?? []).map((m: Record<string, unknown>) => ({
-      id: m.id as string,
-      player1: m.player1_id as string | undefined,
-      player2: m.player2_id as string | undefined,
-      winner: m.winner_id as string | undefined,
-      status: m.status as string | undefined,
-      score1: (m.score_player1 as number) ?? 0,
-      score2: (m.score_player2 as number) ?? 0,
-    }));
+    const j = await apiGet(`/api/tournaments/${tournamentId}/bracket`);
+    const bracketData = j.data as Record<string, unknown> | null;
+    bracketMatches.value = ((bracketData?.matches ?? []) as Record<string, unknown>[]).map(
+      (m: Record<string, unknown>) => ({
+        id: m.id as string,
+        player1: m.player1_id as string | undefined,
+        player2: m.player2_id as string | undefined,
+        winner: m.winner_id as string | undefined,
+        status: m.status as string | undefined,
+        score1: (m.score_player1 as number) ?? 0,
+        score2: (m.score_player2 as number) ?? 0,
+      }),
+    ) as BracketRow[];
   } catch {
     console.warn('failed to load bracket');
   }

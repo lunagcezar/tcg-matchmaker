@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getClient } from '@/composables/useApi';
+import { apiGet, apiPost, apiPatch } from '@/composables/useApi';
 
 export const useStoreStore = defineStore('stores', () => {
   const items = ref<Array<Record<string, unknown>>>([]);
@@ -10,38 +10,36 @@ export const useStoreStore = defineStore('stores', () => {
   async function list() {
     loading.value = true;
     try {
-      const r = await getClient().api.stores.$get();
-      const j = await r.json();
-      items.value = j.data ?? [];
+      const j = await apiGet('/api/stores');
+      items.value = (j.data ?? []) as Record<string, unknown>[];
     } finally {
       loading.value = false;
     }
   }
 
   async function get(id: string) {
-    const r = await getClient().api.stores[':id'].$get({ param: { id } });
-    current.value = (await r.json()).data;
+    const j = await apiGet(`/api/stores/${id}`);
+    current.value = j.data as Record<string, unknown> | null;
     return current.value;
   }
 
   async function create(input: Record<string, unknown>) {
-    const r = await getClient().api.stores.$post({ json: input });
-    const data = (await r.json()).data;
+    const j = await apiPost('/api/stores', input);
+    const data = j.data;
     await list();
     return data;
   }
 
   async function update(id: string, input: Record<string, unknown>) {
-    const r = await getClient().api.stores[':id'].$patch({ param: { id }, json: input });
-    const data = (await r.json()).data;
+    const j = await apiPatch(`/api/stores/${id}`, input);
+    const data = j.data;
     await list();
     return data;
   }
 
   async function getMembers(storeId: string) {
-    const r = await getClient().api.stores[':id'].members.$get({ param: { id: storeId } });
-    const j = await r.json();
-    return j.data ?? [];
+    const j = await apiGet(`/api/stores/${storeId}/members`);
+    return (j.data ?? []) as Record<string, unknown>[];
   }
 
   return { items, loading, current, list, get, create, update, getMembers };

@@ -50,7 +50,7 @@ const storeId = route.params.id as string;
 onMounted(async () => {
   await storeStore.get(storeId);
   try {
-    members.value = (await storeStore.getMembers(storeId)) ?? [];
+    members.value = ((await storeStore.getMembers(storeId)) ?? []) as Record<string, unknown>[];
   } catch {
     /* ignore */
   }

@@ -17,7 +17,7 @@
 import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
-import { getClient } from '@/composables/useApi';
+import { apiGet } from '@/composables/useApi';
 
 const stores = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
@@ -30,9 +30,8 @@ const columns = [
 async function fetchStores() {
   loading.value = true;
   try {
-    const r = await getClient().api.stores.$get();
-    const b = await r.json();
-    stores.value = b.data ?? [];
+    const b = await apiGet('/api/stores');
+    stores.value = (b.data ?? []) as Record<string, unknown>[];
   } finally {
     loading.value = false;
   }

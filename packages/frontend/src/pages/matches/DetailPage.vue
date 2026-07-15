@@ -71,7 +71,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getClient } from '@/composables/useApi';
+import { apiGet } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
 import { badgeColor, statusColor } from '@/lib/colors';
 
@@ -132,9 +132,8 @@ async function declineAttendance() {
 async function loadData() {
   await store.get(matchId);
   try {
-    const r = await getClient().api.events[':id'].participants.$get({ param: { id: matchId } });
-    const j = await r.json();
-    participants.value = j.data ?? [];
+    const j = await apiGet(`/api/events/${matchId}/participants`);
+    participants.value = (j.data ?? []) as Record<string, unknown>[];
   } catch {
     /* ignore */
   }
