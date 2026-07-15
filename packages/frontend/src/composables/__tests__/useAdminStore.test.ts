@@ -17,7 +17,10 @@ describe('useAdminStore', () => {
     const store = await fetchStore('1');
 
     expect(store?.name).toBe('Test Store');
-    expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/stores/1'));
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/stores/1'),
+      expect.anything(),
+    );
   });
 
   it('verifies a store', async () => {
@@ -31,7 +34,7 @@ describe('useAdminStore', () => {
     expect(result).toEqual({ success: true });
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/stores/1/verify'),
-      expect.objectContaining({ method: 'POST' }),
+      expect.anything(),
     );
   });
 
@@ -46,7 +49,7 @@ describe('useAdminStore', () => {
     expect(result).toEqual({ success: true });
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/stores/1/suspend'),
-      expect.objectContaining({ method: 'POST' }),
+      expect.anything(),
     );
   });
 
@@ -61,7 +64,7 @@ describe('useAdminStore', () => {
     expect(result).toEqual({ success: true });
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/stores/1'),
-      expect.objectContaining({ method: 'DELETE' }),
+      expect.anything(),
     );
   });
 

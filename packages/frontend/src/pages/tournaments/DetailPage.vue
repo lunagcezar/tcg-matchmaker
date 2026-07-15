@@ -58,7 +58,7 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
 import { badgeColor } from '@/lib/colors';
 
@@ -90,7 +90,9 @@ async function register() {
 
 async function loadBracket() {
   try {
-    const r = await fetch(`${getApiBase()}/api/tournaments/${tournamentId}/bracket`);
+    const r = await getClient().api.tournaments[':id'].bracket.$get({
+      param: { id: tournamentId },
+    });
     const j = await r.json();
     if (j.data?.matches) {
       bracketMatches.value = j.data.matches.map((m: Record<string, unknown>) => ({
@@ -109,7 +111,9 @@ async function loadBracket() {
 onMounted(async () => {
   await store.get(tournamentId);
   try {
-    const r = await fetch(`${getApiBase()}/api/events/${tournamentId}/participants`);
+    const r = await getClient().api.events[':id'].participants.$get({
+      param: { id: tournamentId },
+    });
     const j = await r.json();
     participants.value = j.data ?? [];
   } catch {

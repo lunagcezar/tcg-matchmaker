@@ -1,7 +1,5 @@
 import { ref } from 'vue';
-import { getApiBase } from '@/lib/api';
-
-const apiUrl = getApiBase();
+import { getClient } from '@/composables/useApi';
 
 export function useStore() {
   const items = ref<Array<Record<string, unknown>>>([]);
@@ -10,7 +8,7 @@ export function useStore() {
   async function list() {
     loading.value = true;
     try {
-      const r = await fetch(`${apiUrl}/api/stores`);
+      const r = await getClient().api.stores.$get();
       const j = await r.json();
       items.value = j.data ?? [];
     } finally {
@@ -19,32 +17,24 @@ export function useStore() {
   }
 
   async function get(id: string) {
-    const r = await fetch(`${apiUrl}/api/stores/${id}`);
+    const r = await getClient().api.stores[':id'].$get({ param: { id } });
     return (await r.json()).data;
   }
 
   async function create(input: Record<string, unknown>) {
-    const r = await fetch(`${apiUrl}/api/stores`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-    });
+    const r = await getClient().api.stores.$post({ json: input });
     await list();
     return (await r.json()).data;
   }
 
   async function update(id: string, input: Record<string, unknown>) {
-    const r = await fetch(`${apiUrl}/api/stores/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-    });
+    const r = await getClient().api.stores[':id'].$patch({ param: { id }, json: input });
     await list();
     return (await r.json()).data;
   }
 
   async function getMembers(storeId: string) {
-    const r = await fetch(`${apiUrl}/api/stores/${storeId}/members`);
+    const r = await getClient().api.stores[':id'].members.$get({ param: { id: storeId } });
     return (await r.json()).data;
   }
 

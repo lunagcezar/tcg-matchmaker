@@ -1,7 +1,5 @@
 import { ref } from 'vue';
-import { getApiBase } from '@/lib/api';
-
-const apiUrl = getApiBase();
+import { getClient } from '@/composables/useApi';
 
 export function useTcg() {
   const items = ref<Array<{ id: string; name: string; slug: string }>>([]);
@@ -10,7 +8,7 @@ export function useTcg() {
   async function list() {
     loading.value = true;
     try {
-      const res = await fetch(`${apiUrl}/api/tcgs`);
+      const res = await getClient().api.tcgs.$get();
       const json = await res.json();
       items.value = json.data ?? [];
     } finally {
@@ -19,16 +17,12 @@ export function useTcg() {
   }
 
   async function create(input: { name: string; slug: string }) {
-    await fetch(`${apiUrl}/api/tcgs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-    });
+    await getClient().api.tcgs.$post({ json: input });
     await list();
   }
 
   async function remove(id: string) {
-    await fetch(`${apiUrl}/api/tcgs/${id}`, { method: 'DELETE' });
+    await getClient().api.tcgs[':id'].$delete({ param: { id } });
     await list();
   }
 

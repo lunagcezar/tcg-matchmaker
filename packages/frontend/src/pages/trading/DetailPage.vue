@@ -66,7 +66,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
 import { badgeColor, statusColor } from '@/lib/colors';
 
@@ -126,7 +126,7 @@ async function declineAttendance() {
 async function loadData() {
   await store.get(sessionId);
   try {
-    const r = await fetch(`${getApiBase()}/api/events/${sessionId}/participants`);
+    const r = await getClient().api.events[':id'].participants.$get({ param: { id: sessionId } });
     const j = await r.json();
     participants.value = j.data ?? [];
   } catch {

@@ -1,8 +1,6 @@
 import { ref } from 'vue';
 import { useGeolocation as useVueuseGeolocation } from '@vueuse/core';
-import { getApiBase } from '@/lib/api';
-
-const apiUrl = getApiBase();
+import { getClient } from '@/composables/useApi';
 
 export function useGeolocation() {
   const { coords, resume, pause, isSupported } = useVueuseGeolocation();
@@ -16,7 +14,7 @@ export function useGeolocation() {
     }
     searching.value = true;
     try {
-      const r = await fetch(`${apiUrl}/api/geocode/search?q=${encodeURIComponent(query)}`);
+      const r = await getClient().api.geocode.search.$get({ query: { q: query } });
       const j = await r.json();
       suggestions.value = j.data ?? [];
     } finally {

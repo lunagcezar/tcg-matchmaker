@@ -125,7 +125,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import {
   fetchStore,
@@ -179,7 +179,7 @@ async function loadStore() {
 
 async function loadMembers() {
   try {
-    const res = await fetch(`${getApiBase()}/api/stores/${storeId}/members`);
+    const res = await getClient().api.stores[':id'].members.$get({ param: { id: storeId } });
     const json = (await res.json()) as { data: Array<Record<string, string>> };
     members.value = json.data ?? [];
   } catch {

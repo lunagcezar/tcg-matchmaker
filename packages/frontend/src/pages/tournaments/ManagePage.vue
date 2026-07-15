@@ -120,7 +120,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 import { badgeColor, matchStatusColor } from '@/lib/colors';
 
 const route = useRoute();
@@ -149,7 +149,7 @@ usePageMeta({ title: `Manage: ${tournament.value?.name || ''}` });
 async function publish() {
   busy.value = true;
   try {
-    await fetch(`${getApiBase()}/api/tournaments/${tournamentId}/publish`, { method: 'POST' });
+    await getClient().api.tournaments[':id'].publish.$post({ param: { id: tournamentId } });
     await store.get(tournamentId);
   } finally {
     busy.value = false;
@@ -158,7 +158,7 @@ async function publish() {
 async function startTournament() {
   busy.value = true;
   try {
-    await fetch(`${getApiBase()}/api/tournaments/${tournamentId}/start`, { method: 'POST' });
+    await getClient().api.tournaments[':id'].start.$post({ param: { id: tournamentId } });
     await store.get(tournamentId);
     await loadBracket();
   } finally {
@@ -167,10 +167,9 @@ async function startTournament() {
 }
 async function checkIn() {
   if (!checkInUserId.value) return;
-  await fetch(`${getApiBase()}/api/tournaments/${tournamentId}/check-in`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_id: checkInUserId.value }),
+  await getClient().api.tournaments[':id']['check-in'].$post({
+    param: { id: tournamentId },
+    json: { user_id: checkInUserId.value },
   });
   checkInUserId.value = '';
   await loadParticipants();
@@ -178,30 +177,30 @@ async function checkIn() {
 async function reportMatch(m: BracketRow) {
   const winnerId = (m.score1 ?? 0) > (m.score2 ?? 0) ? m.player1 : m.player2;
   if (!winnerId) return;
-  await fetch(`${getApiBase()}/api/bracket-matches/${m.id}/report`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  await getClient().api['bracket-matches'][':id'].report.$post({
+    param: { id: m.id },
+    json: {
       winner_id: winnerId,
       score_player1: Number(m.score1 || 0),
       score_player2: Number(m.score2 || 0),
-    }),
+    },
   });
   await loadBracket();
 }
 async function walkover(matchId: string, winnerId: string | null) {
   if (!winnerId) return;
-  await fetch(`${getApiBase()}/api/bracket-matches/${matchId}/walkover`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ winner_id: winnerId }),
+  await getClient().api['bracket-matches'][':id'].walkover.$post({
+    param: { id: matchId },
+    json: { winner_id: winnerId },
   });
   await loadBracket();
 }
 
 async function loadParticipants() {
   try {
-    const r = await fetch(`${getApiBase()}/api/events/${tournamentId}/participants`);
+    const r = await getClient().api.events[':id'].participants.$get({
+      param: { id: tournamentId },
+    });
     const j = await r.json();
     participants.value = j.data ?? [];
   } catch {
@@ -210,7 +209,9 @@ async function loadParticipants() {
 }
 async function loadBracket() {
   try {
-    const r = await fetch(`${getApiBase()}/api/tournaments/${tournamentId}/bracket`);
+    const r = await getClient().api.tournaments[':id'].bracket.$get({
+      param: { id: tournamentId },
+    });
     const j = await r.json();
     bracketMatches.value = (j.data?.matches ?? []).map((m: Record<string, unknown>) => ({
       id: m.id as string,

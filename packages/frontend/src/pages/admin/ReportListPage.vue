@@ -40,7 +40,7 @@
 import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 
 const reports = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
@@ -55,7 +55,7 @@ const columns = [
 async function fetchReports() {
   loading.value = true;
   try {
-    const r = await fetch(`${getApiBase()}/api/reports`);
+    const r = await getClient().api.reports.$get();
     const b = await r.json();
     reports.value = b.data ?? [];
   } finally {
@@ -63,18 +63,16 @@ async function fetchReports() {
   }
 }
 async function resolveReport(id: string) {
-  await fetch(`${getApiBase()}/api/reports/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: 'resolved' }),
+  await getClient().api.reports[':id'].$patch({
+    param: { id },
+    json: { status: 'resolved' },
   });
   await fetchReports();
 }
 async function dismissReport(id: string) {
-  await fetch(`${getApiBase()}/api/reports/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: 'dismissed' }),
+  await getClient().api.reports[':id'].$patch({
+    param: { id },
+    json: { status: 'dismissed' },
   });
   await fetchReports();
 }

@@ -1,7 +1,5 @@
 import { ref } from 'vue';
-import { getApiBase } from '@/lib/api';
-
-const apiUrl = getApiBase();
+import { getClient } from '@/composables/useApi';
 
 export function useTournament() {
   const items = ref<Array<Record<string, unknown>>>([]);
@@ -10,7 +8,7 @@ export function useTournament() {
   async function list() {
     loading.value = true;
     try {
-      const r = await fetch(`${apiUrl}/api/tournaments`);
+      const r = await getClient().api.tournaments.$get();
       const j = await r.json();
       items.value = j.data ?? [];
     } finally {
@@ -19,36 +17,32 @@ export function useTournament() {
   }
 
   async function get(id: string) {
-    const r = await fetch(`${apiUrl}/api/tournaments/${id}`);
+    const r = await getClient().api.tournaments[':id'].$get({ param: { id } });
     return (await r.json()).data;
   }
 
   async function create(input: Record<string, unknown>) {
-    const r = await fetch(`${apiUrl}/api/tournaments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-    });
+    const r = await getClient().api.tournaments.$post({ json: input });
     return (await r.json()).data;
   }
 
   async function register(id: string) {
-    const r = await fetch(`${apiUrl}/api/tournaments/${id}/register`, { method: 'POST' });
+    const r = await getClient().api.tournaments[':id'].register.$post({ param: { id } });
     return (await r.json()).data;
   }
 
   async function publish(id: string) {
-    const r = await fetch(`${apiUrl}/api/tournaments/${id}/publish`, { method: 'POST' });
+    const r = await getClient().api.tournaments[':id'].publish.$post({ param: { id } });
     return (await r.json()).data;
   }
 
   async function start(id: string) {
-    const r = await fetch(`${apiUrl}/api/tournaments/${id}/start`, { method: 'POST' });
+    const r = await getClient().api.tournaments[':id'].start.$post({ param: { id } });
     return (await r.json()).data;
   }
 
   async function getBracket(id: string) {
-    const r = await fetch(`${apiUrl}/api/tournaments/${id}/bracket`);
+    const r = await getClient().api.tournaments[':id'].bracket.$get({ param: { id } });
     return (await r.json()).data;
   }
 

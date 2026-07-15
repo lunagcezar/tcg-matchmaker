@@ -31,7 +31,7 @@ import { ref, onMounted } from 'vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import AdminFormDialog from '@/components/molecules/AdminFormDialog.vue';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 
 const tcgs = ref<Array<Record<string, unknown>>>([]);
 const loading = ref(false);
@@ -48,7 +48,7 @@ const columns = [
 async function fetchTcgs() {
   loading.value = true;
   try {
-    const r = await fetch(`${getApiBase()}/api/tcgs`);
+    const r = await getClient().api.tcgs.$get();
     const b = await r.json();
     tcgs.value = b.data ?? [];
   } finally {
@@ -58,10 +58,8 @@ async function fetchTcgs() {
 async function createTcg() {
   saving.value = true;
   try {
-    await fetch(`${getApiBase()}/api/tcgs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form.value),
+    await getClient().api.tcgs.$post({
+      json: form.value,
     });
     showDialog.value = false;
     form.value = { name: '', slug: '' };
@@ -71,7 +69,7 @@ async function createTcg() {
   }
 }
 async function deleteTcg(id: string) {
-  await fetch(`${getApiBase()}/api/tcgs/${id}`, { method: 'DELETE' });
+  await getClient().api.tcgs[':id'].$delete({ param: { id } });
   await fetchTcgs();
 }
 onMounted(fetchTcgs);

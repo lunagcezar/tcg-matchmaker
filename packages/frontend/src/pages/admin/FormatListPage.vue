@@ -26,7 +26,7 @@ import { useRoute } from 'vue-router';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import AdminFormDialog from '@/components/molecules/AdminFormDialog.vue';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 
 const route = useRoute();
 const tcgId = route.params.id as string;
@@ -43,7 +43,7 @@ const columns = [
 async function fetchFormats() {
   loading.value = true;
   try {
-    const r = await fetch(`${getApiBase()}/api/tcgs/${tcgId}/formats`);
+    const r = await getClient().api.tcgs[':id'].formats.$get({ param: { id: tcgId } });
     const b = await r.json();
     formats.value = b.data ?? [];
   } finally {
@@ -53,10 +53,9 @@ async function fetchFormats() {
 async function createFormat() {
   saving.value = true;
   try {
-    await fetch(`${getApiBase()}/api/tcgs/${tcgId}/formats`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form.value, tcg_id: tcgId }),
+    await getClient().api.tcgs[':id'].formats.$post({
+      param: { id: tcgId },
+      json: { ...form.value, tcg_id: tcgId },
     });
     showDialog.value = false;
     form.value = { name: '', slug: '' };

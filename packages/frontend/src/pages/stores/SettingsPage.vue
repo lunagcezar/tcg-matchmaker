@@ -25,7 +25,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStoreStore } from '@/stores/useStoreStore';
-import { getApiBase } from '@/lib/api';
+import { getClient } from '@/composables/useApi';
 
 const route = useRoute();
 const storeStore = useStoreStore();
@@ -46,10 +46,9 @@ onMounted(async () => {
 async function save() {
   saving.value = true;
   try {
-    await fetch(`${getApiBase()}/api/stores/${storeId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+    await getClient().api.stores[':id'].$patch({
+      param: { id: storeId },
+      json: form,
     });
   } finally {
     saving.value = false;

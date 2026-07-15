@@ -2,8 +2,7 @@ import { ref, type Ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
-import { getApiBase } from '@/lib/api';
-const API_BASE = getApiBase();
+import { getClient } from '@/composables/useApi';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
@@ -31,7 +30,7 @@ export function useNotifications() {
     loading.value = true;
     error.value = null;
     try {
-      const res = await fetch(`${API_BASE}/api/notifications`);
+      const res = await getClient().api.notifications.$get();
       const json = (await res.json()) as { data: Notification[] };
       notifications.value = json.data ?? [];
     } catch (e) {
@@ -43,7 +42,7 @@ export function useNotifications() {
 
   async function fetchUnreadCount() {
     try {
-      const res = await fetch(`${API_BASE}/api/notifications/unread-count`);
+      const res = await getClient().api.notifications['unread-count'].$get();
       const json = (await res.json()) as { data: { unread_count: number } };
       unreadCount.value = json.data?.unread_count ?? 0;
     } catch {
@@ -53,7 +52,7 @@ export function useNotifications() {
 
   async function markAsRead(id: string) {
     try {
-      await fetch(`${API_BASE}/api/notifications/${id}/read`, { method: 'PATCH' });
+      await getClient().api.notifications[':id'].read.$patch({ param: { id } });
       const n = notifications.value.find((n) => n.id === id);
       if (n) {
         n.read_at = new Date().toISOString();
@@ -66,7 +65,7 @@ export function useNotifications() {
 
   async function markAllAsRead() {
     try {
-      await fetch(`${API_BASE}/api/notifications/read-all`, { method: 'POST' });
+      await getClient().api.notifications['read-all'].$post();
       unreadCount.value = 0;
     } catch {
       // silent fail
