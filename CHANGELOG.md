@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.33.0] — 2026-07-14
+
+### Added
+
+- Settings page: edit display name, language selector (en-US/pt-BR), dark mode toggle, logout button
+- i18n common keys: language, darkMode
+
 ## [0.32.0] — 2026-07-14
 
 ### Added
