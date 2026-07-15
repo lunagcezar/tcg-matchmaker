@@ -2,17 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.51.0] — 2026-07-15
+## [0.52.0] — 2026-07-15
 
 ### Added
 
-- Page test coverage expanded:
-  - TradingList, Profile, TournamentList, StoresList: render + API calls (4 tests)
-  - TradingDetail, TournamentDetail, StoreDetail, StoreSettings: render (4 tests)
-  - NotificationPage: render (1 test)
-  - Admin pages: dashboard, TCG list, users, stores, audit log, reports, formats (7 tests)
-  - Total: 27 page tests covering 25 of 31 pages
-  - Frontend tests: 62, total project: 126
+- Full page test coverage — all 31 pages now have at least one render test:
+  - MatchCreate, TradingCreate, TournamentCreate, StoreCreate: render (4 tests)
+  - TournamentManage: render (1 test)
+  - ErrorNotFound, SecondPage: render (2 tests)
+  - Total: 34 page tests across 31/31 pages
+  - 133 total tests (64 worker + 69 frontend)
+
+## [0.51.0] — 2026-07-15
 
 ## [0.50.0] — 2026-07-15
 

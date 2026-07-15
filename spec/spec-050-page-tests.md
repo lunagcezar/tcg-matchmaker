@@ -37,6 +37,6 @@ Add Vitest unit tests for frontend pages. 31 pages had zero tests. This spec add
 
 ## 3. Acceptance Criteria
 
-- **AC-001**: 27 page tests covering 25 of 31 pages
-- **AC-002**: All 126 tests pass (64 worker + 62 frontend)
-- **AC-003**: Auth pages (Login, Signup), list pages (Match, Trading, Tournament, Store), detail pages (Match, Trading, Tournament, Store), Settings, Profile, Index, Notifications, and all 7 Admin pages have render tests
+- **AC-001**: 34 page tests covering all 31 pages
+- **AC-002**: All 133 tests pass (64 worker + 69 frontend)
+- **AC-003**: Every page in the project (auth, list, detail, create, manage, admin, error) has at least one render test
