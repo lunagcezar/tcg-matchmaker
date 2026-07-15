@@ -20,7 +20,7 @@ const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const { unreadCount, fetchUnreadCount, subscribeRealtime, unsubscribeRealtime } = notificationStore;
 
-const displayCount = computed(() => (unreadCount.value > 99 ? '99+' : String(unreadCount.value)));
+const displayCount = computed(() => (unreadCount > 99 ? '99+' : String(unreadCount)));
 
 let interval: ReturnType<typeof setInterval> | undefined;
 onMounted(() => {

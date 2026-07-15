@@ -55,7 +55,7 @@ const notificationStore = useNotificationStore();
 const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead } =
   notificationStore;
 
-const recentNotifications = computed(() => notifications.value.slice(0, 5));
+const recentNotifications = computed(() => notifications.slice(0, 5));
 
 onMounted(() => {
   void fetchNotifications();
