@@ -184,14 +184,6 @@ describe('NotificationPage', () => {
 
   it('renders notifications', async () => {
     const NotificationPage = (await import('../notifications/NotificationPage.vue')).default;
-    const mockNotificationStore = {
-      notifications: [],
-      unreadCount: 0,
-      loading: false,
-      fetchNotifications: vi.fn(),
-      markAsRead: vi.fn(),
-      markAllAsRead: vi.fn(),
-    };
     const wrapper = shallowMount(NotificationPage, {
       global: {
         plugins: [i18n, createPinia()],

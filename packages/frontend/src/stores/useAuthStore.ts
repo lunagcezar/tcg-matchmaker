@@ -11,6 +11,7 @@ const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabase
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const loading = ref(false);
+  const onboardingRequired = ref<boolean | null>(null);
 
   async function restoreSession() {
     if (!supabase) return;
@@ -52,13 +53,25 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function checkOnboarding(): Promise<boolean> {
+    if (onboardingRequired.value !== null) return onboardingRequired.value;
     try {
       const j = await apiGet('/api/auth/onboarding');
-      return !(j.data as Record<string, unknown>)?.hasAdmin;
+      onboardingRequired.value = !(j.data as Record<string, unknown>)?.hasAdmin;
+      return onboardingRequired.value;
     } catch {
+      onboardingRequired.value = false;
       return false;
     }
   }
 
-  return { user, loading, restoreSession, signUp, signIn, signOut, checkOnboarding };
+  return {
+    user,
+    loading,
+    onboardingRequired,
+    restoreSession,
+    signUp,
+    signIn,
+    signOut,
+    checkOnboarding,
+  };
 });

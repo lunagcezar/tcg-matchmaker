@@ -28,6 +28,18 @@ export default defineRouter((/* { store, ssrContext } */) => {
       return;
     }
 
+    if (to.name !== 'onboarding' && to.name !== 'login' && to.name !== 'signup') {
+      const { useAuthStore } = await import('@/stores/useAuthStore');
+      const auth = useAuthStore();
+      if (!auth.user) {
+        const needsOnboarding = await auth.checkOnboarding();
+        if (needsOnboarding) {
+          next({ name: 'onboarding' });
+          return;
+        }
+      }
+    }
+
     // Auth guard
     if (to.meta?.requiresAuth) {
       const { useAuthStore } = await import('@/stores/useAuthStore');

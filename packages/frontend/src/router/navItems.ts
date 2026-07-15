@@ -13,13 +13,7 @@ export const eventNavItems: NavItem[] = [
   { labelKey: 'nav.tournaments', to: '/tournaments', icon: 'emoji_events' },
 ];
 
-export const drawerNavItems: NavItem[] = [
-  { labelKey: 'nav.home', to: '/', icon: 'home' },
-  { labelKey: 'nav.stores', to: '/stores', icon: 'store' },
-  { divider: true },
+export const headerNavItems: NavItem[] = [
   ...eventNavItems,
-  { labelKey: 'nav.notifications', to: '/notifications', icon: 'notifications', auth: true },
-  { labelKey: 'nav.settings', to: '/settings', icon: 'settings', auth: true },
+  { labelKey: 'nav.stores', to: '/stores' },
 ];
-
-export const headerNavItems = [{ labelKey: 'nav.home', to: '/', exact: true }, ...eventNavItems];
