@@ -2,42 +2,60 @@
 
 ## Overview
 
-All API calls from the frontend go through **Hono RPC** (`hono/client`), providing end-to-end type safety from the Worker routes to the browser. Raw `fetch()` calls are not used for API communication — the typed Hono client is the single entry point.
+All API calls from the frontend go through four typed fetch wrapper functions in `src/composables/useApi.ts`. These functions provide a consistent interface for HTTP requests while keeping type safety through explicit type assertions at the call site.
 
 ```
-Browser → getClient() → hc<AppType>() → fetch() → Worker
-                ↓
-         Fully typed: request params + response body are inferred from Worker route definitions
+Browser → apiGet('/api/events') → fetch() → Worker
+          apiPost('/api/events')
+          apiPatch('/api/stores/:id')
+          apiDelete('/api/tcgs/:id')
 ```
 
 ---
 
 ## Setup
 
-The Hono client is created once and cached:
+The API functions are simple wrappers around `fetch()`:
 
 ```ts
 // src/composables/useApi.ts
-import { hc } from 'hono/client';
-import type { AppType } from '@tcg/worker';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
-type Client = ReturnType<typeof hc<AppType>>;
+export async function apiGet(path: string) {
+  const res = await fetch(`${BASE_URL}${path}`);
+  return res.json() as unknown as { data: unknown; error: string | null; meta: null };
+}
 
-let cachedClient: Client | null = null;
+export async function apiPost(path: string, body?: unknown) {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    ...(body !== undefined
+      ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      : {}),
+  });
+  return res.json() as unknown as { data: unknown; error: string | null; meta: null };
+}
 
-export function getClient(): Client {
-  if (!cachedClient) {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
-    cachedClient = hc<AppType>(baseUrl);
-  }
-  return cachedClient;
+export async function apiPatch(path: string, body: unknown) {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return res.json() as unknown as { data: unknown; error: string | null; meta: null };
+}
+
+export async function apiDelete(path: string) {
+  const res = await fetch(`${BASE_URL}${path}`, { method: 'DELETE' });
+  return res.json() as unknown as { data: unknown; error: string | null; meta: null };
 }
 ```
 
-The `AppType` is the exported type from the Worker (`packages/worker/src/index.ts`):
+All responses follow the shape `{ data: T | null, error: string | null, meta: null }`. Use type assertions when assigning:
 
 ```ts
-export type AppType = typeof app;
+const j = await apiGet('/api/events');
+items.value = (j.data ?? []) as Record<string, unknown>[];
 ```
 
 ---
@@ -47,202 +65,139 @@ export type AppType = typeof app;
 ### GET requests
 
 ```ts
-import { getClient } from '@/composables/useApi';
+import { apiGet } from '@/composables/useApi';
 
-// No params
-const res = await getClient().api.events.$get();
-const body = await res.json();
-// body is typed as { data: Event[], error: string | null, meta: null }
+// List
+const j = await apiGet('/api/events');
+const events = (j.data ?? []) as Record<string, unknown>[];
 
-// With path params
-const res = await getClient().api.events[':id'].$get({ param: { id: '123' } });
+// Single item
+const j = await apiGet(`/api/events/${id}`);
+const event = j.data as Record<string, unknown> | null;
 
 // With query params
-const res = await getClient().api.events.$get({ query: { type: 'match', status: 'open' } });
+const j = await apiGet(`/api/events?type=match&status=open`);
 ```
 
 ### POST requests
 
 ```ts
+import { apiPost } from '@/composables/useApi';
+
 // With JSON body
-const res = await getClient().api.events.$post({
-  json: { type: 'match', lat: -3.7, lng: -38.5, scheduled_at: '2026-07-20T10:00:00Z' },
-});
+const j = await apiPost('/api/events', { type: 'match', lat: -3.7, lng: -38.5 });
+
+// Without body (action endpoints)
+const j = await apiPost(`/api/events/${id}/join`);
 ```
 
-### POST without body (actions)
+### PATCH requests
 
 ```ts
-// Join event
-const res = await getClient().api.events[':id'].join.$post({ param: { id: '123' } });
-
-// Publish tournament
-const res = await getClient().api.tournaments[':id'].publish.$post({ param: { id: '456' } });
-```
-
-### PATCH / PUT requests
-
-```ts
-const res = await getClient().api.stores[':id'].$patch({
-  param: { id: '123' },
-  json: { name: 'New Name', phone: '85999999999' },
-});
+const j = await apiPatch(`/api/stores/${id}`, { name: 'New Name' });
 ```
 
 ### DELETE requests
 
 ```ts
-const res = await getClient().api.tcgs[':id'].$delete({ param: { id: '123' } });
+const j = await apiDelete(`/api/tcgs/${id}`);
 ```
-
-### Routes with hyphens in path
-
-Use bracket notation for segments containing hyphens:
-
-```ts
-// GET /api/notifications/unread-count
-const res = await getClient().api.notifications['unread-count'].$get();
-
-// POST /api/verify-turnstile
-const res = await getClient().api['verify-turnstile'].$post({ json: { token } });
-
-// POST /api/tournaments/:id/check-in
-const res = await getClient().api.tournaments[':id']['check-in'].$post({
-  param: { id: '123' },
-  json: { user_id: '456' },
-});
-
-// GET /api/admin/audit-log
-const res = await getClient().api.admin['audit-log'].$get();
-```
-
-### Nested routes
-
-```ts
-// GET /api/events/:id/participants
-const res = await getClient().api.events[':id'].participants.$get({ param: { id: '123' } });
-
-// GET /api/stores/:id/members
-const res = await getClient().api.stores[':id'].members.$get({ param: { id: '123' } });
-
-// GET /api/tournaments/:id/bracket
-const res = await getClient().api.tournaments[':id'].bracket.$get({ param: { id: '123' } });
-
-// GET /api/tcgs/:id/formats
-const res = await getClient().api.tcgs[':id'].formats.$get({ param: { id: '123' } });
-
-// POST /api/admin/users/:id/ban
-const res = await getClient().api.admin.users[':id'].ban.$post({ param: { id: '123' } });
-```
-
-### Sending headers
-
-```ts
-// Per-request headers (second argument)
-const res = await getClient().api.events.$get(
-  { query: { type: 'match' } },
-  { headers: { 'X-Custom': 'value' } },
-);
-```
-
-### Error handling
-
-The Hono client returns a standard `Response` object. Check `res.ok` or `res.status` for errors:
-
-```ts
-const res = await getClient().api.events[':id'].$get({ param: { id: '123' } });
-if (res.ok) {
-  const body = await res.json();
-  return body.data;
-} else {
-  const body = await res.json();
-  console.error(body.error);
-  return null;
-}
-```
-
-All Worker routes return `{ data: T | null, error: string | null, meta: null }`, so the response body always follows this shape regardless of status code.
 
 ---
 
-## Path-to-Client Mapping Reference
+## State Management
 
-| Worker Route                             | Hono Client Call                                                                    |
-| ---------------------------------------- | ----------------------------------------------------------------------------------- |
-| `GET /api/events`                        | `getClient().api.events.$get()`                                                     |
-| `GET /api/events/:id`                    | `getClient().api.events[':id'].$get({ param: { id } })`                             |
-| `POST /api/events`                       | `getClient().api.events.$post({ json })`                                            |
-| `POST /api/events/:id/join`              | `getClient().api.events[':id'].join.$post({ param: { id } })`                       |
-| `POST /api/events/:id/confirm`           | `getClient().api.events[':id'].confirm.$post({ param: { id } })`                    |
-| `POST /api/events/:id/decline`           | `getClient().api.events[':id'].decline.$post({ param: { id } })`                    |
-| `GET /api/events/:id/participants`       | `getClient().api.events[':id'].participants.$get({ param: { id } })`                |
-| `GET /api/stores`                        | `getClient().api.stores.$get()`                                                     |
-| `GET /api/stores/:id`                    | `getClient().api.stores[':id'].$get({ param: { id } })`                             |
-| `POST /api/stores`                       | `getClient().api.stores.$post({ json })`                                            |
-| `PATCH /api/stores/:id`                  | `getClient().api.stores[':id'].$patch({ param: { id }, json })`                     |
-| `DELETE /api/stores/:id`                 | `getClient().api.stores[':id'].$delete({ param: { id } })`                          |
-| `POST /api/stores/:id/verify`            | `getClient().api.stores[':id'].verify.$post({ param: { id } })`                     |
-| `POST /api/stores/:id/suspend`           | `getClient().api.stores[':id'].suspend.$post({ param: { id }, json })`              |
-| `GET /api/stores/:id/members`            | `getClient().api.stores[':id'].members.$get({ param: { id } })`                     |
-| `GET /api/tcgs`                          | `getClient().api.tcgs.$get()`                                                       |
-| `POST /api/tcgs`                         | `getClient().api.tcgs.$post({ json })`                                              |
-| `DELETE /api/tcgs/:id`                   | `getClient().api.tcgs[':id'].$delete({ param: { id } })`                            |
-| `GET /api/tcgs/:id/formats`              | `getClient().api.tcgs[':id'].formats.$get({ param: { id } })`                       |
-| `POST /api/tcgs/:id/formats`             | `getClient().api.tcgs[':id'].formats.$post({ param: { id }, json })`                |
-| `GET /api/tournaments`                   | `getClient().api.tournaments.$get()`                                                |
-| `GET /api/tournaments/:id`               | `getClient().api.tournaments[':id'].$get({ param: { id } })`                        |
-| `POST /api/tournaments`                  | `getClient().api.tournaments.$post({ json })`                                       |
-| `POST /api/tournaments/:id/register`     | `getClient().api.tournaments[':id'].register.$post({ param: { id } })`              |
-| `POST /api/tournaments/:id/publish`      | `getClient().api.tournaments[':id'].publish.$post({ param: { id } })`               |
-| `POST /api/tournaments/:id/start`        | `getClient().api.tournaments[':id'].start.$post({ param: { id } })`                 |
-| `POST /api/tournaments/:id/check-in`     | `getClient().api.tournaments[':id']['check-in'].$post({ param: { id }, json })`     |
-| `GET /api/tournaments/:id/bracket`       | `getClient().api.tournaments[':id'].bracket.$get({ param: { id } })`                |
-| `POST /api/bracket-matches/:id/report`   | `getClient().api['bracket-matches'][':id'].report.$post({ param: { id }, json })`   |
-| `POST /api/bracket-matches/:id/walkover` | `getClient().api['bracket-matches'][':id'].walkover.$post({ param: { id }, json })` |
-| `GET /api/auth/me`                       | `getClient().api.auth.me.$get()`                                                    |
-| `PATCH /api/auth/profile`                | `getClient().api.auth.profile.$patch({ json })`                                     |
-| `POST /api/auth/suspend`                 | `getClient().api.auth.suspend.$post()`                                              |
-| `POST /api/auth/export`                  | `getClient().api.auth.export.$post()`                                               |
-| `DELETE /api/auth/account`               | `getClient().api.auth.account.$delete()`                                            |
-| `GET /api/auth/onboarding`               | `getClient().api.auth.onboarding.$get()`                                            |
-| `POST /api/auth/onboarding`              | `getClient().api.auth.onboarding.$post({ json })`                                   |
-| `GET /api/geocode/search`                | `getClient().api.geocode.search.$get({ query })`                                    |
-| `GET /api/notifications`                 | `getClient().api.notifications.$get()`                                              |
-| `GET /api/notifications/unread-count`    | `getClient().api.notifications['unread-count'].$get()`                              |
-| `PATCH /api/notifications/:id/read`      | `getClient().api.notifications[':id'].read.$patch({ param: { id } })`               |
-| `POST /api/notifications/read-all`       | `getClient().api.notifications['read-all'].$post()`                                 |
-| `POST /api/push-subscriptions`           | `getClient().api['push-subscriptions'].$post({ json })`                             |
-| `DELETE /api/push-subscriptions/:id`     | `getClient().api['push-subscriptions'][':id'].$delete({ param: { id } })`           |
-| `GET /api/reports`                       | `getClient().api.reports.$get()`                                                    |
-| `PATCH /api/reports/:id`                 | `getClient().api.reports[':id'].$patch({ param: { id }, json })`                    |
-| `GET /api/admin/audit-log`               | `getClient().api.admin['audit-log'].$get()`                                         |
-| `POST /api/admin/users/:id/ban`          | `getClient().api.admin.users[':id'].ban.$post({ param: { id } })`                   |
-| `POST /api/admin/users/:id/unban`        | `getClient().api.admin.users[':id'].unban.$post({ param: { id } })`                 |
-| `POST /api/admin/users/:id/promote`      | `getClient().api.admin.users[':id'].promote.$post({ param: { id } })`               |
-| `POST /api/verify-turnstile`             | `getClient().api['verify-turnstile'].$post({ json })`                               |
+API calls are organized in two layers:
+
+### Pinia Stores (shared global state)
+
+| Store                  | State                                     | Methods                                                                                                             |
+| ---------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `useEventStore`        | `items`, `loading`, `current`             | `list`, `get`, `create`, `join`, `confirm`, `decline`                                                               |
+| `useStoreStore`        | `items`, `loading`, `current`             | `list`, `get`, `create`, `update`, `getMembers`                                                                     |
+| `useAuthStore`         | `user`, `loading`                         | `signUp`, `signIn`, `signOut`, `restoreSession`, `checkOnboarding`                                                  |
+| `useAppStore`          | `locale`, `darkMode`                      | `setLocale`, `toggleDarkMode`                                                                                       |
+| `useNotificationStore` | `notifications`, `unreadCount`, `loading` | `fetchNotifications`, `fetchUnreadCount`, `markAsRead`, `markAllAsRead`, `subscribeRealtime`, `unsubscribeRealtime` |
+
+### Stateless Composables (no shared state)
+
+| Composable             | Purpose                                                           |
+| ---------------------- | ----------------------------------------------------------------- |
+| `useApi`               | Low-level `apiGet/Post/Patch/Delete` functions                    |
+| `useAdminStore`        | Pure API functions for admin CRUD (fetchStore, verifyStore, etc.) |
+| `useAccountManagement` | Pure API functions for account actions (delete, suspend, export)  |
+| `useBracketD3`         | D3 bracket SVG rendering                                          |
+| `usePageMeta`          | SEO meta tag injection                                            |
 
 ---
 
 ## Shared Utilities (`src/lib/`)
 
-The `src/lib/` directory contains pure utility functions used across pages and components:
-
-| File            | Exports                                                                                                                         | Purpose                                         |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `lib/api.ts`    | `getApiBase()`                                                                                                                  | Returns API base URL (used only by `useApi.ts`) |
-| `lib/format.ts` | `formatDate()`, `relativeTime()`                                                                                                | Date/time formatting                            |
-| `lib/colors.ts` | `badgeColor()`, `statusColor()`, `roleColor()`, `eventColor()`, `memberRoleColor()`, `matchStatusColor()`, `notificationIcon()` | Color mapping for status badges                 |
-| `lib/router.ts` | `eventRoute()`                                                                                                                  | Builds route paths for event types              |
-
-These are plain functions with no Vue reactivity — import and use directly:
+| File            | Exports                                                                                                                         | Purpose                            |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `lib/api.ts`    | `getApiBase()`                                                                                                                  | Returns API base URL               |
+| `lib/format.ts` | `formatDate()`, `relativeTime()`                                                                                                | Date/time formatting               |
+| `lib/colors.ts` | `badgeColor()`, `statusColor()`, `roleColor()`, `eventColor()`, `memberRoleColor()`, `matchStatusColor()`, `notificationIcon()` | Color mapping for status badges    |
+| `lib/router.ts` | `eventRoute()`                                                                                                                  | Builds route paths for event types |
 
 ```ts
 import { formatDate } from '@/lib/format';
 import { badgeColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
-
-// Usage in templates:
-// {{ formatDate(event.scheduled_at) }}
-// :color="badgeColor(event.status)"
-// :to="eventRoute(event)"
 ```
+
+---
+
+## Path Reference
+
+| Method | Path                                | Function Call                                               |
+| ------ | ----------------------------------- | ----------------------------------------------------------- |
+| GET    | `/api/events`                       | `apiGet('/api/events')`                                     |
+| GET    | `/api/events/:id`                   | `apiGet(\`/api/events/${id}\`)`                             |
+| POST   | `/api/events`                       | `apiPost('/api/events', data)`                              |
+| POST   | `/api/events/:id/join`              | `apiPost(\`/api/events/${id}/join\`)`                       |
+| POST   | `/api/events/:id/confirm`           | `apiPost(\`/api/events/${id}/confirm\`)`                    |
+| POST   | `/api/events/:id/decline`           | `apiPost(\`/api/events/${id}/decline\`)`                    |
+| GET    | `/api/events/:id/participants`      | `apiGet(\`/api/events/${id}/participants\`)`                |
+| GET    | `/api/stores`                       | `apiGet('/api/stores')`                                     |
+| GET    | `/api/stores/:id`                   | `apiGet(\`/api/stores/${id}\`)`                             |
+| POST   | `/api/stores`                       | `apiPost('/api/stores', data)`                              |
+| PATCH  | `/api/stores/:id`                   | `apiPatch(\`/api/stores/${id}\`, data)`                     |
+| DELETE | `/api/stores/:id`                   | `apiDelete(\`/api/stores/${id}\`)`                          |
+| POST   | `/api/stores/:id/verify`            | `apiPost(\`/api/stores/${id}/verify\`)`                     |
+| POST   | `/api/stores/:id/suspend`           | `apiPost(\`/api/stores/${id}/suspend\`, { reason })`        |
+| GET    | `/api/stores/:id/members`           | `apiGet(\`/api/stores/${id}/members\`)`                     |
+| GET    | `/api/tcgs`                         | `apiGet('/api/tcgs')`                                       |
+| POST   | `/api/tcgs`                         | `apiPost('/api/tcgs', data)`                                |
+| DELETE | `/api/tcgs/:id`                     | `apiDelete(\`/api/tcgs/${id}\`)`                            |
+| GET    | `/api/tcgs/:id/formats`             | `apiGet(\`/api/tcgs/${id}/formats\`)`                       |
+| POST   | `/api/tcgs/:id/formats`             | `apiPost(\`/api/tcgs/${id}/formats\`, data)`                |
+| GET    | `/api/tournaments`                  | `apiGet('/api/tournaments')`                                |
+| GET    | `/api/tournaments/:id`              | `apiGet(\`/api/tournaments/${id}\`)`                        |
+| POST   | `/api/tournaments`                  | `apiPost('/api/tournaments', data)`                         |
+| POST   | `/api/tournaments/:id/register`     | `apiPost(\`/api/tournaments/${id}/register\`)`              |
+| POST   | `/api/tournaments/:id/publish`      | `apiPost(\`/api/tournaments/${id}/publish\`)`               |
+| POST   | `/api/tournaments/:id/start`        | `apiPost(\`/api/tournaments/${id}/start\`)`                 |
+| POST   | `/api/tournaments/:id/check-in`     | `apiPost(\`/api/tournaments/${id}/check-in\`, { user_id })` |
+| GET    | `/api/tournaments/:id/bracket`      | `apiGet(\`/api/tournaments/${id}/bracket\`)`                |
+| POST   | `/api/bracket-matches/:id/report`   | `apiPost(\`/api/bracket-matches/${id}/report\`, data)`      |
+| POST   | `/api/bracket-matches/:id/walkover` | `apiPost(\`/api/bracket-matches/${id}/walkover\`, data)`    |
+| GET    | `/api/auth/me`                      | `apiGet('/api/auth/me')`                                    |
+| PATCH  | `/api/auth/profile`                 | `apiPatch('/api/auth/profile', data)`                       |
+| POST   | `/api/auth/suspend`                 | `apiPost('/api/auth/suspend')`                              |
+| POST   | `/api/auth/export`                  | `apiPost('/api/auth/export')`                               |
+| DELETE | `/api/auth/account`                 | `apiDelete('/api/auth/account')`                            |
+| GET    | `/api/auth/onboarding`              | `apiGet('/api/auth/onboarding')`                            |
+| POST   | `/api/auth/onboarding`              | `apiPost('/api/auth/onboarding', data)`                     |
+| GET    | `/api/geocode/search`               | `apiGet(\`/api/geocode/search?q=${q}\`)`                    |
+| GET    | `/api/notifications`                | `apiGet('/api/notifications')`                              |
+| GET    | `/api/notifications/unread-count`   | `apiGet('/api/notifications/unread-count')`                 |
+| PATCH  | `/api/notifications/:id/read`       | `apiPatch(\`/api/notifications/${id}/read\`, {})`           |
+| POST   | `/api/notifications/read-all`       | `apiPost('/api/notifications/read-all')`                    |
+| GET    | `/api/reports`                      | `apiGet('/api/reports')`                                    |
+| PATCH  | `/api/reports/:id`                  | `apiPatch(\`/api/reports/${id}\`, data)`                    |
+| GET    | `/api/admin/audit-log`              | `apiGet('/api/admin/audit-log')`                            |
+| POST   | `/api/admin/users/:id/ban`          | `apiPost(\`/api/admin/users/${id}/ban\`)`                   |
+| POST   | `/api/admin/users/:id/unban`        | `apiPost(\`/api/admin/users/${id}/unban\`)`                 |
+| POST   | `/api/admin/users/:id/promote`      | `apiPost(\`/api/admin/users/${id}/promote\`)`               |
+| POST   | `/api/verify-turnstile`             | `apiPost('/api/verify-turnstile', { token })`               |

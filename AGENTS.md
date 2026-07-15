@@ -152,6 +152,13 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 - **RLS is enabled on all tables as defense-in-depth** — Hono bypasses it via the secret key, but RLS blocks direct misuse of the publishable key against the DB endpoint
 - Standard REST: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
 - Response format: `{ data, error, meta }`
+- **Frontend API calls**: use `apiGet`, `apiPost`, `apiPatch`, `apiDelete` from `@/composables/useApi` — typed fetch wrappers, NOT raw `fetch()` or Hono RPC client (Hono RPC types don't resolve across monorepo packages due to Cloudflare Worker bindings)
+  - Always import from `@/composables/useApi`
+  - Never import `hc` from `hono/client` directly
+  - Cast response data at the assignment point with `as Record<string, unknown>[]` or similar
+- Shared state lives in **Pinia stores** (`useEventStore`, `useStoreStore`, `useAuthStore`, `useAppStore`, `useNotificationStore`)
+- Stateless API logic goes in **composables** or direct `api*` calls from stores
+- Utility functions (formatting, colors, routing) go in **`src/lib/`** — pure functions, no Vue reactivity
 
 ## Docs Maintenance
 
@@ -259,8 +266,9 @@ tcg-matchmaker/
       src/
         pages/
         components/                # Atomic design (atoms / molecules / organisms / admin)
+        lib/                       # Pure utility functions (format, colors, router, api)
         composables/               # useAuth, useMatch, useGeolocation, useTournament, …
-        stores/                    # Pinia: useAuthStore, useAppStore
+        stores/                    # Pinia: useAuthStore, useAppStore, useEventStore, useStoreStore, useNotificationStore
         i18n/                      # en-US.ts, pt-BR.ts
         router/                    # Vue Router routes with auth guards
         boot/                      # Quasar boot files (supabase, sentry, turnstile)

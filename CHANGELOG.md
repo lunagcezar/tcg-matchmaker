@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.48.0] — 2026-07-15
+
+### Added
+
+- Client refactoring (spec-048):
+  - Replaced Hono RPC (`hc<AppType>()`) with typed fetch wrapper (`apiGet`, `apiPost`, `apiPatch`, `apiDelete`)
+  - Removed 5 dead composables (`useEvent`, `useStore`, `useTournament`, `useTcg`, `useGeolocation`)
+  - Migrated `useNotifications` to Pinia store (`useNotificationStore`)
+  - Added `update()` and `getMembers()` to `useStoreStore`
+  - Fixed all frontend TypeScript errors (55+ `vue-tsc` errors resolved)
+
+## [0.47.0] — 2026-07-15
+
+### Added
+
+- Shared utilities extracted to `src/lib/` (spec-047):
+  - `lib/api.ts` — `getApiBase()` (single source for API URL)
+  - `lib/format.ts` — `formatDate()`, `relativeTime()` (replaced 7+ inline definitions)
+  - `lib/colors.ts` — centralized color mapping functions (replaced 6+ inline definitions)
+  - `lib/router.ts` — `eventRoute()` helper
+  - All 28 `apiUrl` redeclarations replaced with lib imports
+- Migrated all API calls to Hono RPC client via `getClient()` (later superseded by spec-048)
+
 ## [0.46.0] — 2026-07-15
 
 ### Added
