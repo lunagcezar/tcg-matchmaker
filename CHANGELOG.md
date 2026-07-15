@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.38.0] — 2026-07-14
+
+### Added
+
+- Bracket generators: Round Robin, Swiss, Pool Play, Double Elimination (Worker)
+- Start route now routes to correct generator based on bracket_type
+- ManagePage: match result reporting UI (P1 Wins, P2 Wins, W.O.)
+- Bracket generator tests (TDD RED → GREEN), 64 total worker tests
+
 ## [0.37.0] — 2026-07-14
 
 ### Added
