@@ -14,6 +14,7 @@ This specification adds the Events API for Matches and Trading Sessions. Events 
 **Purpose:** Implement event CRUD, participant management, and status transitions for matches and trading sessions, following TDD.
 
 **Scope:**
+
 - Event create, list, get, update, cancel
 - Participant join, confirm, decline, list
 - Status transitions (open→confirmed→completed, open→challenged→confirmed, planned→active→completed)
@@ -21,23 +22,24 @@ This specification adds the Events API for Matches and Trading Sessions. Events 
 - Invitation: create event with invited users sets status to `challenged`
 
 **Out of scope:**
+
 - Tournaments and brackets (spec-008)
 - Notifications (spec-009)
 - Geocoding/autocomplete (separate spec)
 
 ## 2. Routes
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/api/events` | No | List events (filters: type, status, tcg_id, lat/lng radius) |
-| `GET` | `/api/events/:id` | No | Get event details with participant count |
-| `POST` | `/api/events` | Yes | Create match or trading session |
-| `PATCH` | `/api/events/:id` | Creator | Update event |
-| `DELETE` | `/api/events/:id` | Creator | Cancel event |
-| `POST` | `/api/events/:id/join` | Yes | Request to join (match only) |
-| `POST` | `/api/events/:id/confirm` | Participant | Confirm attendance |
-| `POST` | `/api/events/:id/decline` | Participant | Decline invitation |
-| `GET` | `/api/events/:id/participants` | No | List participants |
+| Method   | Path                           | Auth        | Description                                                 |
+| -------- | ------------------------------ | ----------- | ----------------------------------------------------------- |
+| `GET`    | `/api/events`                  | No          | List events (filters: type, status, tcg_id, lat/lng radius) |
+| `GET`    | `/api/events/:id`              | No          | Get event details with participant count                    |
+| `POST`   | `/api/events`                  | Yes         | Create match or trading session                             |
+| `PATCH`  | `/api/events/:id`              | Creator     | Update event                                                |
+| `DELETE` | `/api/events/:id`              | Creator     | Cancel event                                                |
+| `POST`   | `/api/events/:id/join`         | Yes         | Request to join (match only)                                |
+| `POST`   | `/api/events/:id/confirm`      | Participant | Confirm attendance                                          |
+| `POST`   | `/api/events/:id/decline`      | Participant | Decline invitation                                          |
+| `GET`    | `/api/events/:id/participants` | No          | List participants                                           |
 
 ## 3. Acceptance Criteria
 

@@ -8,10 +8,10 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "test:e2e": "pnpm -F @tcg/frontend test:e2e",
-    "lint": "eslint --cache . && pnpm -r lint",
-    "lint:fix": "eslint --cache . --fix && pnpm -r lint:fix",
-    "format": "prettier --write \"**/*.{js,ts,vue,css,scss,html,json,md,yaml,yml}\" --ignore-path .gitignore",
-    "format:check": "prettier --check \"**/*.{js,ts,vue,css,scss,html,json,md,yaml,yml}\" --ignore-path .gitignore",
+    "lint": "pnpm format:check && eslint --cache . && pnpm -r lint",
+    "lint:fix": "pnpm format && eslint --cache . --fix && pnpm -r lint:fix",
+    "format": "prettier --write \"**/*.{js,ts,vue,css,scss,html,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,vue,css,scss,html,json,md,yaml,yml}\"",
     "prepare": "husky",
     "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts"
   },
@@ -26,19 +26,15 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
-    "@vue/eslint-config-prettier": "^10.2.0",
-    "@vue/eslint-config-typescript": "^14.7.0",
     "concurrently": "^9.1.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-prettier": "^5.2.0",
-    "eslint-plugin-vue": "^10.8.0",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
     "prettier": "^3.4.0",
     "typescript": "^5.7.0",
-    "typescript-eslint": "^8.0.0",
-    "vue-eslint-parser": "^10.4.0"
+    "typescript-eslint": "^8.0.0"
   }
 }

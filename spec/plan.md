@@ -28,15 +28,15 @@ Implement tournament CRUD, registration, bracket generation, and match advanceme
 
 ## Test Seams
 
-| Seam | What it tests |
-|------|--------------|
-| Tournament create | 401 without auth, 201 with valid data |
-| Publish | Status change from draft to open |
-| Register | Participant added with pending status |
-| Start | Bracket rounds + matches generated, status = in_progress |
-| Bracket | Returns rounds with nested matches |
-| Report match | Winner recorded, advances to next match |
-| Walkover | Walkover status set, winner advances |
+| Seam              | What it tests                                            |
+| ----------------- | -------------------------------------------------------- |
+| Tournament create | 401 without auth, 201 with valid data                    |
+| Publish           | Status change from draft to open                         |
+| Register          | Participant added with pending status                    |
+| Start             | Bracket rounds + matches generated, status = in_progress |
+| Bracket           | Returns rounds with nested matches                       |
+| Report match      | Winner recorded, advances to next match                  |
+| Walkover          | Walkover status set, winner advances                     |
 
 ## Bracket Generation (Single Elimination)
 

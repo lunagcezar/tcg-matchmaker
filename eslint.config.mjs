@@ -1,10 +1,9 @@
 import js from '@eslint/js';
 import globals from 'globals';
-import pluginVue from 'eslint-plugin-vue';
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
+import tsEslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
-export default defineConfigWithVueTs(
+export default [
   {
     name: 'tcg/ignores',
     ignores: [
@@ -22,9 +21,7 @@ export default defineConfigWithVueTs(
 
   js.configs.recommended,
 
-  pluginVue.configs['flat/recommended'],
-
-  vueTsConfigs.recommended,
+  ...tsEslint.configs.recommended,
 
   eslintPluginPrettierRecommended,
 
@@ -45,11 +42,11 @@ export default defineConfigWithVueTs(
 
   {
     name: 'tcg/custom-rules',
-    files: ['**/*.{ts,vue}'],
+    files: ['**/*.{js,mjs,ts}'],
     rules: {
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-debugger': globalThis.process?.env?.NODE_ENV === 'production' ? 'error' : 'off',
     },
   },
-);
+];

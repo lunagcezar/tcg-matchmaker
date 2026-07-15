@@ -14,6 +14,7 @@ This specification adds the Tournament management API. Tournaments have a lifecy
 **Purpose:** Implement tournament CRUD, registration, bracket generation (single elimination), match reporting, and winner advancement, following TDD.
 
 **Scope:**
+
 - Tournament create (draft), list, get, update, publish (→open), cancel
 - Player registration + organizer check-in
 - Start tournament → generate single-elimination bracket rounds + matches
@@ -22,25 +23,26 @@ This specification adds the Tournament management API. Tournaments have a lifecy
 - Get full bracket (rounds + matches)
 
 **Out of scope:**
+
 - Double elimination, round robin, swiss, pool play brackets (future specs)
 - Notifications (separate spec)
 
 ## 2. Routes
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `POST` | `/api/tournaments` | Yes | Create tournament (status: draft) |
-| `GET` | `/api/tournaments` | No | List tournaments |
-| `GET` | `/api/tournaments/:id` | No | Get tournament details |
-| `PATCH` | `/api/tournaments/:id` | Organizer | Update tournament fields |
-| `POST` | `/api/tournaments/:id/publish` | Organizer | Change status draft → open |
-| `POST` | `/api/tournaments/:id/cancel` | Organizer | Cancel tournament |
-| `POST` | `/api/tournaments/:id/register` | Yes | Register as participant |
-| `POST` | `/api/tournaments/:id/check-in` | Organizer | Check in participant |
-| `POST` | `/api/tournaments/:id/start` | Organizer | Start → generate bracket, set in_progress |
-| `GET` | `/api/tournaments/:id/bracket` | No | Get bracket (rounds + matches) |
-| `POST` | `/api/bracket-matches/:id/report` | Participant | Report match result |
-| `POST` | `/api/bracket-matches/:id/walkover` | Organizer | Mark as walkover |
+| Method  | Path                                | Auth        | Description                               |
+| ------- | ----------------------------------- | ----------- | ----------------------------------------- |
+| `POST`  | `/api/tournaments`                  | Yes         | Create tournament (status: draft)         |
+| `GET`   | `/api/tournaments`                  | No          | List tournaments                          |
+| `GET`   | `/api/tournaments/:id`              | No          | Get tournament details                    |
+| `PATCH` | `/api/tournaments/:id`              | Organizer   | Update tournament fields                  |
+| `POST`  | `/api/tournaments/:id/publish`      | Organizer   | Change status draft → open                |
+| `POST`  | `/api/tournaments/:id/cancel`       | Organizer   | Cancel tournament                         |
+| `POST`  | `/api/tournaments/:id/register`     | Yes         | Register as participant                   |
+| `POST`  | `/api/tournaments/:id/check-in`     | Organizer   | Check in participant                      |
+| `POST`  | `/api/tournaments/:id/start`        | Organizer   | Start → generate bracket, set in_progress |
+| `GET`   | `/api/tournaments/:id/bracket`      | No          | Get bracket (rounds + matches)            |
+| `POST`  | `/api/bracket-matches/:id/report`   | Participant | Report match result                       |
+| `POST`  | `/api/bracket-matches/:id/walkover` | Organizer   | Mark as walkover                          |
 
 ## 3. Acceptance Criteria
 

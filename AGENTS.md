@@ -130,12 +130,14 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 ### Code Quality
 
 - **ESLint v9 flat config** (`eslint.config.mjs`) at the workspace root, shared by all packages
-  - TypeScript rules via `typescript-eslint` and `@vue/eslint-config-typescript`
-  - Vue rules via `eslint-plugin-vue` (`flat/recommended`)
-  - Quasar-specific rules layered in `packages/frontend/eslint.config.js`
+  - TypeScript rules via `typescript-eslint`
   - Prettier formatting issues reported as ESLint errors via `eslint-plugin-prettier`
   - All lint commands use `--cache` for incremental runs
-- **Prettier** for consistent formatting (single quotes, trailing commas, 100 print width); root `.prettierrc` is the single source of truth
+- **Frontend ESLint** (`packages/frontend/eslint.config.js`) extends the root base and layers on:
+  - Vue rules via `eslint-plugin-vue` (`flat/recommended`)
+  - Quasar-specific rules via `@quasar/app-vite/eslint`
+  - Vue SFC TypeScript parsing via `vue-eslint-parser` + `@typescript-eslint/parser`
+- **Prettier** for consistent formatting (single quotes, trailing commas, 100 print width); root `.prettierrc` is the single source of truth; `.prettierignore` skips agent skills and lockfiles
 - **Husky** + **lint-staged** — pre-commit hook runs ESLint + Prettier on staged files only; prevents broken commits
 - **No `any` types** — never use `any` in production code. Use `unknown`, proper types, or Zod schemas instead. In tests, prefer `as Type` assertions over `as any`. Configure TypeScript with `strict: true` to enforce this.
 

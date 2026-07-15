@@ -1,9 +1,12 @@
 import pluginQuasar from '@quasar/app-vite/eslint';
-import { defineConfigWithVueTs } from '@vue/eslint-config-typescript';
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import pluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
+import tsEslint from 'typescript-eslint';
+import vueParser from 'vue-eslint-parser';
 import rootConfig from '../../eslint.config.mjs';
 
-export default defineConfigWithVueTs(
+export default [
   {
     /**
      * Ignore the following files.
@@ -16,9 +19,25 @@ export default defineConfigWithVueTs(
     ignores: ['**/__tests__/**', '**/e2e/**'],
   },
 
-  pluginQuasar.configs.recommended(),
+  ...pluginQuasar.configs.recommended(),
 
   ...rootConfig,
+
+  ...pluginVue.configs['flat/recommended'],
+
+  {
+    name: 'tcg/frontend/vue-typescript-parser',
+    files: ['**/*.vue'],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: {
+        parser: tsEslint.parser,
+        sourceType: 'module',
+      },
+    },
+  },
+
+  prettierRecommended,
 
   {
     name: 'tcg/frontend/language-options',
@@ -51,4 +70,4 @@ export default defineConfigWithVueTs(
       },
     },
   },
-);
+];

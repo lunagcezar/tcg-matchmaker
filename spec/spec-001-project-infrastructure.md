@@ -14,6 +14,7 @@ This specification defines the foundational project infrastructure for TCG Match
 **Purpose:** Create the physical directory structure, configuration files, and boilerplate code that enables parallel development across all three packages (`@tcg/shared`, `@tcg/worker`, `@tcg/frontend`), plus the Supabase database migration pipeline.
 
 **Scope:**
+
 - Root monorepo configuration (pnpm workspace, root scripts, shared TypeScript config)
 - `packages/shared/` — Zod schemas, types, and constants
 - `packages/worker/` — Hono app skeleton with Wrangler config
@@ -22,21 +23,22 @@ This specification defines the foundational project infrastructure for TCG Match
 - Shared dev tooling (ESLint, Prettier, tsconfig bases)
 
 **Out of scope:**
+
 - Business logic, API routes, frontend pages, composables, components (covered by subsequent specs)
 - i18n translation files (scaffold only — content filled later)
 - Feature-specific schemas beyond the minimal set needed for bootstrapping
 
 ## 2. Definitions
 
-| Term | Definition |
-|------|------------|
+| Term     | Definition                                                                   |
+| -------- | ---------------------------------------------------------------------------- |
 | Monorepo | A single repository containing multiple packages, managed by pnpm workspaces |
-| Hono | Lightweight, fast web framework for Cloudflare Workers |
-| Quasar | Vue 3-based UI framework with built-in Vite support |
-| Wrangler | Cloudflare CLI for managing Workers |
-| PostGIS | PostgreSQL extension for geospatial queries |
-| RLS | Row-Level Security — Postgres feature for per-row access control |
-| Zod | TypeScript-first schema validation library |
+| Hono     | Lightweight, fast web framework for Cloudflare Workers                       |
+| Quasar   | Vue 3-based UI framework with built-in Vite support                          |
+| Wrangler | Cloudflare CLI for managing Workers                                          |
+| PostGIS  | PostgreSQL extension for geospatial queries                                  |
+| RLS      | Row-Level Security — Postgres feature for per-row access control             |
+| Zod      | TypeScript-first schema validation library                                   |
 
 ## 3. Requirements, Constraints & Guidelines
 
@@ -153,7 +155,7 @@ tcg-matchmaker/
 
 ```typescript
 // shared/src/schemas/common.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const PaginationSchema = z.object({
   limit: z.number().int().min(1).max(100).default(20),
@@ -177,12 +179,16 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 
 ```typescript
 // shared/src/schemas/user.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const SignupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(128),
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_]+$/),
   display_name: z.string().min(1).max(50),
 });
 
@@ -195,7 +201,7 @@ export const UserSchema = z.object({
   id: z.string().uuid(),
   username: z.string(),
   display_name: z.string(),
-  role: z.enum(["player", "organizer", "admin"]),
+  role: z.enum(['player', 'organizer', 'admin']),
   avatar_path: z.string().nullable(),
   created_at: z.string().datetime(),
 });
@@ -237,23 +243,28 @@ export const ProfileUpdateSchema = z.object({
 ## 8. Dependencies & External Integrations
 
 ### External Systems
+
 - **EXT-001**: Supabase (PostgreSQL + Auth) — required for database and authentication. Local instance via `supabase start` for development.
 - **EXT-002**: Cloudflare Workers — deployment target for the Hono API. Wrangler used for local development.
 
 ### Third-Party Services
+
 - **SVC-001**: OpenStreetMap / Nominatim — geocoding (proxied through Hono). Public API, no key required but usage policy limits apply.
 - **SVC-002**: Resend — transactional email delivery via custom SMTP. API key required.
 
 ### Infrastructure Dependencies
+
 - **INF-001**: Node.js 20+ with pnpm 9+ — required for local development.
 - **INF-002**: Wrangler CLI — required for Worker development and deployment.
 - **INF-003**: Supabase CLI — required for local database and migration management.
 
 ### Technology Platform Dependencies
+
 - **PLT-001**: Cloudflare Workers runtime (ES modules, Service Workers format) — Hono app must export `default` fetch handler.
 - **PLT-002**: Workers `compatibility_date` must be set to a date no older than 2024-01-01.
 
 ### Compliance Dependencies
+
 - **COM-001**: LGPD (Brazilian General Data Protection Law) — consent recording in `consents` table required at signup.
 
 ## 9. Examples & Edge Cases

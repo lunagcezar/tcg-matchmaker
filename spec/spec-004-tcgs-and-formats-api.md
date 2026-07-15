@@ -14,12 +14,14 @@ This specification adds the TCG and Format management API routes to the Worker. 
 **Purpose:** Implement CRUD routes for TCGs and Formats in the Worker, with admin-only write protection and public read access.
 
 **Scope:**
+
 - Admin middleware (`adminMiddleware`) that checks `user.role === "admin"`
 - TCG routes (list, get, create, update, soft-delete)
 - Format routes (list by TCG, create, update, soft-delete)
 - Shared schema updates (update schemas, add list response schemas)
 
 **Out of scope:**
+
 - Frontend admin pages
 - TCG/format snapshot logic for events (handled at event creation time)
 
@@ -56,12 +58,12 @@ This specification adds the TCG and Format management API routes to the Worker. 
 
 ```typescript
 // packages/worker/src/middleware/admin.ts
-import type { Context, Next } from "hono";
+import type { Context, Next } from 'hono';
 
 export async function adminMiddleware(c: Context, next: Next) {
   const user = c.var.user;
-  if (user.role !== "admin") {
-    return c.json({ data: null, error: "Forbidden", meta: null }, 403);
+  if (user.role !== 'admin') {
+    return c.json({ data: null, error: 'Forbidden', meta: null }, 403);
   }
   await next();
 }
@@ -87,15 +89,16 @@ DELETE /api/formats/:id         → formatRouter.remove (admin)
 
 ### Files to Create/Modify
 
-| File | Action |
-|------|--------|
-| `packages/worker/src/middleware/admin.ts` | Create — admin role check middleware |
-| `packages/worker/src/tcgs/index.ts` | Create — TCG router with all CRUD routes |
-| `packages/worker/src/index.ts` | Modify — mount TCG + format routers |
+| File                                      | Action                                   |
+| ----------------------------------------- | ---------------------------------------- |
+| `packages/worker/src/middleware/admin.ts` | Create — admin role check middleware     |
+| `packages/worker/src/tcgs/index.ts`       | Create — TCG router with all CRUD routes |
+| `packages/worker/src/index.ts`            | Modify — mount TCG + format routers      |
 
 ### Updated Schemas
 
 Add to `packages/shared/src/schemas/tcg.ts`:
+
 - `UpdateTcgSchema` — partial update schema (all fields optional)
 - `UpdateFormatSchema` — partial update schema
 - `TcgListResponseSchema` — array wrapper (optional)

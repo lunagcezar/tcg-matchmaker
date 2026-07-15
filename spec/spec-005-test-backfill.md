@@ -14,6 +14,7 @@ Backfill tests for all existing code (specs 002-004) and establish the testing i
 **Purpose:** Set up Vitest in the worker package and write tests covering all existing API routes and middleware. Establish testing patterns (seams, mocks, assertions) so future specs can follow TDD strictly.
 
 **Scope:**
+
 - Vitest config for the worker package
 - Shared test utilities (mock Supabase client, test app factory)
 - Tests for `middleware/auth.ts` — JWT verification, banned check
@@ -22,6 +23,7 @@ Backfill tests for all existing code (specs 002-004) and establish the testing i
 - Tests for `tcgs/index.ts` — all TCG + format routes
 
 **Out of scope:**
+
 - Shared package Zod schema tests (simple enough to trust)
 - Supabase migration tests (requires running Supabase stack)
 - Frontend component tests (covered in a future spec)
@@ -30,12 +32,12 @@ Backfill tests for all existing code (specs 002-004) and establish the testing i
 
 Agreed test boundaries (seams):
 
-| Seam | What it tests | Mock boundary |
-|------|--------------|---------------|
-| **Auth middleware** | Returns 401/403/404 correctly based on request context | `@supabase/supabase-js` — mock `auth.getUser()` and `from().select()` |
-| **Admin middleware** | Returns 403 for non-admin, passes for admin | `c.var.user` set by auth middleware (already verified) |
-| **Auth routes** | Each route returns correct status + body for success/error cases | `@supabase/supabase-js` — mock all DB queries |
-| **TCG routes** | CRUD behavior, auth guards, soft-delete filtering | `@supabase/supabase-js` — mock all DB queries |
+| Seam                 | What it tests                                                    | Mock boundary                                                         |
+| -------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Auth middleware**  | Returns 401/403/404 correctly based on request context           | `@supabase/supabase-js` — mock `auth.getUser()` and `from().select()` |
+| **Admin middleware** | Returns 403 for non-admin, passes for admin                      | `c.var.user` set by auth middleware (already verified)                |
+| **Auth routes**      | Each route returns correct status + body for success/error cases | `@supabase/supabase-js` — mock all DB queries                         |
+| **TCG routes**       | CRUD behavior, auth guards, soft-delete filtering                | `@supabase/supabase-js` — mock all DB queries                         |
 
 ## 3. Test Structure
 

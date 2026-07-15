@@ -14,12 +14,14 @@ This specification defines the authentication and user management system for the
 **Purpose:** Implement the Worker-side auth infrastructure so that subsequent specs can rely on authenticated user context in every request.
 
 **Scope:**
+
 - `@supabase/supabase-js` integration in the Worker (secret key for DB, publishable key for JWT verify)
 - JWT verification middleware that extracts user identity and checks banned status
 - Auth API domain routes (profile CRUD, account deletion, suspension, data export, onboarding)
 - Updated shared Zod schemas for auth-related request/response types
 
 **Out of scope:**
+
 - Frontend signup/login UI (done via Supabase Auth directly)
 - Turnstile CAPTCHA integration (covered in a separate spec)
 - Rate limiting middleware (covered in a separate spec)
@@ -27,12 +29,12 @@ This specification defines the authentication and user management system for the
 
 ## 2. Definitions
 
-| Term | Definition |
-|------|------------|
-| Secret key | `sb_secret_...` — Supabase API key used by Hono for all DB operations (bypasses RLS) |
-| Publishable key | `sb_publishable_...` — Supabase API key used by frontend for Auth only |
-| JWT | JSON Web Token issued by Supabase Auth after sign-in |
-| Onboarding | First-run flow that creates the initial admin user when no users exist |
+| Term            | Definition                                                                           |
+| --------------- | ------------------------------------------------------------------------------------ |
+| Secret key      | `sb_secret_...` — Supabase API key used by Hono for all DB operations (bypasses RLS) |
+| Publishable key | `sb_publishable_...` — Supabase API key used by frontend for Auth only               |
+| JWT             | JSON Web Token issued by Supabase Auth after sign-in                                 |
+| Onboarding      | First-run flow that creates the initial admin user when no users exist               |
 
 ## 3. Requirements, Constraints & Guidelines
 
@@ -78,15 +80,15 @@ This specification defines the authentication and user management system for the
 
 ### API Routes
 
-| Method | Path | Auth | Request Body | Response |
-|--------|------|------|-------------|----------|
-| `GET` | `/api/auth/me` | Required | — | `UserResponseSchema` |
-| `PATCH` | `/api/auth/profile` | Required | `ProfileUpdateSchema` | `UserResponseSchema` |
-| `GET` | `/api/auth/onboarding` | No | — | `OnboardingStatusSchema` |
-| `POST` | `/api/auth/onboarding` | No | `SignupSchema` | `UserResponseSchema` |
-| `POST` | `/api/auth/export` | Required | — | `UserDataExportSchema` (profile + consents + events) |
-| `POST` | `/api/auth/suspend` | Required | — | `AccountActionResponseSchema` |
-| `DELETE` | `/api/auth/account` | Required | — | `AccountActionResponseSchema` |
+| Method   | Path                   | Auth     | Request Body          | Response                                             |
+| -------- | ---------------------- | -------- | --------------------- | ---------------------------------------------------- |
+| `GET`    | `/api/auth/me`         | Required | —                     | `UserResponseSchema`                                 |
+| `PATCH`  | `/api/auth/profile`    | Required | `ProfileUpdateSchema` | `UserResponseSchema`                                 |
+| `GET`    | `/api/auth/onboarding` | No       | —                     | `OnboardingStatusSchema`                             |
+| `POST`   | `/api/auth/onboarding` | No       | `SignupSchema`        | `UserResponseSchema`                                 |
+| `POST`   | `/api/auth/export`     | Required | —                     | `UserDataExportSchema` (profile + consents + events) |
+| `POST`   | `/api/auth/suspend`    | Required | —                     | `AccountActionResponseSchema`                        |
+| `DELETE` | `/api/auth/account`    | Required | —                     | `AccountActionResponseSchema`                        |
 
 ### Auth Middleware Context
 
@@ -96,7 +98,7 @@ type AuthUser = {
   id: string;
   email: string;
   username: string;
-  role: "player" | "organizer" | "admin";
+  role: 'player' | 'organizer' | 'admin';
 };
 ```
 
@@ -104,16 +106,16 @@ type AuthUser = {
 
 ```typescript
 // In worker/src/index.ts
-import { authRouter } from "./auth/index.js";
+import { authRouter } from './auth/index.js';
 
-app.route("/api/auth", authRouter);
+app.route('/api/auth', authRouter);
 ```
 
 ### Supabase Client
 
 ```typescript
 // worker/src/db/client.ts
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 export function createSecretClient(url: string, secretKey: string) {
   return createClient(url, secretKey, {
@@ -134,7 +136,7 @@ export const UserResponseSchema = z.object({
   id: z.string().uuid(),
   username: z.string(),
   display_name: z.string(),
-  role: z.enum(["player", "organizer", "admin"]),
+  role: z.enum(['player', 'organizer', 'admin']),
   avatar_path: z.string().nullable(),
   banned_at: z.string().datetime().nullable(),
   suspended_at: z.string().datetime().nullable(),
@@ -180,13 +182,16 @@ export const AccountActionResponseSchema = z.object({
 ## 8. Dependencies & External Integrations
 
 ### External Systems
+
 - **EXT-001**: Supabase Auth — JWT issuance and verification via `auth.getUser()`.
 - **EXT-002**: Supabase Database — `public.users` and `public.consents` tables for profile and consent storage.
 
 ### Third-Party Services
+
 - **SVC-001**: Supabase — managed PostgreSQL + Auth. Secret key required for admin operations.
 
 ### Infrastructure Dependencies
+
 - **INF-001**: Cloudflare Workers runtime — Workers-specific crypto APIs for JWT verification.
 - **INF-002**: `@supabase/supabase-js` v2 — JS client for Supabase Auth and Database.
 
@@ -196,14 +201,17 @@ export const AccountActionResponseSchema = z.object({
 
 ```typescript
 // Expected flow
-const authHeader = c.req.header("Authorization");
-if (!authHeader?.startsWith("Bearer ")) {
-  return c.json({ data: null, error: "Unauthorized", meta: null }, 401);
+const authHeader = c.req.header('Authorization');
+if (!authHeader?.startsWith('Bearer ')) {
+  return c.json({ data: null, error: 'Unauthorized', meta: null }, 401);
 }
 const token = authHeader.slice(7);
-const { data: { user }, error } = await supabase.auth.getUser(token);
+const {
+  data: { user },
+  error,
+} = await supabase.auth.getUser(token);
 if (error || !user) {
-  return c.json({ data: null, error: "Unauthorized", meta: null }, 401);
+  return c.json({ data: null, error: 'Unauthorized', meta: null }, 401);
 }
 ```
 
@@ -212,13 +220,13 @@ if (error || !user) {
 ```typescript
 // Before deleting the user's Auth account
 const { count } = await supabase
-  .from("users")
-  .select("id", { count: "exact", head: true })
-  .eq("role", "admin")
-  .is("deleted_at", null);
-if (count === 1 && user.role === "admin") {
+  .from('users')
+  .select('id', { count: 'exact', head: true })
+  .eq('role', 'admin')
+  .is('deleted_at', null);
+if (count === 1 && user.role === 'admin') {
   return c.json(
-    { data: null, error: "Promote another admin before deleting your account", meta: null },
+    { data: null, error: 'Promote another admin before deleting your account', meta: null },
     400,
   );
 }
@@ -229,12 +237,12 @@ if (count === 1 && user.role === "admin") {
 ```typescript
 // POST /api/auth/onboarding
 const { count } = await supabase
-  .from("users")
-  .select("id", { count: "exact", head: true })
-  .eq("role", "admin")
-  .is("deleted_at", null);
+  .from('users')
+  .select('id', { count: 'exact', head: true })
+  .eq('role', 'admin')
+  .is('deleted_at', null);
 if (count > 0) {
-  return c.json({ data: null, error: "Admin already exists", meta: null }, 400);
+  return c.json({ data: null, error: 'Admin already exists', meta: null }, 400);
 }
 ```
 

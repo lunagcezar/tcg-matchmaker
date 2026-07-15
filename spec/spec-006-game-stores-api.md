@@ -14,6 +14,7 @@ This specification adds the Game Store management API routes to the Worker. Stor
 **Purpose:** Implement store CRUD, membership management, and admin operations in the Worker following TDD (test-first).
 
 **Scope:**
+
 - Store routes (list, get, create, update, soft-delete)
 - Membership routes (list members, add, update role, remove)
 - Admin routes (verify, suspend)
@@ -21,6 +22,7 @@ This specification adds the Game Store management API routes to the Worker. Stor
 - Shared schema updates (UpdateStoreSchema, slug generation)
 
 **Out of scope:**
+
 - Store-based event creation (spec-007)
 - Store logo upload (spec-007)
 
@@ -53,18 +55,18 @@ This specification adds the Game Store management API routes to the Worker. Stor
 
 ## 4. Routes
 
-| Method | Path | Auth | Role | Description |
-|--------|------|------|------|-------------|
-| `GET` | `/api/stores` | No | — | List active stores |
-| `GET` | `/api/stores/:id` | No | — | Get store by ID |
-| `POST` | `/api/stores` | Yes | Any auth | Create store (creator becomes owner) |
-| `PATCH` | `/api/stores/:id` | Yes | Owner/Manager | Update store details |
-| `DELETE` | `/api/stores/:id` | Yes | Admin | Soft-delete store |
-| `POST` | `/api/stores/:id/verify` | Yes | Admin | Verify store |
-| `POST` | `/api/stores/:id/suspend` | Yes | Admin | Suspend store |
-| `GET` | `/api/stores/:id/members` | Yes | Owner/Manager | List members |
-| `POST` | `/api/stores/:id/members` | Yes | Owner/Manager | Add member |
-| `DELETE` | `/api/stores/:id/members/:userId` | Yes | Owner | Remove member |
+| Method   | Path                              | Auth | Role          | Description                          |
+| -------- | --------------------------------- | ---- | ------------- | ------------------------------------ |
+| `GET`    | `/api/stores`                     | No   | —             | List active stores                   |
+| `GET`    | `/api/stores/:id`                 | No   | —             | Get store by ID                      |
+| `POST`   | `/api/stores`                     | Yes  | Any auth      | Create store (creator becomes owner) |
+| `PATCH`  | `/api/stores/:id`                 | Yes  | Owner/Manager | Update store details                 |
+| `DELETE` | `/api/stores/:id`                 | Yes  | Admin         | Soft-delete store                    |
+| `POST`   | `/api/stores/:id/verify`          | Yes  | Admin         | Verify store                         |
+| `POST`   | `/api/stores/:id/suspend`         | Yes  | Admin         | Suspend store                        |
+| `GET`    | `/api/stores/:id/members`         | Yes  | Owner/Manager | List members                         |
+| `POST`   | `/api/stores/:id/members`         | Yes  | Owner/Manager | Add member                           |
+| `DELETE` | `/api/stores/:id/members/:userId` | Yes  | Owner         | Remove member                        |
 
 ## 5. Related Specifications
 

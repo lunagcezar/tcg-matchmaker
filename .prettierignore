@@ -1,0 +1,10 @@
+.agents/
+.eslintcache
+dist/
+node_modules/
+.quasar/
+.wrangler/
+.supabase/
+*.local
+pnpm-lock.yaml
+

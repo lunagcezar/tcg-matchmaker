@@ -16,11 +16,12 @@ This specification defines the migration of the workspace root ESLint configurat
 **Scope**:
 
 - Replace `.eslintrc.cjs` at the root with `eslint.config.mjs`.
-- Install and configure ESLint v9, TypeScript ESLint (type-checked), Vue ESLint, and Prettier integration at the root.
+- Install and configure ESLint v9, TypeScript ESLint, and Prettier integration at the root.
 - Create per-package `eslint.config.js` files for `packages/worker` and `packages/shared` that extend the root base.
-- Refactor `packages/frontend/eslint.config.js` to import the root base and layer on Quasar-specific rules.
-- Update root and package `lint` scripts and `lint-staged` configuration.
+- Refactor `packages/frontend/eslint.config.js` to import the root base and layer on Quasar-specific and Vue-specific rules.
+- Update root and package `lint` scripts and `lint-staged` configuration so formatting is handled at the root.
 - Remove the duplicate frontend `.prettierrc.json` and rely on the root `.prettierrc`.
+- Add `.prettierignore` to skip agent skill files and lockfiles.
 
 **Out of scope**: Changing Prettier formatting rules or enforcing new code-style preferences beyond the existing `singleQuote`, `trailingComma: all`, `printWidth: 100` settings.
 
@@ -38,13 +39,14 @@ This specification defines the migration of the workspace root ESLint configurat
 
 - **REQ-001**: The root ESLint configuration must use ESLint v9 flat config format.
 - **REQ-002**: The root configuration must lint TypeScript files with non-type-checked rules for fast feedback.
-- **REQ-003**: The root configuration must lint Vue single-file components (`.vue`).
+- **REQ-003**: The root configuration must provide a base for Vue SFC linting by configuring TypeScript rules; Vue-specific parser and rules are added in `packages/frontend` to avoid duplicate ESLint plugin instances in the monorepo.
 - **REQ-004**: The root configuration must integrate Prettier so that formatting issues are reported as ESLint errors.
 - **REQ-005**: `packages/worker` and `packages/shared` must have their own `eslint.config.js` that extends the root base.
-- **REQ-006**: `packages/frontend` must continue to apply Quasar-specific ESLint rules by extending the root base.
-- **REQ-007**: The root `lint` script must lint all packages in the monorepo.
+- **REQ-006**: `packages/frontend` must extend the root base and add Quasar-specific and Vue-specific ESLint rules.
+- **REQ-007**: The root `lint` script must check formatting and lint all packages in the monorepo.
 - **REQ-008**: All ESLint commands must use `--cache` for incremental runs.
 - **REQ-009**: `lint-staged` must run ESLint and Prettier consistently for staged files.
+- **REQ-010**: Prettier must ignore agent skill files and lockfiles via `.prettierignore`.
 - **CON-001**: ESLint must not access files outside the workspace.
 - **CON-002**: Type checking remains the responsibility of `tsc --noEmit` and `vue-tsc --noEmit`, not ESLint.
 - **GUD-001**: Keep changes minimal; avoid unrelated formatting churn in unrelated files.
@@ -79,7 +81,7 @@ There are no runtime APIs or data contracts for this specification. The delivera
 
 A single root ESLint configuration reduces duplication and drift between packages. It also ensures that shared code in `packages/shared` and worker code in `packages/worker` receive the same linting baseline as the frontend. Migrating to ESLint v9 flat config aligns the root with the frontend's existing setup and unlocks modern plugin configurations.
 
-Non-type-checked rules are used to keep `pnpm lint` fast, with `--cache` enabled for incremental runs. Type checking remains the responsibility of `tsc --noEmit` and `vue-tsc --noEmit`. `flat/recommended` Vue rules were chosen to improve consistency across Vue components.
+Non-type-checked rules are used to keep `pnpm lint` fast, with `--cache` enabled for incremental runs. Type checking remains the responsibility of `tsc --noEmit` and `vue-tsc --noEmit`. `flat/recommended` Vue rules are applied in the frontend package only. Keeping Vue-specific ESLint dependencies in the frontend package prevents duplicate plugin instances from being loaded when the root config is imported by the frontend, which avoids the `eslint-plugin-vue` duplication warning in monorepo setups.
 
 ## 8. Dependencies & External Integrations
 
@@ -92,13 +94,15 @@ Non-type-checked rules are used to keep `pnpm lint` fast, with `--cache` enabled
 
 - ESLint v9
 - `typescript-eslint`
-- `eslint-plugin-vue`
-- `@vue/eslint-config-typescript`
-- `@vue/eslint-config-prettier`
 - `eslint-plugin-prettier`
 - `eslint-config-prettier`
-- `vue-eslint-parser`
 - `globals`
+
+### Frontend-Only Tool Dependencies
+
+- `eslint-plugin-vue`
+- `vue-eslint-parser`
+- `@quasar/app-vite`
 
 ## 9. Examples & Edge Cases
 
@@ -107,18 +111,16 @@ Non-type-checked rules are used to keep `pnpm lint` fast, with `--cache` enabled
 ```js
 import js from '@eslint/js';
 import globals from 'globals';
-import pluginVue from 'eslint-plugin-vue';
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
+import tsEslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
-export default defineConfigWithVueTs(
+export default [
   {
     name: 'tcg/ignores',
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.quasar/**'],
+    ignores: ['**/.agents/**', '**/dist/**', '**/node_modules/**', '**/.quasar/**'],
   },
   js.configs.recommended,
-  pluginVue.configs['flat/recommended'],
-  vueTsConfigs.recommended,
+  ...tsEslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
     name: 'tcg/language-options',
@@ -126,17 +128,69 @@ export default defineConfigWithVueTs(
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: { ...globals.browser, ...globals.node },
+      parserOptions: { projectService: false },
     },
   },
   {
     name: 'tcg/rules',
-    files: ['**/*.{ts,vue}'],
+    files: ['**/*.{js,mjs,ts}'],
     rules: {
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-debugger': globalThis.process?.env?.NODE_ENV === 'production' ? 'error' : 'off',
     },
   },
-);
+];
+```
+
+### Frontend package config snippet
+
+```js
+import pluginQuasar from '@quasar/app-vite/eslint';
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import pluginVue from 'eslint-plugin-vue';
+import globals from 'globals';
+import tsEslint from 'typescript-eslint';
+import vueParser from 'vue-eslint-parser';
+import rootConfig from '../../eslint.config.mjs';
+
+export default [
+  { ignores: ['**/__tests__/**', '**/e2e/**'] },
+  ...pluginQuasar.configs.recommended(),
+  ...rootConfig,
+  ...pluginVue.configs['flat/recommended'],
+  {
+    name: 'tcg/frontend/vue-typescript-parser',
+    files: ['**/*.vue'],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: { parser: tsEslint.parser, sourceType: 'module' },
+    },
+  },
+  prettierRecommended,
+  {
+    name: 'tcg/frontend/language-options',
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        ga: 'readonly',
+        cordova: 'readonly',
+        Capacitor: 'readonly',
+        chrome: 'readonly',
+        browser: 'readonly',
+      },
+    },
+    rules: {
+      'prefer-promise-reject-errors': 'off',
+      'no-debugger': globalThis.process?.env?.NODE_ENV === 'production' ? 'error' : 'off',
+    },
+  },
+  {
+    name: 'tcg/frontend/service-worker',
+    files: ['src-pwa/sw/**/*.ts'],
+    languageOptions: { globals: { ...globals.serviceworker } },
+  },
+];
 ```
 
 ### Worker package config snippet
@@ -150,15 +204,11 @@ export default [...rootConfig];
 ## 10. Validation Criteria
 
 - `pnpm lint` exits with code 0 after all auto-fixable issues are resolved.
-- `pnpm -F @tcg/frontend lint` exits with code 0.
+- `pnpm -F @tcg/frontend lint` exits with code 0 with no plugin-duplication warnings.
 - `pnpm -F @tcg/worker lint` exits with code 0.
 - `pnpm -F @tcg/shared lint` exits with code 0.
 - `pnpm -F @tcg/frontend typecheck` exits with code 0.
 - `pnpm exec lint-staged` runs successfully on a staged changed file.
-
-### Known Issues
-
-- Frontend lint logs a benign warning about multiple `eslint-plugin-vue` instances being loaded. This happens because root and frontend each resolve their own copy of the same version via the pnpm workspace layout. It does not fail lint or affect rule behavior.
 
 ## 11. Related Specifications / Further Reading
 

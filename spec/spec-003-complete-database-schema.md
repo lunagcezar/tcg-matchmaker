@@ -14,31 +14,33 @@ This specification adds the remaining database tables from `docs/data-model.md` 
 **Purpose:** Create the second Supabase migration with all remaining entities (TCGs, Formats, Stores, Events, Brackets, Notifications, Reports, Audit Log) and their shared-package Zod schemas.
 
 **Scope:**
+
 - SQL migration `20260714000001_complete_schema.sql` with 11 new tables
 - Zod schema files in `@tcg/shared` for each domain
 - RLS enabled on all tables with no policies (Hono bypasses via secret key)
 
 **Out of scope:**
+
 - API routes and handlers (covered by subsequent specs)
 - Database indexes beyond PKs and FKs (added as needed in feature specs)
 - Frontend components or pages
 
 ## 2. Tables to Add
 
-| # | Table | Domain | Dependencies |
-|---|-------|--------|-------------|
-| 1 | `tcgs` | TCGs | None |
-| 2 | `formats` | Formats | tcgs |
-| 3 | `game_stores` | Stores | users (created_by_user_id) |
-| 4 | `store_memberships` | Stores | game_stores, users |
-| 5 | `events` | Events | users, tcgs, formats, game_stores |
-| 6 | `event_participants` | Events | events, users |
-| 7 | `bracket_rounds` | Tournaments | events |
-| 8 | `bracket_matches` | Tournaments | bracket_rounds, users |
-| 9 | `notifications` | Notifications | users |
-| 10 | `push_subscriptions` | Notifications | users |
-| 11 | `reports` | Moderation | users |
-| 12 | `audit_log` | Moderation | users |
+| #   | Table                | Domain        | Dependencies                      |
+| --- | -------------------- | ------------- | --------------------------------- |
+| 1   | `tcgs`               | TCGs          | None                              |
+| 2   | `formats`            | Formats       | tcgs                              |
+| 3   | `game_stores`        | Stores        | users (created_by_user_id)        |
+| 4   | `store_memberships`  | Stores        | game_stores, users                |
+| 5   | `events`             | Events        | users, tcgs, formats, game_stores |
+| 6   | `event_participants` | Events        | events, users                     |
+| 7   | `bracket_rounds`     | Tournaments   | events                            |
+| 8   | `bracket_matches`    | Tournaments   | bracket_rounds, users             |
+| 9   | `notifications`      | Notifications | users                             |
+| 10  | `push_subscriptions` | Notifications | users                             |
+| 11  | `reports`            | Moderation    | users                             |
+| 12  | `audit_log`          | Moderation    | users                             |
 
 ## 3. Requirements, Constraints & Guidelines
 
@@ -66,14 +68,14 @@ This specification adds the remaining database tables from `docs/data-model.md` 
 
 ### Schema Files to Create
 
-| File | Exports |
-|------|---------|
-| `schemas/tcg.ts` | `TcgSchema`, `CreateTcgSchema`, `Tcg` |
-| `schemas/store.ts` | `StoreSchema`, `StoreMembershipSchema`, `CreateStoreSchema`, `Store`, `StoreMembership` |
-| `schemas/event.ts` | `EventSchema`, `EventParticipantSchema`, `CreateEventSchema`, `Event`, `EventParticipant` |
-| `schemas/tournament.ts` | `BracketRoundSchema`, `BracketMatchSchema`, `BracketRound`, `BracketMatch` |
-| `schemas/notification.ts` | `NotificationSchema`, `PushSubscriptionSchema`, `Notification`, `PushSubscription` |
-| `schemas/report.ts` | `ReportSchema`, `Report` |
+| File                      | Exports                                                                                   |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| `schemas/tcg.ts`          | `TcgSchema`, `CreateTcgSchema`, `Tcg`                                                     |
+| `schemas/store.ts`        | `StoreSchema`, `StoreMembershipSchema`, `CreateStoreSchema`, `Store`, `StoreMembership`   |
+| `schemas/event.ts`        | `EventSchema`, `EventParticipantSchema`, `CreateEventSchema`, `Event`, `EventParticipant` |
+| `schemas/tournament.ts`   | `BracketRoundSchema`, `BracketMatchSchema`, `BracketRound`, `BracketMatch`                |
+| `schemas/notification.ts` | `NotificationSchema`, `PushSubscriptionSchema`, `Notification`, `PushSubscription`        |
+| `schemas/report.ts`       | `ReportSchema`, `Report`                                                                  |
 
 ## 4. Acceptance Criteria
 
@@ -101,9 +103,11 @@ This specification adds the remaining database tables from `docs/data-model.md` 
 ## 7. Dependencies & External Integrations
 
 ### External Systems
+
 - **EXT-001**: Supabase (PostgreSQL) — target for the migration.
 
 ### Infrastructure Dependencies
+
 - **INF-001**: Supabase CLI — required to apply migrations via `supabase db push` or `supabase migration up`.
 
 ## 8. Related Specifications / Further Reading
