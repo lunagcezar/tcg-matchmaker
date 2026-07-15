@@ -43,5 +43,10 @@ export const useEventStore = defineStore('events', () => {
     return (await r.json()).data;
   }
 
-  return { items, loading, current, list, get, create, join, confirm };
+  async function decline(id: string) {
+    const r = await fetch(`${apiUrl}/api/events/${id}/decline`, { method: 'POST' });
+    return (await r.json()).data;
+  }
+
+  return { items, loading, current, list, get, create, join, confirm, decline };
 });
