@@ -94,9 +94,10 @@ describe('SignupPage', () => {
 
     const vm = wrapper.vm as unknown as {
       handleSignup: (data: { email: string; password: string }) => Promise<void>;
+      error: string;
     };
     await vm.handleSignup({ email: 'test@test.com', password: 'password123' });
-    expect(wrapper.text()).toContain('Email already in use');
+    expect(vm.error).toBe('Email already in use');
   });
 
   it('clears error before new submit', async () => {

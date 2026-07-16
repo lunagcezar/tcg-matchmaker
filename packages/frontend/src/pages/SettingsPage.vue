@@ -1,72 +1,66 @@
 <template>
-  <q-page class="q-pa-md flex flex-center">
-    <q-card style="width: 500px">
-      <q-card-section
-        ><h5 class="q-my-none">{{ $t('nav.settings') }}</h5></q-card-section
-      >
-      <q-card-section class="q-gutter-sm">
-        <q-input v-model="displayName" :label="$t('auth.displayName')" outlined />
-        <q-btn
-          color="primary"
-          :label="$t('common.save')"
-          class="full-width"
-          :loading="saving"
-          @click="saveProfile"
-        />
-        <q-separator />
-        <q-select
-          v-model="locale"
-          :options="locales"
-          :label="$t('common.language')"
-          outlined
-          emit-value
-          map-options
-          @update:model-value="changeLocale"
-        />
-        <q-toggle
-          v-model="darkMode"
-          :label="$t('common.darkMode')"
-          @update:model-value="toggleDark"
-        />
-        <q-separator />
-        <q-toggle
-          v-model="pushEnabled"
-          :label="$t('notifications.enablePush')"
-          :disable="!pushSupported"
-          @update:model-value="togglePush"
-        />
-        <p v-if="pushStatus" class="text-caption text-grey">{{ pushStatus }}</p>
-        <q-separator />
-        <div class="text-negative text-h6 q-mb-sm">{{ $t('settings.dangerZone') }}</div>
-        <div class="flex q-gutter-sm">
-          <q-btn
-            color="secondary"
-            :label="$t('settings.downloadData')"
-            class="full-width"
-            :loading="exportLoading"
-            @click="handleExport"
-          />
-          <q-btn
-            color="warning"
-            :label="$t('settings.suspendAccount')"
-            class="full-width"
-            :loading="suspendLoading"
-            @click="handleSuspend"
-          />
-          <q-btn
-            color="negative"
-            :label="$t('settings.deleteAccount')"
-            class="full-width"
-            :loading="deleteLoading"
-            @click="handleDelete"
-          />
-          <q-separator class="full-width" />
-          <q-btn color="negative" :label="$t('auth.signOut')" class="full-width" @click="logout" />
-        </div>
-        <p v-if="message" class="text-center text-positive">{{ message }}</p>
-      </q-card-section>
-    </q-card>
-  </q-page>
+  <AppCard
+    :title="$t('nav.settings')"
+    width="500px"
+    page-class="q-pa-md flex flex-center"
+    body-class="q-gutter-sm"
+  >
+    <q-input v-model="displayName" :label="$t('auth.displayName')" outlined />
+    <q-btn
+      color="primary"
+      :label="$t('common.save')"
+      class="full-width"
+      :loading="saving"
+      @click="saveProfile"
+    />
+    <q-separator />
+    <q-select
+      v-model="locale"
+      :options="locales"
+      :label="$t('common.language')"
+      outlined
+      emit-value
+      map-options
+      @update:model-value="changeLocale"
+    />
+    <q-toggle v-model="darkMode" :label="$t('common.darkMode')" @update:model-value="toggleDark" />
+    <q-separator />
+    <q-toggle
+      v-model="pushEnabled"
+      :label="$t('notifications.enablePush')"
+      :disable="!pushSupported"
+      @update:model-value="togglePush"
+    />
+    <p v-if="pushStatus" class="text-caption text-grey">{{ pushStatus }}</p>
+    <q-separator />
+    <div class="text-negative text-h6 q-mb-sm">{{ $t('settings.dangerZone') }}</div>
+    <div class="flex q-gutter-sm">
+      <q-btn
+        color="secondary"
+        :label="$t('settings.downloadData')"
+        class="full-width"
+        :loading="exportLoading"
+        @click="handleExport"
+      />
+      <q-btn
+        color="warning"
+        :label="$t('settings.suspendAccount')"
+        class="full-width"
+        :loading="suspendLoading"
+        @click="handleSuspend"
+      />
+      <q-btn
+        color="negative"
+        :label="$t('settings.deleteAccount')"
+        class="full-width"
+        :loading="deleteLoading"
+        @click="handleDelete"
+      />
+      <q-separator class="full-width" />
+      <q-btn color="negative" :label="$t('auth.signOut')" class="full-width" @click="logout" />
+    </div>
+    <p v-if="message" class="text-center text-positive">{{ message }}</p>
+  </AppCard>
 </template>
 
 <script setup lang="ts">
@@ -79,6 +73,7 @@ import { useAppStore } from '@/stores/useAppStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { deleteAccount, suspendAccount, exportData } from '@/composables/useAccountManagement';
 import { apiGet, apiPatch } from '@/composables/useApi';
+import AppCard from '@/components/molecules/AppCard.vue';
 
 usePageMeta({ titleKey: 'meta.settings', descKey: 'meta.settingsDesc' });
 

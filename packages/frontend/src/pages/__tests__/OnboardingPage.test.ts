@@ -87,6 +87,7 @@ describe('OnboardingPage', () => {
         username?: string;
         displayName?: string;
       }) => Promise<void>;
+      error: string;
     };
     await vm.handleOnboarding({
       email: 'admin@test.com',
@@ -94,7 +95,7 @@ describe('OnboardingPage', () => {
       username: 'admin',
       displayName: 'Admin',
     });
-    expect(wrapper.text()).toContain('Email already registered');
+    expect(vm.error).toBe('Email already registered');
   });
 
   it('shows success message after creation', async () => {

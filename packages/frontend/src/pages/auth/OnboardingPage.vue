@@ -1,16 +1,17 @@
 <template>
-  <q-page class="row items-center justify-center">
-    <AppCard :title="$t('auth.onboarding')">
-      <p v-if="error" class="text-negative text-center q-mb-sm">{{ error }}</p>
-      <p v-if="success" class="text-positive text-center q-mb-sm">{{ success }}</p>
-      <AuthForm
-        :submit-label="$t('auth.signUp')"
-        :on-submit="handleOnboarding"
-        :loading="loading"
-        :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
-      />
-    </AppCard>
-  </q-page>
+  <AppCard
+    :title="$t('auth.onboarding')"
+    :error="error"
+    :success="success"
+    page-class="row items-center justify-center"
+  >
+    <AuthForm
+      :submit-label="$t('auth.signUp')"
+      :on-submit="handleOnboarding"
+      :loading="loading"
+      :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
+    />
+  </AppCard>
 </template>
 
 <script setup lang="ts">
@@ -20,7 +21,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 
 usePageMeta({ titleKey: 'meta.onboarding', descKey: 'meta.onboardingDesc' });
-import AppCard from '@/components/atoms/AppCard.vue';
+import AppCard from '@/components/molecules/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
 import { apiPost } from '@/composables/useApi';
 

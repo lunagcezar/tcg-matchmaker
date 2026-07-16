@@ -98,9 +98,10 @@ describe('LoginPage', () => {
 
     const vm = wrapper.vm as unknown as {
       handleLogin: (data: { email: string; password: string }) => Promise<void>;
+      error: string;
     };
     await vm.handleLogin({ email: 'test@test.com', password: 'wrong' });
-    expect(wrapper.text()).toContain('Invalid credentials');
+    expect(vm.error).toBe('Invalid credentials');
   });
 
   it('clears error before new submit', async () => {

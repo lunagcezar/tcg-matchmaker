@@ -1,23 +1,24 @@
 <template>
-  <q-page class="row items-center justify-center">
-    <AppCard :title="$t('auth.signUp')">
-      <p v-if="error" class="text-negative text-center q-mb-sm">{{ error }}</p>
-      <p v-if="success" class="text-positive text-center q-mb-sm">{{ success }}</p>
-      <AuthForm
-        :submit-label="$t('auth.signUp')"
-        :on-submit="handleSignup"
-        :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
-        :loading="loading"
-      >
-        <template #extra>
-          <TurnstileWidget v-if="siteKey" :site-key="siteKey" @token="turnstileToken = $event" />
-        </template>
-        <template #footer>
-          <AuthFooter mode="signup" />
-        </template>
-      </AuthForm>
-    </AppCard>
-  </q-page>
+  <AppCard
+    :title="$t('auth.signUp')"
+    :error="error"
+    :success="success"
+    page-class="row items-center justify-center"
+  >
+    <AuthForm
+      :submit-label="$t('auth.signUp')"
+      :on-submit="handleSignup"
+      :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
+      :loading="loading"
+    >
+      <template #extra>
+        <TurnstileWidget v-if="siteKey" :site-key="siteKey" @token="turnstileToken = $event" />
+      </template>
+      <template #footer>
+        <AuthFooter mode="signup" />
+      </template>
+    </AuthForm>
+  </AppCard>
 </template>
 
 <script setup lang="ts">
@@ -25,7 +26,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePageMeta } from '@/composables/usePageMeta';
-import AppCard from '@/components/atoms/AppCard.vue';
+import AppCard from '@/components/molecules/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
 import AuthFooter from '@/components/molecules/AuthFooter.vue';
 
