@@ -382,8 +382,42 @@ tournamentRouter.get('/:id/bracket', async (c) => {
   });
 });
 
+async function orgGuardByMatch(
+  supabase: ReturnType<typeof createSecretClient>,
+  matchId: string,
+  userId: string,
+): Promise<boolean> {
+  const { data: match } = await supabase
+    .from('bracket_matches')
+    .select('round_id')
+    .eq('id', matchId)
+    .single();
+  if (!match) return false;
+  const { data: round } = await supabase
+    .from('bracket_rounds')
+    .select('event_id')
+    .eq('id', match.round_id)
+    .single();
+  if (!round) return false;
+  const { data: event } = await supabase
+    .from('events')
+    .select('created_by_user_id')
+    .eq('id', round.event_id)
+    .single();
+  return event?.created_by_user_id === userId;
+}
+
 bracketMatchRouter.post('/:id/report', authMiddleware, async (c) => {
+  const user = c.var.user;
   const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
+
+  const matchId = c.req.param('id');
+  if (!matchId) return c.json({ data: null, error: 'Match ID required', meta: null }, 400);
+
+  if (!(await orgGuardByMatch(supabase, matchId, user.id))) {
+    return c.json({ data: null, error: 'Forbidden', meta: null }, 403);
+  }
+
   const body = await c.req.json().catch(() => ({}));
   const parsed = ReportMatchSchema.safeParse(body);
   if (!parsed.success) {
@@ -425,7 +459,16 @@ bracketMatchRouter.post('/:id/report', authMiddleware, async (c) => {
 });
 
 bracketMatchRouter.post('/:id/walkover', authMiddleware, async (c) => {
+  const user = c.var.user;
   const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
+
+  const walkoverMatchId = c.req.param('id');
+  if (!walkoverMatchId) return c.json({ data: null, error: 'Match ID required', meta: null }, 400);
+
+  if (!(await orgGuardByMatch(supabase, walkoverMatchId, user.id))) {
+    return c.json({ data: null, error: 'Forbidden', meta: null }, 403);
+  }
+
   const body = await c.req.json().catch(() => ({}));
   const winnerId = body.winner_id;
 

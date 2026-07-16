@@ -4,8 +4,17 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { tournamentRouter } from '../index.js';
-import { env, testUserId, chain, makeApp, userChain, authMock } from '../../test-utils/supabase.js';
+import { tournamentRouter, bracketMatchRouter } from '../index.js';
+import {
+  env,
+  testUserId,
+  testUserId2,
+  chain,
+  makeApp,
+  userChain,
+  authMock,
+  toMockResponse,
+} from '../../test-utils/supabase.js';
 
 const tournamentId = '00000000-0000-0000-0000-000000000100';
 const roundId = '00000000-0000-0000-0000-000000000200';
@@ -254,6 +263,164 @@ describe('Tournament routes', () => {
           {
             method: 'POST',
             headers: { Authorization: 'Bearer t' },
+          },
+          env,
+        );
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('Bracket match auth guard', () => {
+    const matchId = '00000000-0000-0000-0000-000000000300';
+    const bracketRoundId = '00000000-0000-0000-0000-000000000200';
+    const eventId = tournamentId;
+
+    function setupOrgGuard(createdByUserId: string) {
+      const { createClient } = vi.importActual('@supabase/supabase-js');
+      // already mocked, just return the mock
+      return createClient;
+    }
+
+    it('POST /:id/report returns 403 when user is not the organizer', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'bracket_matches')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(toMockResponse({ id: matchId, round_id: bracketRoundId })),
+            });
+          if (t === 'bracket_rounds')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(toMockResponse({ id: bracketRoundId, event_id: eventId })),
+            });
+          if (t === 'events')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(
+                  toMockResponse({ id: eventId, created_by_user_id: testUserId2 }),
+                ),
+            });
+          if (t === 'users') return userChain();
+          return chain();
+        }),
+      });
+
+      const res = await makeApp()
+        .route('/api/bracket-matches', bracketMatchRouter)
+        .request(
+          `/api/bracket-matches/${matchId}/report`,
+          {
+            method: 'POST',
+            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ winner_id: testUserId, score_player1: 2, score_player2: 0 }),
+          },
+          env,
+        );
+      expect(res.status).toBe(403);
+    });
+
+    it('POST /:id/walkover returns 403 when user is not the organizer', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'bracket_matches')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(toMockResponse({ id: matchId, round_id: bracketRoundId })),
+            });
+          if (t === 'bracket_rounds')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(toMockResponse({ id: bracketRoundId, event_id: eventId })),
+            });
+          if (t === 'events')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(
+                  toMockResponse({ id: eventId, created_by_user_id: testUserId2 }),
+                ),
+            });
+          if (t === 'users') return userChain();
+          return chain();
+        }),
+      });
+
+      const res = await makeApp()
+        .route('/api/bracket-matches', bracketMatchRouter)
+        .request(
+          `/api/bracket-matches/${matchId}/walkover`,
+          {
+            method: 'POST',
+            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ winner_id: testUserId }),
+          },
+          env,
+        );
+      expect(res.status).toBe(403);
+    });
+
+    it('POST /:id/report returns 200 when user is the organizer', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const matchChain = chain({
+        single: vi.fn().mockResolvedValue(
+          toMockResponse({
+            id: matchId,
+            round_id: bracketRoundId,
+            player1_id: testUserId,
+            player2_id: testUserId2,
+            status: 'pending',
+            winner_id: null,
+            score_player1: null,
+            score_player2: null,
+            next_match_id: null,
+            next_match_player_slot: null,
+            scheduled_at: null,
+            created_at: '2026-07-14T00:00:00.000Z',
+            updated_at: '2026-07-14T00:00:00.000Z',
+          }),
+        ),
+        update: vi.fn().mockReturnThis(),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'bracket_matches') return matchChain;
+          if (t === 'bracket_rounds')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(toMockResponse({ id: bracketRoundId, event_id: eventId })),
+            });
+          if (t === 'events')
+            return chain({
+              single: vi
+                .fn()
+                .mockResolvedValue(toMockResponse({ id: eventId, created_by_user_id: testUserId })),
+            });
+          if (t === 'users') return userChain();
+          return chain();
+        }),
+      });
+
+      const res = await makeApp()
+        .route('/api/bracket-matches', bracketMatchRouter)
+        .request(
+          `/api/bracket-matches/${matchId}/report`,
+          {
+            method: 'POST',
+            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ winner_id: testUserId, score_player1: 2, score_player2: 0 }),
           },
           env,
         );

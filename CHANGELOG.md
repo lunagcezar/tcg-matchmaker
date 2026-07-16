@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.56.0] — 2026-07-15
+
+### Added
+
+- `orgGuardByMatch()` helper: verifies the requesting user is the tournament creator by walking `bracket_matches → bracket_rounds → events`.
+- Tests: onboarding POST (201 success, 400 duplicate) and bracket match auth guard (403 non-organizer, 200 organizer) — 5 new worker tests (69 total).
+
+### Fixed
+
+- `POST /api/bracket-matches/:id/report` and `POST /api/bracket-matches/:id/walkover` now check tournament ownership — returns 403 if the caller is not the organizer.
+- TypeScript strict null check: `c.req.param('id')` result guarded before passing to `orgGuardByMatch()`.
+
 ## [0.55.0] — 2026-07-15
 
 ### Added
