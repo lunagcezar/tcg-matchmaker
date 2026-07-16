@@ -4,6 +4,9 @@ import type { AuthUser } from '../middleware/auth.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { createSecretClient } from '../db/client.js';
 
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 100;
+
 type Bindings = {
   SUPABASE_URL: string;
   SUPABASE_SECRET_KEY: string;
@@ -14,11 +17,33 @@ const eventRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser }
 eventRouter.get('/', async (c) => {
   const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
 
-  let query = supabase
-    .from('events')
-    .select('*')
-    .is('deleted_at', null)
-    .order('scheduled_at', { ascending: true });
+  const rawLimit = c.req.query('limit');
+  let limit = DEFAULT_PAGE_SIZE;
+  if (rawLimit) {
+    const parsed = Number.parseInt(rawLimit, 10);
+    if (!Number.isNaN(parsed)) {
+      limit = Math.min(Math.max(parsed, 1), MAX_PAGE_SIZE);
+    }
+  }
+
+  const cursorParam = c.req.query('cursor');
+  let cursor: { scheduled_at: string; id: string } | null = null;
+  if (cursorParam) {
+    try {
+      const decoded = Buffer.from(cursorParam, 'base64').toString('utf8');
+      cursor = JSON.parse(decoded) as { scheduled_at: string; id: string };
+    } catch {
+      return c.json({ data: null, error: 'Invalid cursor', meta: null }, 400);
+    }
+  }
+
+  let query = supabase.from('events').select('*').is('deleted_at', null);
+
+  if (cursor) {
+    query = query.or(
+      `scheduled_at.gt.${cursor.scheduled_at},and(scheduled_at.eq.${cursor.scheduled_at},id.gt.${cursor.id})`,
+    );
+  }
 
   const type = c.req.query('type');
   if (type) query = query.eq('type', type);
@@ -29,9 +54,32 @@ eventRouter.get('/', async (c) => {
   const tcgId = c.req.query('tcg_id');
   if (tcgId) query = query.eq('tcg_id', tcgId);
 
-  const { data } = await query;
+  query = query
+    .order('scheduled_at', { ascending: true })
+    .order('id', { ascending: true })
+    .limit(limit + 1);
 
-  return c.json({ data: data ?? [], error: null, meta: null });
+  const { data, error } = await query;
+  if (error) {
+    return c.json({ data: null, error: error.message, meta: null }, 500);
+  }
+
+  const rows = (data ?? []) as Array<Record<string, unknown>>;
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const last = page[page.length - 1] as { scheduled_at: string; id: string } | undefined;
+  const nextCursor =
+    hasMore && last
+      ? Buffer.from(JSON.stringify({ scheduled_at: last.scheduled_at, id: last.id })).toString(
+          'base64',
+        )
+      : null;
+
+  return c.json({
+    data: page,
+    error: null,
+    meta: { next_cursor: nextCursor, limit },
+  });
 });
 
 eventRouter.get('/:id', async (c) => {

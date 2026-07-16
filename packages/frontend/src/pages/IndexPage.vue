@@ -5,7 +5,7 @@
     </section>
     <section class="feed-section">
       <FilterBar v-model="selectedTypes" @geolocate="geolocate" />
-      <EventFeed :events="filteredEvents" />
+      <EventFeed :events="filteredEvents" :loading="eventStore.loading" @load-more="loadMore" />
     </section>
   </q-page>
 </template>
@@ -40,6 +40,10 @@ function geolocate() {
       },
     );
   }
+}
+
+function loadMore(done: (stop?: boolean) => void) {
+  void eventStore.loadMore().then(() => done(!eventStore.hasMore));
 }
 
 onMounted(() => {

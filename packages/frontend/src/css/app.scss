@@ -95,14 +95,23 @@ pre,
 .q-btn {
   border-radius: var(--radius-md);
   font-weight: 500;
+  color: var(--primary);
 }
 
-.q-btn--flat {
-  color: var(--foreground);
+.q-btn--standard {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
 }
 
-.q-btn--flat:hover {
-  background-color: var(--muted);
+.q-btn--flat,
+.q-btn--outline {
+  color: var(--primary);
+}
+
+.q-btn--flat:hover,
+.q-btn--outline:hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .q-btn-toggle .q-btn {
@@ -189,6 +198,7 @@ pre,
 
 .app-shell {
   display: flex;
+  align-items: flex-start;
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
@@ -305,6 +315,7 @@ pre,
 
 .app-main {
   min-width: 0;
+  min-height: auto;
   flex: 1 1 0%;
   padding: 4rem 1.5rem 2rem;
 }
@@ -327,7 +338,7 @@ pre,
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.25rem;
-  color: var(--foreground);
+  color: var(--primary);
   text-decoration: none;
   transition:
     background-color 0.2s ease,
@@ -337,6 +348,7 @@ pre,
 
 .app-nav-link:hover {
   background-color: var(--muted);
+  color: var(--primary);
 }
 
 .app-nav-link--active {
@@ -347,6 +359,7 @@ pre,
 
 .app-nav-link--active:hover {
   background-color: color-mix(in oklch, var(--primary) 90%, transparent);
+  color: var(--primary-foreground);
 }
 
 .app-nav-children {

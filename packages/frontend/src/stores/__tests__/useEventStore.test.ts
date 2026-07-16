@@ -31,6 +31,31 @@ describe('useEventStore', () => {
     expect(store.loading).toBe(false);
   });
 
+  it('paginates with loadMore', async () => {
+    (globalThis.fetch as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({
+        json: vi.fn().mockResolvedValue({
+          data: [{ id: '1', type: 'match' }],
+          meta: { next_cursor: 'c1' },
+        }),
+      })
+      .mockResolvedValueOnce({
+        json: vi
+          .fn()
+          .mockResolvedValue({ data: [{ id: '2', type: 'trading' }], meta: { next_cursor: null } }),
+      });
+
+    const store = useEventStore();
+    await store.list();
+    expect(store.items).toHaveLength(1);
+    expect(store.nextCursor).toBe('c1');
+
+    await store.loadMore();
+    expect(store.items).toHaveLength(2);
+    expect(store.nextCursor).toBeNull();
+    expect(store.hasMore).toBe(false);
+  });
+
   it('joins an event', async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: vi.fn().mockResolvedValue({ data: { id: '1', status: 'pending' } }),

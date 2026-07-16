@@ -15,6 +15,7 @@ export function chain(overrides?: Partial<Record<string, ReturnType<typeof vi.fn
     neq: vi.fn(),
     gte: vi.fn(),
     lte: vi.fn(),
+    or: vi.fn(),
     order: vi.fn(),
     limit: vi.fn(),
     insert: vi.fn(),

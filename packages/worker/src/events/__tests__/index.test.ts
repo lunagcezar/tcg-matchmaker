@@ -55,7 +55,7 @@ describe('Event routes', () => {
   describe('GET /api/events', () => {
     it('returns a list of events', async () => {
       const { createClient } = await import('@supabase/supabase-js');
-      const c = chain({ order: vi.fn().mockResolvedValue({ data: [], error: null }) });
+      const c = chain({ limit: vi.fn().mockResolvedValue({ data: [], error: null }) });
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
         auth: { getUser: vi.fn() },
         from: vi.fn().mockReturnValue(c),
@@ -64,6 +64,38 @@ describe('Event routes', () => {
       const res = await makeApp().route('/api/events', eventRouter).request('/api/events', {}, env);
       const body = (await res.json()) as { data: unknown[] };
       expect(Array.isArray(body.data)).toBe(true);
+    });
+
+    it('paginates events with cursor and limit', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const rows = [
+        {
+          ...eventData,
+          id: '00000000-0000-0000-0000-000000000101',
+          scheduled_at: '2026-07-21T14:00:00.000Z',
+        },
+        {
+          ...eventData,
+          id: '00000000-0000-0000-0000-000000000102',
+          scheduled_at: '2026-07-22T14:00:00.000Z',
+        },
+      ];
+      const c = chain({ limit: vi.fn().mockResolvedValue({ data: rows, error: null }) });
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        auth: { getUser: vi.fn() },
+        from: vi.fn().mockReturnValue(c),
+      });
+
+      const res = await makeApp()
+        .route('/api/events', eventRouter)
+        .request('/api/events?limit=1', {}, env);
+      const body = (await res.json()) as {
+        data: unknown[];
+        meta: { next_cursor: string | null; limit: number };
+      };
+      expect(body.data).toHaveLength(1);
+      expect(body.meta.limit).toBe(1);
+      expect(body.meta.next_cursor).toBeTruthy();
     });
   });
 

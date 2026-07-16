@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { apiGet, apiPost } from '@/composables/useApi';
 import type { Event } from '@/types/domain';
 
 export const useEventStore = defineStore('events', () => {
   const items = ref<Event[]>([]);
   const loading = ref(false);
+  const loadingMore = ref(false);
   const current = ref<Event | null>(null);
+  const nextCursor = ref<string | null>(null);
+  const hasMore = computed(() => nextCursor.value !== null);
 
   async function list(params?: Record<string, string>) {
     loading.value = true;
@@ -14,9 +17,30 @@ export const useEventStore = defineStore('events', () => {
       const query = params ? '?' + new URLSearchParams(params).toString() : '';
       const j = await apiGet('/api/events' + query);
       items.value = (j.data ?? []) as Event[];
+      nextCursor.value = (j.meta?.next_cursor as string | null) ?? null;
     } finally {
       loading.value = false;
     }
+  }
+
+  async function loadMore(params?: Record<string, string>) {
+    if (!nextCursor.value || loadingMore.value) return;
+    loadingMore.value = true;
+    try {
+      const searchParams = new URLSearchParams(params);
+      searchParams.set('cursor', nextCursor.value);
+      const j = await apiGet('/api/events?' + searchParams.toString());
+      const page = (j.data ?? []) as Event[];
+      items.value.push(...page);
+      nextCursor.value = (j.meta?.next_cursor as string | null) ?? null;
+    } finally {
+      loadingMore.value = false;
+    }
+  }
+
+  function reset() {
+    items.value = [];
+    nextCursor.value = null;
   }
 
   async function get(id: string) {
@@ -45,5 +69,20 @@ export const useEventStore = defineStore('events', () => {
     return j.data;
   }
 
-  return { items, loading, current, list, get, create, join, confirm, decline };
+  return {
+    items,
+    loading,
+    loadingMore,
+    hasMore,
+    current,
+    nextCursor,
+    list,
+    loadMore,
+    reset,
+    get,
+    create,
+    join,
+    confirm,
+    decline,
+  };
 });

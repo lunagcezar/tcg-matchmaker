@@ -40,10 +40,15 @@ All notable changes to this project will be documented in this file.
 - `routes.ts`: `/admin/*` routes now render inside `MainLayout.vue`.
 - Added `FilterToggle` molecule component: styled `q-btn-toggle` with primary text, primary outline, and bold active state.
 - Replaced `q-btn-toggle` in `FilterBar` and `matches/ListPage` with `FilterToggle`.
-- Fixed layout overflow: set `.q-layout` width to `100%` to avoid unnecessary vertical scrollbars.
+- Fixed layout overflow: set `.q-layout` width to `100%` and `.app-shell` `align-items: flex-start` to avoid unnecessary vertical scrollbars.
 - Hidden desktop sidebar on mobile (`<1024px`) and added left border for visual separation.
 - Dark-mode form polish: primary focus/label color on outlined inputs and lighter error red.
 - Added `FilterToggle.test.ts` and updated `FilterBar.test.ts` / `MatchListPage.test.ts` stubs.
+- Added `QInfiniteScroll` to `EventFeed` for paginated home feed.
+- Added cursor-based pagination to `GET /api/events` with `limit` and `cursor` query params.
+- Extended `useEventStore` with `loadMore`, `hasMore`, `loadingMore`, and `nextCursor` for infinite scroll.
+- Added `EventFeed.test.ts` and updated `useEventStore.test.ts` / worker events tests for pagination.
+- Updated `eslint.config.mjs` to ignore `.wrangler/**` generated files.
 
 ## [0.60.0] — 2026-07-16
 
