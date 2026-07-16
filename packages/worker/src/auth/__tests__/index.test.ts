@@ -6,7 +6,7 @@ vi.mock('@supabase/supabase-js', () => ({
 
 import { Hono } from 'hono';
 import { authRouter } from '../index.js';
-import { env, testUserId, chain, authMock } from '../../test-utils/supabase.js';
+import { env, testUserId, chain, authMock, toMockResponse } from '../../test-utils/supabase.js';
 
 function createTestApp() {
   return new Hono<{
@@ -94,6 +94,98 @@ describe('Auth routes', () => {
       );
       const body = (await res.json()) as { data: { username: string } };
       expect(body.data.username).toBe('testuser');
+    });
+  });
+
+  describe('POST /api/auth/onboarding', () => {
+    it('creates the first admin and returns 201', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const adminId = '00000000-0000-0000-0000-000000000099';
+
+      const adminCheckChain = chain({
+        is: vi.fn().mockResolvedValue({ data: null, error: null, count: 0 }),
+      });
+      const insertChain = chain({
+        single: vi.fn(),
+        insert: vi.fn().mockReturnThis(),
+      });
+      const userChain = chain({
+        single: vi.fn().mockResolvedValue(
+          toMockResponse({
+            id: adminId,
+            username: 'firstadmin',
+            display_name: 'First Admin',
+            role: 'admin',
+            avatar_path: null,
+            banned_at: null,
+            suspended_at: null,
+            created_at: '2026-07-15T00:00:00.000Z',
+          }),
+        ),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        auth: {
+          getUser: vi.fn(),
+          admin: {
+            createUser: vi.fn().mockResolvedValue({
+              data: { user: { id: adminId } },
+              error: null,
+            }),
+            deleteUser: vi.fn(),
+          },
+        },
+        from: vi.fn().mockImplementation((table: string) => {
+          if (table === 'users') {
+            return adminCheckChain;
+          }
+          if (table === 'consents') return chain({ insert: vi.fn().mockReturnThis() });
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp().request(
+        '/api/auth/onboarding',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'admin@test.com',
+            password: 'password123',
+            username: 'firstadmin',
+            display_name: 'First Admin',
+          }),
+        },
+        env,
+      );
+      expect(res.status).toBe(201);
+    });
+
+    it('returns 400 when admin already exists', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const c = chain({ is: vi.fn().mockResolvedValue({ data: null, error: null, count: 1 }) });
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        auth: { getUser: vi.fn(), admin: { createUser: vi.fn(), deleteUser: vi.fn() } },
+        from: vi.fn().mockReturnValue(c),
+      });
+
+      const res = await createTestApp().request(
+        '/api/auth/onboarding',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'admin@test.com',
+            password: 'password123',
+            username: 'firstadmin',
+            display_name: 'First Admin',
+          }),
+        },
+        env,
+      );
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toBe('Admin already exists');
     });
   });
 });
