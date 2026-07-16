@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md row justify-center">
+  <q-page class="q-pa-md flex flex-center">
     <div v-if="match" style="width: 600px">
       <q-card>
         <q-card-section>

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md row justify-center">
+  <q-page class="q-pa-md flex flex-center">
     <q-card style="width: 600px">
       <q-card-section
         ><h5 class="q-my-none">{{ $t('event.createMatch') }}</h5></q-card-section

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md row justify-center">
+  <q-page class="q-pa-md flex flex-center">
     <div v-if="profile" style="width: 600px">
       <q-card>
         <q-card-section class="text-center">

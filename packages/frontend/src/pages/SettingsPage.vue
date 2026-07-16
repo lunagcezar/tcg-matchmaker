@@ -1,10 +1,10 @@
 <template>
-  <q-page class="q-pa-md row justify-center">
+  <q-page class="q-pa-md flex flex-center">
     <q-card style="width: 500px">
       <q-card-section
         ><h5 class="q-my-none">{{ $t('nav.settings') }}</h5></q-card-section
       >
-      <q-card-section class="q-gutter-md">
+      <q-card-section class="q-gutter-sm">
         <q-input v-model="displayName" :label="$t('auth.displayName')" outlined />
         <q-btn
           color="primary"
@@ -38,29 +38,31 @@
         <p v-if="pushStatus" class="text-caption text-grey">{{ pushStatus }}</p>
         <q-separator />
         <div class="text-negative text-h6 q-mb-sm">{{ $t('settings.dangerZone') }}</div>
-        <q-btn
-          color="secondary"
-          :label="$t('settings.downloadData')"
-          class="full-width"
-          :loading="exportLoading"
-          @click="handleExport"
-        />
-        <q-btn
-          color="warning"
-          :label="$t('settings.suspendAccount')"
-          class="full-width"
-          :loading="suspendLoading"
-          @click="handleSuspend"
-        />
-        <q-btn
-          color="negative"
-          :label="$t('settings.deleteAccount')"
-          class="full-width"
-          :loading="deleteLoading"
-          @click="handleDelete"
-        />
-        <q-separator />
-        <q-btn color="negative" :label="$t('auth.signOut')" class="full-width" @click="logout" />
+        <div class="flex q-gutter-sm">
+          <q-btn
+            color="secondary"
+            :label="$t('settings.downloadData')"
+            class="full-width"
+            :loading="exportLoading"
+            @click="handleExport"
+          />
+          <q-btn
+            color="warning"
+            :label="$t('settings.suspendAccount')"
+            class="full-width"
+            :loading="suspendLoading"
+            @click="handleSuspend"
+          />
+          <q-btn
+            color="negative"
+            :label="$t('settings.deleteAccount')"
+            class="full-width"
+            :loading="deleteLoading"
+            @click="handleDelete"
+          />
+          <q-separator class="full-width" />
+          <q-btn color="negative" :label="$t('auth.signOut')" class="full-width" @click="logout" />
+        </div>
         <p v-if="message" class="text-center text-positive">{{ message }}</p>
       </q-card-section>
     </q-card>
