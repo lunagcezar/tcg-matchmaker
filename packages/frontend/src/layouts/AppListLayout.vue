@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-py-md">
     <div class="row items-center justify-between q-mb-md flex-wrap">
       <h5 class="q-my-none col-12 col-sm-auto">{{ title }}</h5>
       <div class="row q-gutter-sm col-12 col-sm-auto">

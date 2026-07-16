@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.61.0] — 2026-07-16
+
+### Added
+
+- Visual refactor spec: `spec/spec-060-visual-refactor.md`.
+- New font dependencies: `@fontsource-variable/bitter` and `@fontsource-variable/cascadia-code`.
+- Global CSS theme aligned with `artemisluna.com.br`:
+  - CSS custom properties for background, foreground, primary, muted, border, radius.
+  - Light and dark mode tokens reacting to Quasar's `body--dark` class.
+  - Rounded borders for images, maps, avatars, cards, and panels.
+- `useNavTree` composable: builds a filtered navigation tree with admin branch conditional on the user's profile role.
+- `SiteBranch` recursive navigation component: renders a link and expands child links when the current route is inside its subtree.
+- Sidebar footer with copyright notice linking to Luna G. Cezar and `artemisluna.com.br`.
+- Tests:
+  - Updated `MainLayout.test.ts` for new navbar/sidebar/drawer structure.
+  - Added `SiteBranch.test.ts` for recursive expansion behavior.
+  - Added `useNavTree.test.ts` for admin branch filtering and active-route helpers.
+  - Updated `IndexPage.test.ts` to assert map is rendered above the feed.
+
+### Changed
+
+- `MainLayout`: replaced Quasar header/drawer with a fixed centered navbar, collapsible mobile drawer, and sticky desktop sidebar reusing the same navigation tree.
+- `AdminLayout`: admin routes now use `MainLayout`; the admin branch expands automatically when navigating inside `/admin/*`.
+- `IndexPage`: switched from side-by-side map/feed to a vertical stack with the map on top and filters + event feed below.
+- `EventFeed`: replaced card rows with bordered list rows.
+- `EventMap`: added rounded container styling and primary-colored markers.
+- `AppCard`, `AppListLayout`, `AppDetailLayout`: removed heavy card shadows in favor of bordered panels with rounded corners and open layout spacing.
+- `AdminDashboardPage`: replaced card grid with bordered link tiles.
+- `AdminTable`: removed outer borders, kept flat table styling.
+- `AdminPageHeader`: kept as a plain header without card wrapper.
+- `ThemeLangSwitcher`: compact locale code display (`EN`/`PT`) and dense controls.
+- `UserMenu`: uses display name from `useAuthStore.profile`; avatar size reduced.
+- `useAuthStore`: added `profile` ref and `fetchProfile()` method to load role/display name from `GET /api/auth/me`.
+- i18n: added `nav.admin`, `nav.home`, and `sidebar.copyright` keys in `en-US` and `pt-BR`.
+- `navItems.ts`: added `NavNode` interface and `navTree` export with admin children.
+- `routes.ts`: `/admin/*` routes now render inside `MainLayout.vue`.
+- Added `FilterToggle` molecule component: styled `q-btn-toggle` with primary text, primary outline, and bold active state.
+- Replaced `q-btn-toggle` in `FilterBar` and `matches/ListPage` with `FilterToggle`.
+- Fixed layout overflow: set `.q-layout` width to `100%` to avoid unnecessary vertical scrollbars.
+- Hidden desktop sidebar on mobile (`<1024px`) and added left border for visual separation.
+- Dark-mode form polish: primary focus/label color on outlined inputs and lighter error red.
+- Added `FilterToggle.test.ts` and updated `FilterBar.test.ts` / `MatchListPage.test.ts` stubs.
+
 ## [0.60.0] — 2026-07-16
 
 ### Added

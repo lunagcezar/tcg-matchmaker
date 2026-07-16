@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import { setActivePinia, createPinia } from 'pinia';
+import { ref, nextTick } from 'vue';
 
 const mockRoutePath = ref('/');
 
 const mockAuthStore = vi.hoisted(() => ({
   user: null,
+  profile: null,
   loading: false,
   restoreSession: vi.fn(),
   onboardingRequired: null,
@@ -26,6 +28,7 @@ const mockQuasar = vi.hoisted(() => ({
 
 vi.mock('vue-router', () => ({
   useRoute: vi.fn(() => ({ path: mockRoutePath.value })),
+  RouterLink: { template: '<a><slot /></a>' },
 }));
 
 vi.mock('quasar', () => ({
@@ -42,8 +45,6 @@ vi.mock('@/stores/useAppStore', () => ({
 
 vi.mock('@/composables/usePageMeta', () => ({ usePageMeta: vi.fn() }));
 
-import { ref } from 'vue';
-
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
@@ -51,40 +52,64 @@ const i18n = createI18n({
     'en-US': {
       app: { title: 'TCG Matchmaker' },
       nav: {
+        home: 'Home',
         matches: 'Matches',
         trading: 'Trading',
         tournaments: 'Tournaments',
         stores: 'Stores',
-        home: 'Home',
+        admin: 'Admin',
       },
+      admin: {
+        dashboard: 'Dashboard',
+        manageTcgs: 'TCGs',
+        manageUsers: 'Users',
+        manageStores: 'Stores',
+        reports: 'Reports',
+        auditLog: 'Audit Log',
+      },
+      sidebar: { copyright: '© Luna G. Cezar —' },
     },
   },
 });
+
+function stubs() {
+  return {
+    'q-layout': { template: '<div><slot /></div>' },
+    'q-btn': { template: '<button class="q-btn"><slot /></button>' },
+    'q-btn-dropdown': { template: '<div class="q-btn-dropdown"><slot /></div>' },
+    'q-avatar': { template: '<div class="q-avatar"><slot /></div>' },
+    'q-icon': { template: '<span />' },
+    'q-badge': { template: '<span />' },
+    'q-separator': { template: '<hr />' },
+    'q-list': { template: '<ul><slot /></ul>' },
+    'q-item': { template: '<li><slot /></li>' },
+    'q-item-section': { template: '<div><slot /></div>' },
+    'q-item-label': { template: '<div><slot /></div>' },
+    'q-page-container': { template: '<main><slot /></main>' },
+    'q-page': { template: '<div><slot /></div>' },
+    'router-link': { template: '<a class="router-link"><slot /></a>' },
+    'router-view': { template: '<div />' },
+    ThemeLangSwitcher: { template: '<div class="theme-lang" />' },
+    UserMenu: { template: '<div class="user-menu" />' },
+    NotificationBell: { template: '<div class="notification-bell" />' },
+  };
+}
 
 describe('MainLayout', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
     mockRoutePath.value = '/';
+    mockAuthStore.user = null;
+    mockAuthStore.profile = null;
   });
 
-  it('renders app title', async () => {
+  it('renders app title in navbar', async () => {
     const MainLayout = (await import('../MainLayout.vue')).default;
-    const wrapper = shallowMount(MainLayout, {
+    const wrapper = mount(MainLayout, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-layout': { template: '<div><slot /></div>' },
-          'q-header': { template: '<header><slot /></header>' },
-          'q-toolbar': { template: '<div><slot /></div>' },
-          'q-toolbar-title': { template: '<span class="q-toolbar-title"><slot /></span>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          ThemeLangSwitcher: { template: '<div />' },
-          UserMenu: { template: '<div />' },
-          NotificationBell: { template: '<div />' },
-          'q-page-container': { template: '<main><slot /></main>' },
-          'router-view': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
     expect(wrapper.text()).toContain('TCG Matchmaker');
@@ -93,68 +118,87 @@ describe('MainLayout', () => {
   it('applies dark mode on mount', async () => {
     mockAppStore.darkMode = true;
     const MainLayout = (await import('../MainLayout.vue')).default;
-    shallowMount(MainLayout, {
+    mount(MainLayout, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-layout': { template: '<div><slot /></div>' },
-          'q-header': { template: '<header><slot /></header>' },
-          'q-toolbar': { template: '<div><slot /></div>' },
-          'q-toolbar-title': { template: '<span><slot /></span>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          ThemeLangSwitcher: { template: '<div />' },
-          UserMenu: { template: '<div />' },
-          NotificationBell: { template: '<div />' },
-          'q-page-container': { template: '<main><slot /></main>' },
-          'router-view': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
     expect(mockQuasar.dark.set).toHaveBeenCalledWith(true);
   });
 
-  it('does not render a drawer', async () => {
+  it('renders sidebar navigation links on desktop', async () => {
     const MainLayout = (await import('../MainLayout.vue')).default;
-    const wrapper = shallowMount(MainLayout, {
+    const wrapper = mount(MainLayout, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-layout': { template: '<div><slot /></div>' },
-          'q-header': { template: '<header><slot /></header>' },
-          'q-toolbar': { template: '<div><slot /></div>' },
-          'q-toolbar-title': { template: '<span><slot /></span>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          ThemeLangSwitcher: { template: '<div />' },
-          UserMenu: { template: '<div />' },
-          NotificationBell: { template: '<div />' },
-          'q-page-container': { template: '<main><slot /></main>' },
-          'router-view': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
-    expect(wrapper.find('q-drawer-stub').exists()).toBe(false);
+    const sidebar = wrapper.find('.app-sidebar');
+    expect(sidebar.exists()).toBe(true);
+    expect(sidebar.text()).toContain('Home');
+    expect(sidebar.text()).toContain('Matches');
+    expect(sidebar.text()).toContain('Trading');
+    expect(sidebar.text()).toContain('Tournaments');
+    expect(sidebar.text()).toContain('Stores');
   });
 
-  it('renders nav buttons for matches, trading, tournaments, stores', async () => {
+  it('does not render admin link when user is not admin', async () => {
     const MainLayout = (await import('../MainLayout.vue')).default;
-    const wrapper = shallowMount(MainLayout, {
+    const wrapper = mount(MainLayout, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-layout': { template: '<div><slot /></div>' },
-          'q-header': { template: '<header><slot /></header>' },
-          'q-toolbar': { template: '<div><slot /></div>' },
-          'q-toolbar-title': { template: '<span><slot /></span>' },
-          'q-btn': { template: '<button class="q-btn"><slot /></button>' },
-          ThemeLangSwitcher: { template: '<div />' },
-          UserMenu: { template: '<div />' },
-          NotificationBell: { template: '<div />' },
-          'q-page-container': { template: '<main><slot /></main>' },
-          'router-view': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
-    const buttons = wrapper.findAll('.q-btn');
-    expect(buttons.length).toBeGreaterThanOrEqual(4);
+    const sidebar = wrapper.find('.app-sidebar');
+    expect(sidebar.text()).not.toContain('Admin');
+  });
+
+  it('renders admin link and children when user is admin', async () => {
+    mockAuthStore.user = { id: '1', email: 'a@b.com' } as never;
+    mockAuthStore.profile = { role: 'admin' } as never;
+    mockRoutePath.value = '/admin';
+    const MainLayout = (await import('../MainLayout.vue')).default;
+    const wrapper = mount(MainLayout, {
+      global: {
+        plugins: [i18n, createPinia()],
+        stubs: stubs(),
+      },
+    });
+    await nextTick();
+    const sidebar = wrapper.find('.app-sidebar');
+    expect(sidebar.text()).toContain('Admin');
+    expect(sidebar.text()).toContain('Dashboard');
+    expect(sidebar.text()).toContain('TCGs');
+  });
+
+  it('renders sidebar copyright footer', async () => {
+    const MainLayout = (await import('../MainLayout.vue')).default;
+    const wrapper = mount(MainLayout, {
+      global: {
+        plugins: [i18n, createPinia()],
+        stubs: stubs(),
+      },
+    });
+    const footer = wrapper.find('.app-sidebar__footer');
+    expect(footer.exists()).toBe(true);
+    expect(footer.text()).toContain('Luna G. Cezar');
+    expect(footer.text()).toContain('artemisluna.com.br');
+  });
+
+  it('toggles mobile drawer', async () => {
+    const MainLayout = (await import('../MainLayout.vue')).default;
+    const wrapper = mount(MainLayout, {
+      global: {
+        plugins: [i18n, createPinia()],
+        stubs: stubs(),
+      },
+    });
+    const drawer = wrapper.find('[data-testid="mobile-drawer"]');
+    expect(drawer.classes()).not.toContain('app-mobile-drawer--open');
+    await wrapper.find('.app-navbar__toggle').trigger('click');
+    expect(drawer.classes()).toContain('app-mobile-drawer--open');
   });
 });

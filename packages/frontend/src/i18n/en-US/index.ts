@@ -17,6 +17,9 @@ export default {
     newTournament: 'New Tournament',
     newStore: 'Add Store',
   },
+  sidebar: {
+    copyright: '© Luna G. Cezar —',
+  },
   auth: {
     email: 'Email',
     password: 'Password',

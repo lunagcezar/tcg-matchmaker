@@ -1,14 +1,6 @@
 <template>
-  <div class="filter-bar row items-center q-gutter-sm q-pa-sm">
-    <q-btn-toggle
-      v-model="selectedTypes"
-      :options="typeOptions"
-      spread
-      outline
-      rounded
-      multiple
-      color="primary"
-    />
+  <div class="filter-bar">
+    <FilterToggle v-model="selectedTypes" :options="typeOptions" />
     <q-btn
       flat
       dense
@@ -21,6 +13,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import FilterToggle from '@/components/molecules/FilterToggle.vue';
 
 const props = defineProps<{ modelValue: string[] }>();
 const emit = defineEmits<{ (e: 'update:modelValue', v: string[]): void; (e: 'geolocate'): void }>();
@@ -36,3 +29,12 @@ const typeOptions = [
   { label: 'Tournaments', value: 'tournament' },
 ];
 </script>
+
+<style scoped>
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+</style>

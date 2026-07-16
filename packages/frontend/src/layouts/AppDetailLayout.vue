@@ -1,6 +1,6 @@
 <template>
-  <q-page class="q-pa-md flex flex-center">
-    <div v-if="item" :style="{ maxWidth: width || '600px' }">
+  <q-page class="q-py-md">
+    <div v-if="item" :style="{ maxWidth: width || '600px' }" class="app-detail">
       <slot />
     </div>
     <div v-else-if="loading" class="text-center q-py-xl">
@@ -29,3 +29,13 @@ withDefaults(
   },
 );
 </script>
+
+<style scoped>
+.app-detail {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--card);
+  color: var(--card-foreground);
+  padding: 1.5rem;
+}
+</style>

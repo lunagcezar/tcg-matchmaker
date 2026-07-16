@@ -1,5 +1,5 @@
 <template>
-  <q-btn-dropdown v-if="authStore.user" flat icon="notifications">
+  <q-btn-dropdown v-if="authStore.user" flat>
     <template #label>
       <q-icon name="notifications" />
       <q-badge v-if="unreadCount > 0" floating color="red" rounded>

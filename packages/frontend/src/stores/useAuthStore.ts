@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { User } from '@supabase/supabase-js';
 import { apiGet } from '@/composables/useApi';
@@ -8,8 +8,19 @@ const supabaseUrl = import.meta.env.QCLI_SUPABASE_URL;
 const supabaseKey = import.meta.env.QCLI_SUPABASE_PUBLISHABLE_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
+export type UserProfile = {
+  id: string;
+  email: string;
+  username: string;
+  display_name: string | null;
+  role: 'player' | 'organizer' | 'admin';
+  avatar_path: string | null;
+  created_at: string;
+};
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
+  const profile = ref<UserProfile | null>(null);
   const loading = ref(false);
   const onboardingRequired = ref<boolean | null>(null);
 
@@ -18,6 +29,36 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await supabase.auth.getSession();
     if (data.session?.user) {
       user.value = data.session.user;
+      await fetchProfile();
+    }
+  }
+
+  async function fetchProfile() {
+    if (!supabase || !user.value) {
+      profile.value = null;
+      return;
+    }
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) {
+      profile.value = null;
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${import.meta.env.QCLI_API_URL || 'http://localhost:8787'}/api/auth/me`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (!res.ok) {
+        profile.value = null;
+        return;
+      }
+      const json = (await res.json()) as { data: UserProfile | null; error: string | null };
+      profile.value = json.data ?? null;
+    } catch {
+      profile.value = null;
     }
   }
 
@@ -40,6 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       user.value = data.user;
+      await fetchProfile();
       return data;
     } finally {
       loading.value = false;
@@ -50,6 +92,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!supabase) return;
     await supabase.auth.signOut();
     user.value = null;
+    profile.value = null;
   }
 
   async function checkOnboarding(): Promise<boolean> {
@@ -64,11 +107,20 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  watch(
+    () => user.value?.id,
+    () => {
+      if (!user.value) profile.value = null;
+    },
+  );
+
   return {
     user,
+    profile,
     loading,
     onboardingRequired,
     restoreSession,
+    fetchProfile,
     signUp,
     signIn,
     signOut,

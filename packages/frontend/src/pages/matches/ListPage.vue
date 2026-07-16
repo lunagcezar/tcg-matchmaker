@@ -4,13 +4,7 @@
       <q-btn color="primary" icon="add" :label="$t('nav.newMatch')" to="/matches/new" />
     </template>
     <template #filters>
-      <q-btn-toggle
-        v-model="statusFilter"
-        :options="statusOptions"
-        outline
-        rounded
-        class="q-mb-md"
-      />
+      <FilterToggle v-model="statusFilter" :options="statusOptions" class="q-mb-md" />
     </template>
     <q-card
       v-for="m in matches"
@@ -40,6 +34,7 @@ import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { formatDate } from '@/lib/format';
 import AppListLayout from '@/layouts/AppListLayout.vue';
+import FilterToggle from '@/components/molecules/FilterToggle.vue';
 
 usePageMeta({ titleKey: 'meta.matches', descKey: 'meta.matchesDesc' });
 

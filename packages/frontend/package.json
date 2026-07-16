@@ -17,6 +17,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource-variable/bitter": "^5.2.10",
+    "@fontsource-variable/cascadia-code": "^5.2.2",
     "@quasar/extras": "^2.0.0",
     "@sentry/vue": "^10.65.0",
     "@supabase/supabase-js": "^2.110.3",

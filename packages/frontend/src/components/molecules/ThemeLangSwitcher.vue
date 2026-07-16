@@ -2,23 +2,25 @@
   <q-btn
     flat
     round
+    dense
     :icon="appStore.darkMode ? 'light_mode' : 'dark_mode'"
     @click="appStore.toggleDarkMode()"
   >
     <q-tooltip>{{ $t('common.darkMode') }}</q-tooltip>
   </q-btn>
-  <q-btn-dropdown flat :label="currentLangLabel">
+  <q-btn-dropdown flat dense :label="currentLangCode">
     <q-list>
       <q-item
         v-for="lang in languages"
         :key="lang.value"
         v-close-popup
         clickable
+        :active="locale === lang.value"
         @click="switchLang(lang.value)"
       >
-        <q-item-section
-          ><q-item-label>{{ lang.label }}</q-item-label></q-item-section
-        >
+        <q-item-section>
+          <q-item-label>{{ lang.label }}</q-item-label>
+        </q-item-section>
       </q-item>
     </q-list>
   </q-btn-dropdown>
@@ -37,9 +39,7 @@ const languages = [
   { label: 'Português', value: 'pt-BR' },
 ];
 
-const currentLangLabel = computed(
-  () => languages.find((l) => l.value === locale.value)?.label || 'EN',
-);
+const currentLangCode = computed(() => locale.value.split('-')[0]?.toUpperCase() ?? 'EN');
 
 function switchLang(val: string) {
   locale.value = val;

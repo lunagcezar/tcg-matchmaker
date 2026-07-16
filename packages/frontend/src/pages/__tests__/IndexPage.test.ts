@@ -46,6 +46,17 @@ const i18n = createI18n({
   },
 });
 
+function stubs() {
+  return {
+    'q-page': { template: '<div><slot /></div>' },
+    FilterBar: { template: '<div class="filter-bar-stub" />' },
+    EventMap: { template: '<div class="event-map-stub" />' },
+    EventFeed: { template: '<div class="event-feed-stub" />' },
+    'q-btn': { template: '<button><slot /></button>' },
+    'q-page-sticky': { template: '<div><slot /></div>' },
+  };
+}
+
 describe('IndexPage', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -56,14 +67,7 @@ describe('IndexPage', () => {
     const wrapper = shallowMount(IndexPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          FilterBar: { template: '<div />' },
-          EventMap: { template: '<div />' },
-          EventFeed: { template: '<div />' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-page-sticky': { template: '<div><slot /></div>' },
-        },
+        stubs: stubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -74,16 +78,24 @@ describe('IndexPage', () => {
     shallowMount(IndexPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          FilterBar: { template: '<div />' },
-          EventMap: { template: '<div />' },
-          EventFeed: { template: '<div />' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-page-sticky': { template: '<div><slot /></div>' },
-        },
+        stubs: stubs(),
       },
     });
     expect(mockEventStore.list).toHaveBeenCalled();
+  });
+
+  it('renders map above filter and feed', async () => {
+    const IndexPage = (await import('../IndexPage.vue')).default;
+    const wrapper = shallowMount(IndexPage, {
+      global: {
+        plugins: [i18n, createPinia()],
+        stubs: stubs(),
+      },
+    });
+    const sections = wrapper.findAll('section');
+    expect(sections.length).toBe(2);
+    expect(sections[0].find('.event-map-stub').exists()).toBe(true);
+    expect(sections[1].find('.filter-bar-stub').exists()).toBe(true);
+    expect(sections[1].find('.event-feed-stub').exists()).toBe(true);
   });
 });

@@ -4,7 +4,7 @@
 
 ```
 /onboarding                  First-time setup — creates the first admin (only when no admin exists)
-/                            Home — split view: map (left) + event feed (right), filters on top
+/                            Home — vertical stack: map (top) + filters + event feed (below)
 /login                       Sign in
 /signup                      Register
 
@@ -41,10 +41,9 @@
 
 ## Layout Structure
 
-| Layout        | Routes                                                                                                                 |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `MainLayout`  | `/`, `/login`, `/signup`, `/profile/:username`, `/settings`, `/matches/*`, `/trading/*`, `/tournaments/*`, `/stores/*` |
-| `AdminLayout` | `/admin/*`                                                                                                             |
+| Layout       | Routes                                                                                                                             |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `MainLayout` | `/`, `/login`, `/signup`, `/profile/:username`, `/settings`, `/matches/*`, `/trading/*`, `/tournaments/*`, `/stores/*`, `/admin/*` |
 
 ## Component Organization (Atomic Design)
 
@@ -61,10 +60,10 @@ src/
       cards/
         EventCard, UserCard, StoreCard
       navigation/
-        MainNavigation, AdminNavigation
+        SiteBranch, MainNavigation, AdminNavigation
     organisms/               — Feature-specific sections
       home/
-        EventMap, FilterPanel, EventList, GeolocateButton
+        EventMap, FilterBar, EventFeed, GeolocateButton
       match/
         MatchCreateForm, ParticipantConfirmList
       trading/
@@ -79,46 +78,68 @@ src/
   router/                    — Vue Router routes (index.ts)
 ```
 
-## Home Page Layout (Split View)
+## Home Page Layout (Vertical Stack)
 
-The home page (`/`) answers three questions at a glance: where, what, and how to participate.
+The home page (`/`) is a vertical stack answering where, what, and how to participate.
 
 ```
-┌──────────────────────────────────────────┐
-│  Header: logo + compact filter row       │
-│  (TCG dropdown, event type pills)        │
-│  [more filters] expandable               │
-├──────────────────────┬───────────────────┤
-│                      │  Event Feed       │
-│      Map             │  ┌─────────────┐  │
-│    (Leaflet,         │  │ MTG Cmd     │  │
-│     markers          │  │ • 15 min ·  │  │
-│     color-coded      │  │   Store X   │  │
-│     by event type)   │  │ • 2/4 spots │  │
-│                      │  └─────────────┘  │
-│     [📍] locate      │  ┌─────────────┐  │
-│                      │  │ Pokémon T   │  │
-│                      │  │ • Today 3pm │  │
-│                      │  │ • Shopping  │  │
-│                      │  │ • 3/10 RSVP │  │
-│                      │  └─────────────┘  │
-│                      │  ┌─────────────┐  │
-│                      │  │ Standard T  │  │
-│                      │  │ • Sat 10am  │  │
-│                      │  │ • Store Y   │  │
-│                      │  │ • 8/16 reg  │  │
-│                      │  └─────────────┘  │
-└──────────────────────┴───────────────────┘
-                     [+ FAB on mobile]
+┌─────────────────────────────────────┐
+│ Header: logo + dark/locale controls │
+├─────────────────────────────────────┤
+│                                     │
+│              Map                    │
+│         (Leaflet, rounded)          │
+│                                     │
+├─────────────────────────────────────┤
+│ Filter bar: [Match] [Trading] [T]   │
+│        [Find near me]               │
+├─────────────────────────────────────┤
+│  Event Feed                         │
+│  • MTG Cmd        15 min · Store X  │
+│  • Pokémon T      Today 3pm         │
+│  • Standard T     Sat 10am · Store Y │
+└─────────────────────────────────────┘
 ```
 
-- **Desktop**: map left (~60%), feed right (~40%)
-- **Mobile**: map top (collapsible with minimize button), feed below, filters in a drawer
-- **Filter bar**: compact — only TCG selector + event type pills visible; "More filters" expands format, date range, status in a drawer/popover
-- **Map markers**: color-coded by event type (match, trading, tournament), click for preview card
-- **Geolocation**: subtle icon button on the map (📍), not a text button; defaults to Fortaleza until permission granted
-- **Feed cards**: compact, single-line style — event type badge + TCG/format + relative time + location + spots filled. No hero treatment, no cards larger than one row
-- **Create**: Quasar `QPageSticky` FAB on mobile (absolute position, bottom-right); small "Create" dropdown in header on desktop with options: Match, Trading Session, Tournament, Add Store
+- **All viewports**: map on top, filter bar below, event feed at the bottom
+- **Filter bar**: compact event type pills (Matches, Trading, Tournaments) plus "Find near me" geolocation button
+- **Map**: rounded container, color-coded markers by event type (match, trading, tournament), click for preview popup
+- **Geolocation**: text button next to filters; defaults to Fortaleza until permission granted
+- **Feed items**: bordered rows with event type badge, name, relative time; no cards
+- **Create**: created via list-page actions or header actions (not a FAB)
+
+## App Shell
+
+The application uses a single responsive shell inspired by `artemisluna.com.br`.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [≡] TCG Matchmaker                          [theme] [EN] [user] │  fixed navbar (h-12)
+├──────────┬──────────────────────────────────────────────────────┤
+│          │                                                      │
+│  Home    │                                                      │
+│  Matches │              Main content area                       │
+│  Trading │                                                      │
+│  Tournaments│            (max-width centered)                   │
+│  Stores  │                                                      │
+│  ▼ Admin │                                                      │
+│    Dashboard│                                                   │
+│    TCGs  │                                                      │
+│    Users │                                                      │
+│    ...   │                                                      │
+│          │                                                      │
+│  ────────│                                                      │
+│  © Luna  │                                                      │
+│  G. Cezar│                                                      │
+└──────────┴──────────────────────────────────────────────────────┘
+   sidebar (lg+)         main content (border-right on lg+)
+```
+
+- **Navbar**: fixed top bar, centered within a max-width container (`lg:w-3/4`, `xl:w-2/3`, `2xl:w-4/7`), translucent with backdrop blur, border-bottom.
+- **Sidebar**: sticky left panel on large screens (`lg` and up) holding the navigation tree and a copyright footer.
+- **Mobile drawer**: below the navbar on small screens, reuses the same navigation tree; includes dark mode and locale controls.
+- **Navigation tree**: `SiteBranch` recursively renders links and expands child links when the current route is inside the parent path.
+- **Admin branch**: visible only to authenticated admins; expands automatically when the user is inside `/admin/*`.
 
 ## Geolocate Button
 

@@ -1,5 +1,5 @@
 <template>
-  <q-table :rows="rows" :columns="columns" row-key="id" :loading="loading" flat bordered>
+  <q-table :rows="rows" :columns="columns" row-key="id" :loading="loading" flat>
     <template v-for="(_, slot) in $slots" #[slot]="scope" :key="slot">
       <slot :name="slot" v-bind="scope" />
     </template>

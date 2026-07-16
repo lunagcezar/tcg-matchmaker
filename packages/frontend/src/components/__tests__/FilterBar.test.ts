@@ -15,7 +15,7 @@ describe('FilterBar', () => {
       props: { modelValue: [] },
       global: {
         plugins: [i18n],
-        stubs: ['q-btn-toggle', 'q-btn'],
+        stubs: ['FilterToggle', 'q-btn'],
       },
     });
     expect(wrapper.exists()).toBe(true);

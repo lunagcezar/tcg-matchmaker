@@ -1,5 +1,5 @@
 <template>
-  <div ref="mapContainer" class="map-container" style="height: 100%; min-height: 400px"></div>
+  <div ref="mapContainer" class="map-container"></div>
 </template>
 
 <script setup lang="ts">
@@ -16,14 +16,14 @@ const defaultCenter: [number, number] = [-3.7184, -38.5434]; // Fortaleza
 
 function iconForType(type: string) {
   const colors: Record<string, string> = {
-    match: '#1976D2',
+    match: 'var(--primary)',
     trading: '#21BA45',
     tournament: '#F2C037',
   };
-  const color = colors[type] || '#1976D2';
+  const color = colors[type] || 'var(--primary)';
   return L.divIcon({
     className: '',
-    html: `<div style="width:16px;height:16px;background:${color};border-radius:50%;border:2px solid white"></div>`,
+    html: `<div style="width:16px;height:16px;background:${color};border-radius:50%;border:2px solid var(--background)"></div>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
@@ -63,3 +63,13 @@ watch(
   { deep: true },
 );
 </script>
+
+<style scoped>
+.map-container {
+  height: 50vh;
+  min-height: 400px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+</style>

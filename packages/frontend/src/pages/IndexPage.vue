@@ -1,14 +1,12 @@
 <template>
-  <q-page class="home-page" style="display: flex; flex-flow: column nowrap">
-    <FilterBar v-model="selectedTypes" @geolocate="geolocate" />
-    <div class="row" style="flex: 1; min-height: 0">
-      <div class="col-12 col-md-7 q-pa-sm">
-        <EventMap :events="filteredEvents" />
-      </div>
-      <div class="col-12 col-md-5 q-pa-sm overflow-auto">
-        <EventFeed :events="filteredEvents" />
-      </div>
-    </div>
+  <q-page class="home-page">
+    <section class="map-section">
+      <EventMap :events="filteredEvents" />
+    </section>
+    <section class="feed-section">
+      <FilterBar v-model="selectedTypes" @geolocate="geolocate" />
+      <EventFeed :events="filteredEvents" />
+    </section>
   </q-page>
 </template>
 
@@ -51,8 +49,21 @@ onMounted(() => {
 
 <style scoped>
 .home-page {
-  overflow: hidden;
   display: flex;
-  flex-flow: column nowrap;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.map-section {
+  min-height: 50vh;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.feed-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 </style>
