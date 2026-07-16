@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.59.0] — 2026-07-15
+
+### Changed
+
+- AppCard: moved from `atoms/` to `molecules/` — now wraps `<q-page>` with configurable `pageClass`, accepts `bodyClass` for inner section styling, and supports `error`/`success` banner props (merged from AuthCard).
+- AuthCard: removed — functionality absorbed into AppCard.
+- Auth pages (Login, Signup, Onboarding): use `AppCard` directly with `page-class="row items-center justify-center"`.
+- SettingsPage: converted to use `AppCard` with `body-class="q-gutter-sm"`.
+
 ## [0.58.0] — 2026-07-15
 
 ### Added
