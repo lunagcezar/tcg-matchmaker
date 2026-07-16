@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.58.0] — 2026-07-15
+
+### Added
+
+- AuthFooter molecule component: reusable footer with message + link button for auth pages (replaces duplicated template code).
+- AuthForm: centered submit button via flexbox instead of full-width.
+
+### Fixed
+
+- AppCard: `q-card-actions` now uses `align="center"` for centered action buttons.
+
 ## [0.57.0] — 2026-07-15
 
 ### Added
