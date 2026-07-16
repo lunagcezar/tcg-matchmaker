@@ -1,6 +1,8 @@
 <template>
   <q-page class="row items-center justify-center">
     <AppCard :title="$t('auth.signUp')">
+      <p v-if="error" class="text-negative text-center q-mb-sm">{{ error }}</p>
+      <p v-if="success" class="text-positive text-center q-mb-sm">{{ success }}</p>
       <AuthForm
         :submit-label="$t('auth.signUp')"
         :on-submit="handleSignup"
@@ -36,21 +38,29 @@ import { apiPost } from '@/composables/useApi';
 const authStore = useAuthStore();
 const router = useRouter();
 const loading = ref(false);
+const error = ref('');
+const success = ref('');
 const turnstileToken = ref('');
 
 const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
 
 async function handleSignup(data: { email: string; password: string }) {
   loading.value = true;
+  error.value = '';
+  success.value = '';
   try {
     if (turnstileToken.value) {
       const verifyBody = await apiPost('/api/verify-turnstile', { token: turnstileToken.value });
       if (!(verifyBody.data as Record<string, unknown>)?.success) {
+        error.value = 'Captcha verification failed';
         return;
       }
     }
     await authStore.signUp(data.email, data.password);
-    void router.push('/');
+    success.value = 'Account created! You can now sign in.';
+    void router.push('/login');
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Failed to sign up';
   } finally {
     loading.value = false;
   }

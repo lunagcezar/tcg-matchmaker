@@ -1,7 +1,8 @@
 <template>
   <q-page class="row items-center justify-center">
     <AppCard :title="$t('auth.onboarding')">
-      <p v-if="error" class="text-negative text-center">{{ error }}</p>
+      <p v-if="error" class="text-negative text-center q-mb-sm">{{ error }}</p>
+      <p v-if="success" class="text-positive text-center q-mb-sm">{{ success }}</p>
       <AuthForm
         :submit-label="$t('auth.signUp')"
         :on-submit="handleOnboarding"
@@ -27,6 +28,7 @@ const authStore = useAuthStore();
 const router = useRouter();
 const loading = ref(false);
 const error = ref('');
+const success = ref('');
 
 onMounted(async () => {
   const needsOnboarding = await authStore.checkOnboarding();
@@ -43,6 +45,7 @@ async function handleOnboarding(data: {
 }) {
   loading.value = true;
   error.value = '';
+  success.value = '';
   try {
     const body = await apiPost('/api/auth/onboarding', {
       email: data.email,
@@ -54,7 +57,8 @@ async function handleOnboarding(data: {
       error.value = body.error || 'Failed to create admin';
       return;
     }
-    void router.push('/login');
+    success.value = 'Admin account created! Redirecting to login...';
+    setTimeout(() => void router.push('/login'), 1500);
   } catch {
     error.value = 'Failed to connect to server';
   } finally {

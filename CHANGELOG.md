@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.57.0] — 2026-07-15
+
+### Added
+
+- LoginPage: loading spinner on submit button, inline error/success messages, error handling via try/catch.
+- SignupPage: inline error messages, proper try/catch/finally (was silently swallowing errors).
+- OnboardingPage: inline success message with delayed redirect after admin creation.
+- Tests: 7 new tests (LoginPage error/clear, SignupPage error/clear, OnboardingPage render/error/success) — 86 total frontend tests.
+
+### Fixed
+
+- Login form now shows user-visible feedback on failure instead of silently failing.
+- Signup form now catches and displays errors instead of silently swallowing them.
+- Onboarding form now shows a success message before redirecting to login.
+
 ## [0.56.0] — 2026-07-15
 
 ### Added

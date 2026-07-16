@@ -80,4 +80,53 @@ describe('LoginPage', () => {
     await vm.handleLogin({ email: 'test@test.com', password: 'password123' });
     expect(store.signIn).toHaveBeenCalledWith('test@test.com', 'password123');
   });
+
+  it('shows error message when signIn fails', async () => {
+    mockAuthStore.signIn.mockRejectedValueOnce(new Error('Invalid credentials'));
+
+    const LoginPage = (await import('../auth/LoginPage.vue')).default;
+    const wrapper = shallowMount(LoginPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: { template: '<div />' },
+        },
+      },
+    });
+
+    const vm = wrapper.vm as unknown as {
+      handleLogin: (data: { email: string; password: string }) => Promise<void>;
+    };
+    await vm.handleLogin({ email: 'test@test.com', password: 'wrong' });
+    expect(wrapper.text()).toContain('Invalid credentials');
+  });
+
+  it('clears error before new submit', async () => {
+    mockAuthStore.signIn.mockRejectedValueOnce(new Error('First error'));
+    mockAuthStore.signIn.mockResolvedValueOnce({} as never);
+
+    const LoginPage = (await import('../auth/LoginPage.vue')).default;
+    const wrapper = shallowMount(LoginPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: { template: '<div />' },
+        },
+      },
+    });
+
+    const vm = wrapper.vm as unknown as {
+      handleLogin: (data: { email: string; password: string }) => Promise<void>;
+      error: string;
+    };
+    await vm.handleLogin({ email: 'test@test.com', password: 'wrong' });
+    expect(vm.error).toBe('First error');
+
+    await vm.handleLogin({ email: 'test@test.com', password: 'correct' });
+    expect(vm.error).toBe('');
+  });
 });

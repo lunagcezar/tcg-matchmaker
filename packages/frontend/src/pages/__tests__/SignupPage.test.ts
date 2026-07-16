@@ -76,4 +76,53 @@ describe('SignupPage', () => {
     await vm.handleSignup({ email: 'test@test.com', password: 'password123' });
     expect(mockAuthStore.signUp).toHaveBeenCalledWith('test@test.com', 'password123');
   });
+
+  it('shows error message when signUp fails', async () => {
+    mockAuthStore.signUp.mockRejectedValueOnce(new Error('Email already in use'));
+
+    const SignupPage = (await import('../auth/SignupPage.vue')).default;
+    const wrapper = shallowMount(SignupPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: { template: '<div />' },
+        },
+      },
+    });
+
+    const vm = wrapper.vm as unknown as {
+      handleSignup: (data: { email: string; password: string }) => Promise<void>;
+    };
+    await vm.handleSignup({ email: 'test@test.com', password: 'password123' });
+    expect(wrapper.text()).toContain('Email already in use');
+  });
+
+  it('clears error before new submit', async () => {
+    mockAuthStore.signUp.mockRejectedValueOnce(new Error('First error'));
+    mockAuthStore.signUp.mockResolvedValueOnce({});
+
+    const SignupPage = (await import('../auth/SignupPage.vue')).default;
+    const wrapper = shallowMount(SignupPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: { template: '<div />' },
+        },
+      },
+    });
+
+    const vm = wrapper.vm as unknown as {
+      handleSignup: (data: { email: string; password: string }) => Promise<void>;
+      error: string;
+    };
+    await vm.handleSignup({ email: 'test@test.com', password: 'wrong' });
+    expect(vm.error).toBe('First error');
+
+    await vm.handleSignup({ email: 'test@test.com', password: 'correct' });
+    expect(vm.error).toBe('');
+  });
 });
