@@ -5,8 +5,8 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { apiGet, apiPost, apiPatch } from '@/composables/useApi';
 import type { Notification } from '@/types/domain';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = import.meta.env.QCLI_SUPABASE_URL;
+const supabaseKey = import.meta.env.QCLI_SUPABASE_PUBLISHABLE_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export const useNotificationStore = defineStore('notifications', () => {

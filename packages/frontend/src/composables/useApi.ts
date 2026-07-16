@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+const BASE_URL = import.meta.env.QCLI_API_URL || 'http://localhost:8787';
 
 export async function apiGet(path: string) {
   const res = await fetch(`${BASE_URL}${path}`);

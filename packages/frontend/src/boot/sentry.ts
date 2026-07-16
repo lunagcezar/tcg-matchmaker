@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/vue';
 import type { Router } from 'vue-router';
 
 export default defineBoot(({ app, router }) => {
-  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  const dsn = import.meta.env.QCLI_SENTRY_DSN;
   if (!dsn) {
     return;
   }

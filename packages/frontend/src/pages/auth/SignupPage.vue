@@ -42,7 +42,7 @@ const error = ref('');
 const success = ref('');
 const turnstileToken = ref('');
 
-const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+const siteKey = import.meta.env.QCLI_TURNSTILE_SITE_KEY || '';
 
 async function handleSignup(data: { email: string; password: string }) {
   loading.value = true;

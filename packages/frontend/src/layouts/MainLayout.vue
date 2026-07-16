@@ -1,8 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated class="bg-primary text-white">
-      <q-toolbar class="q-gutter-xs">
-        <q-btn flat class="text-weight-bold" to="/">
+      <q-toolbar>
+        <q-btn flat :class="{ 'text-weight-bold': isActiveRoute('/') }" to="/">
           {{ $t('app.title') }}
         </q-btn>
         <template v-for="item in navItems" :key="item.to">
