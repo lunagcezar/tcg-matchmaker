@@ -1,44 +1,44 @@
 <template>
-  <q-page class="q-pa-md flex flex-center">
-    <q-card style="width: 600px">
-      <q-card-section
-        ><h5 class="q-my-none">{{ $t('event.createTrading') }}</h5></q-card-section
-      >
-      <q-card-section class="q-gutter-md">
-        <q-input v-model="form.name" :label="$t('event.type')" outlined />
-        <q-input v-model="form.details" :label="$t('event.details')" outlined type="textarea" />
-        <q-input
-          v-model="form.scheduled_at"
-          :label="$t('event.scheduledAt')"
-          type="datetime-local"
-          required
-          outlined
-        />
-        <q-input v-model="form.lat" :label="$t('store.latitude')" type="number" outlined />
-        <q-input v-model="form.lng" :label="$t('store.longitude')" type="number" outlined />
-        <q-input
-          v-model="form.max_participants"
-          :label="$t('event.maxParticipants')"
-          type="number"
-          outlined
-        />
-        <q-btn
-          color="positive"
-          :label="$t('event.createTrading')"
-          class="full-width"
-          :loading="saving"
-          @click="save"
-        />
-        <p v-if="error" class="text-negative text-center">{{ error }}</p>
-      </q-card-section>
-    </q-card>
-  </q-page>
+  <AppCard
+    :title="$t('event.createTrading')"
+    width="600px"
+    page-class="q-pa-md flex flex-center"
+    body-class="q-gutter-md"
+    title-class="q-my-none"
+    :error="error"
+  >
+    <q-input v-model="form.name" :label="$t('event.type')" outlined />
+    <q-input v-model="form.details" :label="$t('event.details')" outlined type="textarea" />
+    <q-input
+      v-model="form.scheduled_at"
+      :label="$t('event.scheduledAt')"
+      type="datetime-local"
+      required
+      outlined
+    />
+    <q-input v-model="form.lat" :label="$t('store.latitude')" type="number" outlined />
+    <q-input v-model="form.lng" :label="$t('store.longitude')" type="number" outlined />
+    <q-input
+      v-model="form.max_participants"
+      :label="$t('event.maxParticipants')"
+      type="number"
+      outlined
+    />
+    <q-btn
+      color="positive"
+      :label="$t('event.createTrading')"
+      class="full-width"
+      :loading="saving"
+      @click="save"
+    />
+  </AppCard>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
+import AppCard from '@/components/molecules/AppCard.vue';
 
 const store = useEventStore();
 const router = useRouter();

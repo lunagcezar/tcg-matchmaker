@@ -1,8 +1,8 @@
 <template>
   <q-page :class="pageClass">
-    <q-card :style="'width: ' + (width || '400px')">
+    <q-card class="responsive-card" :style="{ maxWidth: width || '400px' }">
       <q-card-section v-if="$slots.title || title" class="q-pb-none">
-        <h5 class="text-center q-my-none">{{ title }}</h5>
+        <h5 :class="titleClass">{{ title }}</h5>
       </q-card-section>
       <q-card-section :class="bodyClass">
         <p v-if="error" class="text-negative text-center q-mb-sm">{{ error }}</p>
@@ -17,12 +17,30 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  title?: string;
-  width?: string;
-  pageClass?: string;
-  bodyClass?: string;
-  error?: string;
-  success?: string;
-}>();
+withDefaults(
+  defineProps<{
+    title?: string;
+    width?: string;
+    pageClass?: string;
+    bodyClass?: string;
+    error?: string;
+    success?: string;
+    titleClass?: string;
+  }>(),
+  {
+    title: '',
+    width: '',
+    pageClass: '',
+    bodyClass: '',
+    error: '',
+    success: '',
+    titleClass: 'text-center q-my-none',
+  },
+);
 </script>
+
+<style scoped>
+.responsive-card {
+  width: 100%;
+}
+</style>

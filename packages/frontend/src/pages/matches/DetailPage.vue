@@ -1,69 +1,66 @@
 <template>
-  <q-page class="q-pa-md flex flex-center">
-    <div v-if="match" style="width: 600px">
-      <q-card>
-        <q-card-section>
-          <h5 class="q-my-none">{{ $t('event.matchDetails') }}</h5>
-          <q-badge :color="statusColor(match.status)" class="q-mt-sm">{{ match.status }}</q-badge>
-        </q-card-section>
-        <q-card-section>
-          <div class="row q-col-gutter-sm">
-            <div class="col-6">
-              <strong>{{ $t('event.date') }}:</strong>
-              {{ formatDate((match as unknown as MatchDetails).scheduled_at) }}
-            </div>
-            <div class="col-6">
-              <strong>{{ $t('event.players') }}:</strong>
-              {{ (match as unknown as MatchDetails).max_participants || 2 }}
-            </div>
+  <AppDetailLayout :item="match" :loading="loading" width="600px">
+    <q-card>
+      <q-card-section>
+        <h5 class="q-my-none">{{ $t('event.matchDetails') }}</h5>
+        <q-badge :color="statusColor(match!.status)" class="q-mt-sm">{{ match!.status }}</q-badge>
+      </q-card-section>
+      <q-card-section>
+        <div class="row q-col-gutter-sm">
+          <div class="col-6">
+            <strong>{{ $t('event.date') }}:</strong>
+            {{ formatDate((match as unknown as MatchDetails).scheduled_at) }}
           </div>
-        </q-card-section>
-        <q-card-actions class="q-pa-md q-gutter-sm">
-          <q-btn
-            v-if="!myParticipation && match.status === 'open'"
-            color="primary"
-            :label="$t('event.join')"
-            :loading="joining"
-            @click="join"
-          />
-          <q-btn
-            v-if="myParticipation?.status === 'pending'"
-            color="positive"
-            :label="$t('event.confirm')"
-            :loading="confirming"
-            @click="confirmAttendance"
-          />
-          <q-btn
-            v-if="myParticipation?.status === 'pending'"
-            color="negative"
-            flat
-            :label="$t('event.decline')"
-            :loading="declining"
-            @click="declineAttendance"
-          />
-          <q-badge v-if="myParticipation?.status === 'confirmed'" color="positive">{{
-            $t('event.confirmed')
-          }}</q-badge>
-        </q-card-actions>
-      </q-card>
-      <q-card class="q-mt-md">
-        <q-card-section
-          ><h6>{{ $t('event.participants') }}</h6></q-card-section
-        >
-        <q-list>
-          <q-item v-for="p in participants" :key="p.id as string">
-            <q-item-section>{{ (p as Participant).user_id?.slice(0, 8) }}</q-item-section>
-            <q-item-section side>
-              <q-badge :color="badgeColor((p as Participant).status)">{{
-                (p as Participant).status
-              }}</q-badge>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-card>
-    </div>
-    <div v-else-if="loading" class="text-center q-py-xl"><q-spinner size="lg" /></div>
-  </q-page>
+          <div class="col-6">
+            <strong>{{ $t('event.players') }}:</strong>
+            {{ (match as unknown as MatchDetails).max_participants || 2 }}
+          </div>
+        </div>
+      </q-card-section>
+      <q-card-actions class="q-pa-md q-gutter-sm">
+        <q-btn
+          v-if="!myParticipation && match!.status === 'open'"
+          color="primary"
+          :label="$t('event.join')"
+          :loading="joining"
+          @click="join"
+        />
+        <q-btn
+          v-if="myParticipation?.status === 'pending'"
+          color="positive"
+          :label="$t('event.confirm')"
+          :loading="confirming"
+          @click="confirmAttendance"
+        />
+        <q-btn
+          v-if="myParticipation?.status === 'pending'"
+          color="negative"
+          flat
+          :label="$t('event.decline')"
+          :loading="declining"
+          @click="declineAttendance"
+        />
+        <q-badge v-if="myParticipation?.status === 'confirmed'" color="positive">{{
+          $t('event.confirmed')
+        }}</q-badge>
+      </q-card-actions>
+    </q-card>
+    <q-card class="q-mt-md">
+      <q-card-section
+        ><h6>{{ $t('event.participants') }}</h6></q-card-section
+      >
+      <q-list>
+        <q-item v-for="p in participants" :key="p.id as string">
+          <q-item-section>{{ (p as Participant).user_id?.slice(0, 8) }}</q-item-section>
+          <q-item-section side>
+            <q-badge :color="badgeColor((p as Participant).status)">{{
+              (p as Participant).status
+            }}</q-badge>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
+  </AppDetailLayout>
 </template>
 
 <script setup lang="ts">
@@ -74,6 +71,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { apiGet } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
 import { badgeColor, statusColor } from '@/lib/colors';
+import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 const route = useRoute();
 const store = useEventStore();

@@ -4,6 +4,8 @@
     width="500px"
     page-class="q-pa-md flex flex-center"
     body-class="q-gutter-sm"
+    title-class="q-my-none"
+    :success="message"
   >
     <q-input v-model="displayName" :label="$t('auth.displayName')" outlined />
     <q-btn
@@ -59,7 +61,6 @@
       <q-separator class="full-width" />
       <q-btn color="negative" :label="$t('auth.signOut')" class="full-width" @click="logout" />
     </div>
-    <p v-if="message" class="text-center text-positive">{{ message }}</p>
   </AppCard>
 </template>
 

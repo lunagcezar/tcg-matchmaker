@@ -1,30 +1,30 @@
 <template>
-  <q-page class="q-pa-md flex flex-center">
-    <q-card style="width: 600px">
-      <q-card-section
-        ><h5 class="q-my-none">{{ $t('store.settings') }}</h5></q-card-section
-      >
-      <p v-if="error" class="text-negative text-center q-mt-sm">{{ error }}</p>
-      <q-card-section class="q-gutter-md">
-        <q-input v-model="form.name" :label="$t('store.name')" outlined />
-        <q-input v-model="form.address" :label="$t('store.address')" outlined />
-        <q-input v-model="form.phone" :label="$t('store.phone')" outlined />
-        <q-btn
-          color="primary"
-          :label="$t('common.save')"
-          class="full-width"
-          :loading="saving"
-          @click="save"
-        />
-      </q-card-section>
-    </q-card>
-  </q-page>
+  <AppCard
+    :title="$t('store.settings')"
+    width="600px"
+    page-class="q-pa-md flex flex-center"
+    body-class="q-gutter-md"
+    title-class="q-my-none"
+    :error="error"
+  >
+    <q-input v-model="form.name" :label="$t('store.name')" outlined />
+    <q-input v-model="form.address" :label="$t('store.address')" outlined />
+    <q-input v-model="form.phone" :label="$t('store.phone')" outlined />
+    <q-btn
+      color="primary"
+      :label="$t('common.save')"
+      class="full-width"
+      :loading="saving"
+      @click="save"
+    />
+  </AppCard>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStoreStore } from '@/stores/useStoreStore';
+import AppCard from '@/components/molecules/AppCard.vue';
 
 const route = useRoute();
 const storeStore = useStoreStore();

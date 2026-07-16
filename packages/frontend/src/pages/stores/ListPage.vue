@@ -1,19 +1,19 @@
 <template>
-  <q-page class="q-pa-md">
-    <div class="row items-center justify-between q-mb-md">
-      <h5 class="q-my-none">{{ $t('nav.stores') }}</h5>
+  <AppListLayout :title="$t('nav.stores')" :loading="loading" :empty="stores.length === 0">
+    <template #actions>
       <q-btn color="primary" icon="add" :label="$t('store.create')" to="/stores/new" />
-    </div>
-    <q-input
-      v-model="search"
-      :label="$t('common.search')"
-      outlined
-      dense
-      class="q-mb-md"
-      @update:model-value="filtered"
-    />
-    <div v-if="loading" class="text-center q-py-xl"><q-spinner size="lg" /></div>
-    <div v-else class="row q-col-gutter-md">
+    </template>
+    <template #filters>
+      <q-input
+        v-model="search"
+        :label="$t('common.search')"
+        outlined
+        dense
+        class="q-mb-md"
+        @update:model-value="filtered"
+      />
+    </template>
+    <div class="row q-col-gutter-md">
       <div v-for="s in stores" :key="s.id as string" class="col-12 col-sm-6 col-md-4">
         <q-card clickable :to="`/stores/${s.id}`">
           <q-card-section>
@@ -25,17 +25,15 @@
           </q-card-section>
         </q-card>
       </div>
-      <div v-if="stores.length === 0" class="col-12 text-center text-grey">
-        {{ $t('common.noResults') }}
-      </div>
     </div>
-  </q-page>
+  </AppListLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useStoreStore } from '@/stores/useStoreStore';
 import { usePageMeta } from '@/composables/usePageMeta';
+import AppListLayout from '@/layouts/AppListLayout.vue';
 
 usePageMeta({ titleKey: 'meta.stores', descKey: 'meta.storesDesc' });
 

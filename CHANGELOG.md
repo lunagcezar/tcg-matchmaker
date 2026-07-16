@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.60.0] — 2026-07-16
+
+### Added
+
+- `AppListLayout` and `AppDetailLayout` layout components in `src/layouts/`:
+  - `AppListLayout`: reusable list page shell with title header, actions/filters slots, loading spinner, and empty state.
+  - `AppDetailLayout`: reusable detail page shell with centered responsive container, loading spinner, and optional empty state.
+- Responsive behavior to `AppCard`, `AppListLayout`, and `AppDetailLayout`:
+  - `AppCard`: `width` prop is now treated as `max-width`; card uses `width: 100%` so it fills small screens and caps on larger screens.
+  - `AppDetailLayout`: `width` prop is now treated as `max-width`; container uses `width: 100%`.
+  - `AppListLayout`: page header stacks vertically on mobile and sits side-by-side on larger screens.
+
+### Changed
+
+- Refactored form pages to use `AppCard`:
+  - `SettingsPage`, `matches/CreatePage`, `trading/CreatePage`, `tournaments/CreatePage`, `stores/CreatePage`, `stores/SettingsPage`.
+- Refactored list pages to use `AppListLayout`:
+  - `matches/ListPage`, `trading/ListPage`, `tournaments/ListPage`, `stores/ListPage`, `notifications/NotificationPage`.
+- Refactored detail pages to use `AppDetailLayout`:
+  - `matches/DetailPage`, `trading/DetailPage`, `tournaments/DetailPage`, `tournaments/ManagePage`, `stores/DetailPage`, `ProfilePage`.
+- `AppCard`: added `titleClass` prop for customizable title alignment (defaults keep centered auth-page behavior).
+
+### Fixed
+
+- TypeScript errors in `AppDetailLayout` (`withDefaults` + `exactOptionalPropertyTypes` conflict) by making `item` a required prop.
+- Vue template nullability errors in detail pages (`ProfilePage`, `matches/DetailPage`, `trading/DetailPage`, `tournaments/DetailPage`, `tournaments/ManagePage`, `stores/DetailPage`) with non-null assertions inside `AppDetailLayout` slots.
+
 ## [0.59.0] — 2026-07-15
 
 ### Changed

@@ -1,8 +1,11 @@
 <template>
-  <q-page class="q-pa-md">
-    <div class="row items-center q-mb-md">
-      <h5 class="q-my-none q-mr-md">{{ $t('notifications.title') }}</h5>
-      <q-space />
+  <AppListLayout
+    :title="$t('notifications.title')"
+    :loading="loading"
+    :empty="notifications.length === 0"
+    :empty-text="$t('notifications.empty')"
+  >
+    <template #actions>
       <q-btn
         :label="$t('notifications.markAllRead')"
         flat
@@ -10,9 +13,8 @@
         :disable="unreadCount === 0"
         @click="handleMarkAllRead"
       />
-    </div>
-
-    <q-list v-if="notifications.length > 0" bordered separator>
+    </template>
+    <q-list bordered separator>
       <q-item
         v-for="n in notifications"
         :key="n.id"
@@ -50,14 +52,7 @@
         </q-item-section>
       </q-item>
     </q-list>
-
-    <div v-else-if="!loading" class="text-center text-grey q-py-xl">
-      {{ $t('notifications.empty') }}
-    </div>
-    <div v-else class="text-center q-py-xl">
-      <q-spinner-dots size="3rem" />
-    </div>
-  </q-page>
+  </AppListLayout>
 </template>
 
 <script setup lang="ts">
@@ -66,6 +61,7 @@ import { useRouter } from 'vue-router';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { formatDate } from '@/lib/format';
 import { notificationIcon } from '@/lib/colors';
+import AppListLayout from '@/layouts/AppListLayout.vue';
 
 const router = useRouter();
 const notificationStore = useNotificationStore();
