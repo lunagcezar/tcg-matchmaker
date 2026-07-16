@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md flex flex-center">
-    <div v-if="item" class="responsive-container" :style="{ maxWidth: width || '600px' }">
+    <div v-if="item" :style="{ maxWidth: width || '600px' }">
       <slot />
     </div>
     <div v-else-if="loading" class="text-center q-py-xl">
@@ -29,9 +29,3 @@ withDefaults(
   },
 );
 </script>
-
-<style scoped>
-.responsive-container {
-  width: 100%;
-}
-</style>

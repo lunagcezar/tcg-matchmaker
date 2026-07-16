@@ -1,6 +1,6 @@
 <template>
   <q-page :class="pageClass">
-    <q-card class="responsive-card" :style="{ maxWidth: width || '400px' }">
+    <q-card :style="{ maxWidth: width || '400px' }">
       <q-card-section v-if="$slots.title || title" class="q-pb-none">
         <h5 :class="titleClass">{{ title }}</h5>
       </q-card-section>
@@ -38,9 +38,3 @@ withDefaults(
   },
 );
 </script>
-
-<style scoped>
-.responsive-card {
-  width: 100%;
-}
-</style>

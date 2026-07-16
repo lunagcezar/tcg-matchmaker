@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center justify-between q-mb-md flex-wrap">
-      <h5 class="q-my-none col-12 col-sm-auto list-title">{{ title }}</h5>
+      <h5 class="q-my-none col-12 col-sm-auto">{{ title }}</h5>
       <div class="row q-gutter-sm col-12 col-sm-auto">
         <slot name="actions" />
       </div>
@@ -32,15 +32,3 @@ withDefaults(
   },
 );
 </script>
-
-<style scoped>
-.list-title {
-  margin-bottom: 8px;
-}
-
-@media (min-width: 600px) {
-  .list-title {
-    margin-bottom: 0;
-  }
-}
-</style>
