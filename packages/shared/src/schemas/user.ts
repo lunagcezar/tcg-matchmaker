@@ -22,7 +22,7 @@ export const UserSchema = z.object({
   display_name: z.string(),
   role: z.enum(['player', 'organizer', 'admin']),
   avatar_path: z.string().nullable(),
-  created_at: z.string().datetime(),
+  created_at: z.string(),
 });
 
 export const ProfileUpdateSchema = z.object({
@@ -39,9 +39,9 @@ export const UserResponseSchema = z.object({
   display_name: z.string(),
   role: z.enum(['player', 'organizer', 'admin']),
   avatar_path: z.string().nullable(),
-  banned_at: z.string().datetime().nullable(),
-  suspended_at: z.string().datetime().nullable(),
-  created_at: z.string().datetime(),
+  banned_at: z.string().nullable(),
+  suspended_at: z.string().nullable(),
+  created_at: z.string(),
 });
 
 export const AccountActionResponseSchema = z.object({

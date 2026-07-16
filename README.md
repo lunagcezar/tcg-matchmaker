@@ -116,12 +116,17 @@ The local Supabase stack provides PostgreSQL (with PostGIS), Auth, and Storage:
 ```bash
 supabase start                    # Start all services
 supabase stop                     # Stop all services
+supabase db push --local          # Apply new migrations to local DB
+supabase db reset --local         # Reset local DB and re-apply all migrations
 supabase db diff                  # Generate migration from schema changes
 supabase gen types typescript     # Generate TypeScript types from DB
-supabase db push                  # Push migrations to production
 ```
 
 The local Supabase dashboard is available at `http://localhost:54323`.
+
+**Migrating**: After adding a new migration to `supabase/migrations/`, run `supabase db push --local` to apply it. Then regenerate types with `supabase gen types typescript --local > packages/shared/src/database.types.ts`.
+
+**Resetting**: To start fresh, run `supabase db reset --local`. This drops all data and re-applies every migration from scratch. Useful when testing schema changes or recovering from a broken state.
 
 ### Running tests
 

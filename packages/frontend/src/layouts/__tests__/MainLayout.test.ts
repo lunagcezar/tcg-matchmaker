@@ -87,7 +87,7 @@ describe('MainLayout', () => {
         },
       },
     });
-    expect(wrapper.find('.q-toolbar-title').text()).toBe('TCG Matchmaker');
+    expect(wrapper.text()).toContain('TCG Matchmaker');
   });
 
   it('applies dark mode on mount', async () => {

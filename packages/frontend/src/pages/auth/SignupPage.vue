@@ -4,7 +4,7 @@
       <AuthForm
         :submit-label="$t('auth.signUp')"
         :on-submit="handleSignup"
-        :fields="['email', 'username', 'displayName', 'password']"
+        :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
         :loading="loading"
       >
         <template #extra>

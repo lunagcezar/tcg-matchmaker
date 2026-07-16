@@ -20,6 +20,7 @@ export default {
   auth: {
     email: 'Email',
     password: 'Password',
+    confirmPassword: 'Confirm Password',
     username: 'Username',
     displayName: 'Display Name',
     signIn: 'Sign In',
@@ -29,6 +30,10 @@ export default {
     haveAccount: 'Already have an account?',
     onboarding: 'Welcome! Create the first admin account',
     createAdmin: 'Create Admin',
+    required: 'This field is required',
+    invalidEmail: 'Invalid email address',
+    minLength: 'Must be at least {min} characters',
+    passwordsDontMatch: 'Passwords do not match',
   },
   common: {
     loading: 'Loading...',

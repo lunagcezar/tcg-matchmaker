@@ -1,19 +1,19 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated class="bg-primary text-white">
-      <q-toolbar>
-        <q-toolbar-title class="text-weight-bold cursor-pointer" to="/">
+      <q-toolbar class="q-gutter-xs">
+        <q-btn flat class="text-weight-bold" to="/">
           {{ $t('app.title') }}
-        </q-toolbar-title>
-        <template v-for="item in headerNavItems" :key="item.to">
+        </q-btn>
+        <template v-for="item in navItems" :key="item.to">
           <q-btn
             flat
             :label="$t(item.labelKey!)"
             :to="item.to!"
-            class="q-mr-xs"
             :class="{ 'text-weight-bold': isActiveRoute(item.to!) }"
           />
         </template>
+        <q-space />
         <ThemeLangSwitcher />
         <NotificationBell />
         <UserMenu />
@@ -34,7 +34,7 @@ import { useAppStore } from '@/stores/useAppStore';
 import ThemeLangSwitcher from '@/components/molecules/ThemeLangSwitcher.vue';
 import UserMenu from '@/components/molecules/UserMenu.vue';
 import NotificationBell from '@/components/molecules/NotificationBell.vue';
-import { headerNavItems } from '@/router/navItems';
+import { navItems } from '@/router/navItems';
 
 const route = useRoute();
 const $q = useQuasar();

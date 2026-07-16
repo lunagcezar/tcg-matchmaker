@@ -20,10 +20,10 @@ Extract navigation item definitions into a shared constant array (`src/router/na
 ## 3. Requirements, Constraints & Guidelines
 
 - **REQ-001**: Define a `NavItem` interface in `src/router/navItems.ts` with fields: `labelKey`, `to`, `icon`, `auth`, `divider`, `exact`
-- **REQ-002**: Export three constants: `eventNavItems` (matches, trading, tournaments), `drawerNavItems` (home, stores, divider, events, settings), and `headerNavItems` (home + events)
+- **REQ-002**: Export two constants: `navItems` (matches, trading, tournaments, stores) and `drawerNavItems` (home, stores, divider, events, settings)
 - **REQ-003**: `eventNavItems` is a reusable subset used by both header and drawer
 - **REQ-004**: Use the `as const` pattern for type-safe readonly arrays
-- **REQ-005**: MainLayout imports `headerNavItems` and `drawerNavItems` from the shared file
+- **REQ-005**: MainLayout imports `navItems` from the shared file
 - **REQ-006**: Auth-guarded items use `auth: true` to conditionally render in the drawer
 - **CON-001**: All items use i18n `labelKey` (not hardcoded labels) for localization
 - **CON-002**: The divider item has no label/route and renders a `<q-separator>`

@@ -6,7 +6,7 @@
         :submit-label="$t('auth.signUp')"
         :on-submit="handleOnboarding"
         :loading="loading"
-        :fields="['email', 'username', 'displayName', 'password']"
+        :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
       />
     </AppCard>
   </q-page>

@@ -5,30 +5,55 @@
       v-model="form.email"
       :label="$t('auth.email')"
       type="email"
-      required
       outlined
+      lazy-rules
+      :rules="[
+        (val: string) => !!val || $t('auth.required'),
+        (val: string) => /.+@.+\..+/.test(val) || $t('auth.invalidEmail'),
+      ]"
     />
     <q-input
       v-if="showField('username')"
       v-model="form.username"
       :label="$t('auth.username')"
-      required
       outlined
+      lazy-rules
+      :rules="[
+        (val: string) => !!val || $t('auth.required'),
+        (val: string) => val.length >= 3 || $t('auth.minLength', { min: 3 }),
+      ]"
     />
     <q-input
       v-if="showField('displayName')"
       v-model="form.displayName"
       :label="$t('auth.displayName')"
-      required
       outlined
+      lazy-rules
+      :rules="[(val: string) => !!val || $t('auth.required')]"
     />
     <q-input
       v-if="showField('password')"
       v-model="form.password"
       :label="$t('auth.password')"
       type="password"
-      required
       outlined
+      lazy-rules
+      :rules="[
+        (val: string) => !!val || $t('auth.required'),
+        (val: string) => val.length >= 8 || $t('auth.minLength', { min: 8 }),
+      ]"
+    />
+    <q-input
+      v-if="showField('confirmPassword')"
+      v-model="form.confirmPassword"
+      :label="$t('auth.confirmPassword')"
+      type="password"
+      outlined
+      lazy-rules
+      :rules="[
+        (val: string) => !!val || $t('auth.required'),
+        (val: string) => val === form.password || $t('auth.passwordsDontMatch'),
+      ]"
     />
     <div v-if="$slots.extra">
       <slot name="extra" />
@@ -61,7 +86,13 @@ const props = defineProps<{
   }) => Promise<void>;
 }>();
 
-const form = reactive({ email: '', password: '', username: '', displayName: '' });
+const form = reactive({
+  email: '',
+  password: '',
+  confirmPassword: '',
+  username: '',
+  displayName: '',
+});
 const defaultFields = ['email', 'password'];
 const activeFields = props.fields ?? defaultFields;
 

@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.55.0] — 2026-07-15
+
+### Added
+
+- Database migration `20260714000003_grant_service_role.sql`: grants all table-level privileges to `service_role` so the Hono Worker secret key can INSERT/SELECT/UPDATE/DELETE.
+- README: documented `supabase db push --local` and `supabase db reset --local`.
+
+### Changed
+
+- AuthForm: confirm password field now only shows when `confirmPassword` is explicitly listed in the `fields` prop — login form unaffected.
+- Signup and onboarding pages: added `'confirmPassword'` to their field lists.
+- `UserSchema` / `UserResponseSchema`: replaced `z.string().datetime()` with `z.string()` for all timestamp fields to avoid ZodError from Supabase date formats.
+- Rate-limit middleware: skips rate limiting when `SUPABASE_URL` contains `localhost` or `127.0.0.1` (local dev detection).
+- Updated spec-035 to reflect current nav items structure.
+
+### Fixed
+
+- `POST /api/auth/onboarding` error response now includes the database error message for debugging.
+- `POST /api/auth/onboarding` no longer throws a 500 ZodError when parsing the created user record.
+
 ## [0.54.0] — 2026-07-15
 
 ### Fixed

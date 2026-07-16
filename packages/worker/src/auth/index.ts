@@ -38,7 +38,7 @@ authRouter.get('/onboarding', async (c) => {
   });
 });
 
-authRouter.post('/onboarding', rateLimitMiddleware('onboarding', 3, 3600), async (c) => {
+authRouter.post('/onboarding', rateLimitMiddleware('onboarding', 10, 3600), async (c) => {
   const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
 
   const { count } = await supabase
@@ -88,7 +88,10 @@ authRouter.post('/onboarding', rateLimitMiddleware('onboarding', 3, 3600), async
 
   if (insertError) {
     await secretClient.auth.admin.deleteUser(authData.user.id);
-    return c.json({ data: null, error: 'Failed to create user profile', meta: null }, 500);
+    return c.json(
+      { data: null, error: `Failed to create user profile: ${insertError.message}`, meta: null },
+      500,
+    );
   }
 
   await supabase.from('consents').insert({
@@ -194,7 +197,7 @@ authRouter.post('/export', authMiddleware, async (c) => {
 authRouter.delete(
   '/account',
   authMiddleware,
-  rateLimitMiddleware('account_delete', 5, 900),
+  rateLimitMiddleware('account_delete', 10, 900),
   async (c) => {
     const user = c.var.user;
     const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);

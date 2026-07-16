@@ -12,6 +12,12 @@ export function rateLimitMiddleware(
   userId?: string,
 ) {
   return async (c: Context, next: Next) => {
+    const supabaseUrl = c.env?.SUPABASE_URL as string | undefined;
+    if (supabaseUrl && (supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1'))) {
+      await next();
+      return;
+    }
+
     const ip = c.req.header('CF-Connecting-IP') ?? '127.0.0.1';
     const uid = userId ?? c.var?.user?.id;
     const discriminator = uid ? `${uid}:${ip}` : ip;
