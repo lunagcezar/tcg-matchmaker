@@ -105,7 +105,7 @@ pre,
 
 .q-btn--flat,
 .q-btn--outline {
-  color: var(--primary);
+  color: var(--foreground);
 }
 
 .q-btn--flat:hover,
@@ -341,7 +341,7 @@ pre,
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.25rem;
-  color: var(--primary);
+  color: var(--foreground);
   text-decoration: none;
   transition:
     background-color 0.2s ease,

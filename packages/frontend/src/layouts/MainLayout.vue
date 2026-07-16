@@ -14,7 +14,7 @@
           />
           <router-link
             to="/"
-            class="text-xl font-bold tracking-tight"
+            class="text-weight-bold text-h6 tracking-tight"
             style="color: var(--primary); text-decoration: none"
           >
             {{ $t('app.title') }}
