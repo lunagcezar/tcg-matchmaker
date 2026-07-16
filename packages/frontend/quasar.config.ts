@@ -57,7 +57,9 @@ export default defineConfig((ctx) => {
       // minify: false,
       // distDir
 
-      // extendViteConf (viteConf) {},
+      extendViteConf(viteConf) {
+        viteConf.envPrefix = ['VITE_', 'QCLI_'];
+      },
       // viteVuePluginOptions: {},
 
       vitePlugins: [
