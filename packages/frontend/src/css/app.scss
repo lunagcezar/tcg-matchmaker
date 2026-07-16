@@ -315,16 +315,19 @@ pre,
 
 .app-main {
   min-width: 0;
-  min-height: auto;
+  min-height: 0;
   flex: 1 1 0%;
-  padding: 4rem 1.5rem 2rem;
+  padding: 0;
+}
+
+.app-main .q-page {
+  min-height: 100%;
+  padding: 4rem 1rem;
 }
 
 @media (min-width: 1024px) {
   .app-main {
     border-right: 1px solid var(--border);
-    padding-left: 2rem;
-    padding-right: 2rem;
   }
 }
 
