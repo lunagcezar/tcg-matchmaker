@@ -58,16 +58,19 @@
     <div v-if="$slots.extra">
       <slot name="extra" />
     </div>
-    <div v-if="$slots.footer" class="text-center">
+    <div v-if="$slots.footer">
       <slot name="footer" />
     </div>
-    <q-btn
-      type="submit"
-      color="primary"
-      :label="submitLabel"
-      class="full-width"
-      :loading="loading"
-    />
+    <div class="flex flex-center">
+      <q-btn
+        type="submit"
+        color="primary"
+        class="full-width"
+        :label="submitLabel"
+        style="min-width: 200px"
+        :loading="loading"
+      />
+    </div>
   </q-form>
 </template>
 

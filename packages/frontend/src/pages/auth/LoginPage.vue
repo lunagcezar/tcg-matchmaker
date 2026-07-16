@@ -5,10 +5,7 @@
       <p v-if="success" class="text-positive text-center q-mb-sm">{{ success }}</p>
       <AuthForm :submit-label="$t('auth.signIn')" :on-submit="handleLogin" :loading="loading">
         <template #footer>
-          <p>
-            {{ $t('auth.noAccount') }}
-            <router-link to="/signup">{{ $t('auth.signUp') }}</router-link>
-          </p>
+          <AuthFooter mode="login" />
         </template>
       </AuthForm>
     </AppCard>
@@ -22,6 +19,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import AppCard from '@/components/atoms/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
+import AuthFooter from '@/components/molecules/AuthFooter.vue';
 
 usePageMeta({ titleKey: 'meta.login', descKey: 'meta.loginDesc' });
 
