@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file.
 - Worker auth middleware: uses secret key for DB queries instead of publishable key — fixes 401 on all auth operations after DB reset (RLS on `users` table has no policies, so publishable key queries are blocked).
 - useAuthStore.restoreSession: clears user and signs out when fetchProfile returns null (stale session after DB reset).
 - SettingsPage: username input is now editable (removed `readonly`).
+- useApi.ts: all API calls (`apiGet`/`apiPost`/`apiPatch`/`apiDelete`) now include the Supabase access token in `Authorization` header — fixes 401 on all protected routes (notifications, profile update, account management).
+- Refactored Supabase client into shared singleton at `src/lib/supabase.ts` — eliminates redundant client creation in `useAuthStore.ts` and `boot/supabase.ts`.
 
 ## [0.61.0] — 2026-07-16
 

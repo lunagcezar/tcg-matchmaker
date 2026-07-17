@@ -17,7 +17,10 @@ describe('useAdminStore', () => {
     const store = await fetchStore('1');
 
     expect(store?.name).toBe('Test Store');
-    expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/stores/1'));
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/stores/1'),
+      expect.anything(),
+    );
   });
 
   it('verifies a store', async () => {

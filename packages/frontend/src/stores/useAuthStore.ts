@@ -1,12 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { createClient } from '@supabase/supabase-js';
 import type { User } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import { apiGet } from '@/composables/useApi';
-
-const supabaseUrl = import.meta.env.QCLI_SUPABASE_URL;
-const supabaseKey = import.meta.env.QCLI_SUPABASE_PUBLISHABLE_KEY;
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export type UserProfile = {
   id: string;

@@ -21,7 +21,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { apiGet } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
@@ -30,7 +29,6 @@ import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 usePageMeta({ titleKey: 'profile.title', descKey: 'profile.title' });
 
-const route = useRoute();
 const loading = ref(true);
 const profile = ref<{
   id: string;
