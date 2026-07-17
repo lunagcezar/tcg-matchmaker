@@ -1,5 +1,5 @@
 import type { Context, Next } from 'hono';
-import { createAuthClient } from '../db/client.js';
+import { createAuthClient, createSecretClient } from '../db/client.js';
 
 export type AuthUser = {
   id: string;
@@ -15,14 +15,15 @@ export async function authMiddleware(c: Context, next: Next) {
   }
 
   const token = authHeader.slice(7);
-  const supabase = createAuthClient(c.env.SUPABASE_URL, c.env.SUPABASE_PUBLISHABLE_KEY);
+  const authClient = createAuthClient(c.env.SUPABASE_URL, c.env.SUPABASE_PUBLISHABLE_KEY);
+  const dbClient = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
 
-  const { data: authData, error: authError } = await supabase.auth.getUser(token);
+  const { data: authData, error: authError } = await authClient.auth.getUser(token);
   if (authError || !authData.user) {
     return c.json({ data: null, error: 'Unauthorized', meta: null }, 401);
   }
 
-  const { data: userRecord, error: dbError } = await supabase
+  const { data: userRecord, error: dbError } = await dbClient
     .from('users')
     .select('id, email, username, role, banned_at, deleted_at')
     .eq('id', authData.user.id)

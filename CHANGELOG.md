@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - quasar.config.ts: registered `auth` boot file so session restore runs before route guards on page refresh.
 - quasar.config.ts: added `Dialog` Quasar plugin — `$q.dialog()` now works in SettingsPage account operations.
 - ProfilePage.vue vue-tsc error: passes `:item="profile"` to AppDetailLayout instead of invalid `:title` and `:empty` props.
+- Worker auth middleware: uses secret key for DB queries instead of publishable key — fixes 401 on all auth operations after DB reset (RLS on `users` table has no policies, so publishable key queries are blocked).
 - useAuthStore.restoreSession: clears user and signs out when fetchProfile returns null (stale session after DB reset).
 - SettingsPage: username input is now editable (removed `readonly`).
 
