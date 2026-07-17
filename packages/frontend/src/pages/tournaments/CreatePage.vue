@@ -8,13 +8,16 @@
     :error="error"
   >
     <q-input v-model="form.name" :label="$t('common.save') + ' name'" outlined />
-    <q-input
-      v-model="form.scheduled_at"
-      :label="$t('event.scheduledAt')"
-      type="datetime-local"
-      required
-      outlined
-    />
+    <q-input v-model="form.scheduled_at" :label="$t('event.scheduledAt')" outlined>
+      <template #append>
+        <q-icon name="event" class="cursor-pointer">
+          <q-popup-proxy>
+            <q-date v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" />
+            <q-time v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" now-button />
+          </q-popup-proxy>
+        </q-icon>
+      </template>
+    </q-input>
     <q-input v-model="form.lat" :label="$t('store.latitude')" type="number" outlined />
     <q-input v-model="form.lng" :label="$t('store.longitude')" type="number" outlined />
     <q-input
@@ -80,6 +83,7 @@ async function save() {
     await store.create({
       type: 'tournament',
       ...form,
+      scheduled_at: new Date(form.scheduled_at).toISOString(),
       max_participants: Number(form.max_participants),
     });
     void router.push('/tournaments');

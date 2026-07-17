@@ -31,6 +31,13 @@
               :loading="saving"
               @click="saveProfile"
             />
+            <p
+              v-if="profileMessage"
+              class="text-center text-caption"
+              :class="profileError ? 'text-negative' : 'text-positive'"
+            >
+              {{ profileMessage }}
+            </p>
           </div>
         </q-tab-panel>
 
@@ -134,6 +141,8 @@ const { t } = useI18n({ useScope: 'global' });
 const tab = ref('profile');
 const username = ref('');
 const saving = ref(false);
+const profileMessage = ref('');
+const profileError = ref(false);
 
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -147,12 +156,24 @@ const suspendLoading = ref(false);
 const exportLoading = ref(false);
 
 async function saveProfile() {
+  profileMessage.value = '';
+  profileError.value = false;
   saving.value = true;
   try {
-    await apiPatch('/api/auth/profile', { username: username.value });
-    $q.notify({ type: 'positive', message: 'Profile updated!' });
+    const result = await apiPatch('/api/auth/profile', { username: username.value });
+    if (result.error) {
+      profileMessage.value = result.error;
+      profileError.value = true;
+    } else {
+      profileMessage.value = 'Profile updated!';
+      profileError.value = false;
+      if (authStore.profile) {
+        authStore.profile = { ...authStore.profile, username: username.value };
+      }
+    }
   } catch {
-    $q.notify({ type: 'negative', message: 'Failed to update profile' });
+    profileMessage.value = 'Failed to update profile';
+    profileError.value = true;
   } finally {
     saving.value = false;
   }
