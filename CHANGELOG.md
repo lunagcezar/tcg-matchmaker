@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Spec: `spec/spec-062-ux-fixes-tooling.md`.
 - Worker: username uniqueness validation on PATCH /profile (returns 409 if taken).
-- Worker test: duplicate username rejection (7 new auth test → 71 total worker tests).
+- Worker test: duplicate username rejection (71 total worker tests).
 
 ### Fixed
 
@@ -17,13 +17,36 @@ All notable changes to this project will be documented in this file.
 - ProfilePage.vue vue-tsc error: passes `:item="profile"` to AppDetailLayout instead of invalid `:title` and `:empty` props.
 - useAuthStore.restoreSession: clears user and signs out when fetchProfile returns null (stale session after DB reset).
 - SettingsPage: username input is now editable (removed `readonly`).
-- Locale persistence: `auth` boot reads locale from localStorage before i18n init.
+
+## [0.61.0] — 2026-07-16
+
+### Added
+
+- Spec: `spec/spec-061-ux-fixes-regressions.md`.
+- Database migration: `20260714000004_remove_display_name.sql` — drops redundant `display_name` column from `users`.
+- `packages/frontend/src/boot/auth.ts`: boot file that restores Supabase session before route guards run (fixes refresh redirect to login).
+- `AppCard.test.ts`: tests for title rendering, error/success QChip, notification position.
+- `UserMenu.test.ts`: tests for unauthenticated (login/signup), authenticated with username, fallback to email prefix, avatar initial.
 
 ### Changed
 
-- UserMenu display name prefers `authStore.profile?.username` over email prefix (no longer stuck showing email).
+- Shared schemas (`packages/shared/src/schemas/user.ts`): removed `display_name` from `SignupSchema`, `UserSchema`, `UserResponseSchema`; `ProfileUpdateSchema` now accepts `username` instead.
+- Worker `PATCH /auth/profile` and `POST /auth/onboarding`: removed `display_name` references.
+- `AppCard.vue`: replaced `<p>` error/success messages with `<q-chip>` (Quasar Chip component) using `error`/`check_circle` icons, positioned between header and body via `.app-panel__notifications`.
+- `UserMenu.vue`: prefers `authStore.profile?.username` over `authStore.user?.email?.split('@')[0]` or `'User'`.
+- `SettingsPage.vue`: implemented three QTabs (Profile, Password, Account) with username display, password change, and account management (data export, suspend, delete).
+- `SignupPage.vue`: removed `displayName` field; shows `$q.notify` success toast before redirecting to login.
+- `OnboardingPage.vue`, `AuthForm.vue`, `ProfilePage.vue`: removed `display_name` fields and references.
+- `useAuthStore.ts`: added `updatePassword()` method; removed `display_name` from `UserProfile` type.
+- i18n (`en-US`/`pt-BR`): added `settings.tabProfile`, `settings.tabPassword`, `settings.tabAccount`, `auth.currentPassword`, `auth.newPassword`; removed `auth.displayName`.
+- Boot `i18n.ts`: reads locale from `localStorage` before falling back to `navigator.language` (fixes locale loss on F5).
+- `docs/data-model.md`: removed `display_name` from the users table schema.
+- Updated tests for schema changes (SettingsPage, SignupPage, OnboardingPage, ProfilePage, useAccountManagement).
+- 182 tests pass (70 worker + 112 frontend).
 
-## [0.61.0] — 2026-07-16
+## [0.60.0] — 2026-07-16
+
+## [0.60.0] — 2026-07-16
 
 ### Added
 
@@ -71,7 +94,7 @@ All notable changes to this project will be documented in this file.
 - Added `EventFeed.test.ts` and updated `useEventStore.test.ts` / worker events tests for pagination.
 - Updated `eslint.config.mjs` to ignore `.wrangler/**` generated files.
 
-## [0.60.0] — 2026-07-16
+## [0.59.0] — 2026-07-15
 
 ### Added
 
@@ -85,6 +108,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- AppCard: moved from `atoms/` to `molecules/` — now wraps `<q-page>` with configurable `pageClass`, accepts `bodyClass` for inner section styling, and supports `error`/`success` banner props (merged from AuthCard).
+- AuthCard: removed — functionality absorbed into AppCard.
+- Auth pages (Login, Signup, Onboarding): use `AppCard` directly with `page-class="row items-center justify-center"`.
 - Refactored form pages to use `AppCard`:
   - `SettingsPage`, `matches/CreatePage`, `trading/CreatePage`, `tournaments/CreatePage`, `stores/CreatePage`, `stores/SettingsPage`.
 - Refactored list pages to use `AppListLayout`:
@@ -92,20 +118,12 @@ All notable changes to this project will be documented in this file.
 - Refactored detail pages to use `AppDetailLayout`:
   - `matches/DetailPage`, `trading/DetailPage`, `tournaments/DetailPage`, `tournaments/ManagePage`, `stores/DetailPage`, `ProfilePage`.
 - `AppCard`: added `titleClass` prop for customizable title alignment (defaults keep centered auth-page behavior).
+- SettingsPage: converted to use `AppCard` with `body-class="q-gutter-sm"`.
 
 ### Fixed
 
 - TypeScript errors in `AppDetailLayout` (`withDefaults` + `exactOptionalPropertyTypes` conflict) by making `item` a required prop.
 - Vue template nullability errors in detail pages (`ProfilePage`, `matches/DetailPage`, `trading/DetailPage`, `tournaments/DetailPage`, `tournaments/ManagePage`, `stores/DetailPage`) with non-null assertions inside `AppDetailLayout` slots.
-
-## [0.59.0] — 2026-07-15
-
-### Changed
-
-- AppCard: moved from `atoms/` to `molecules/` — now wraps `<q-page>` with configurable `pageClass`, accepts `bodyClass` for inner section styling, and supports `error`/`success` banner props (merged from AuthCard).
-- AuthCard: removed — functionality absorbed into AppCard.
-- Auth pages (Login, Signup, Onboarding): use `AppCard` directly with `page-class="row items-center justify-center"`.
-- SettingsPage: converted to use `AppCard` with `body-class="q-gutter-sm"`.
 
 ## [0.58.0] — 2026-07-15
 
