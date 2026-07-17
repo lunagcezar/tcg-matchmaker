@@ -744,7 +744,6 @@ export type Database = {
           banned_at: string | null;
           created_at: string;
           deleted_at: string | null;
-          display_name: string;
           email: string;
           id: string;
           locked_until: string | null;
@@ -759,7 +758,6 @@ export type Database = {
           banned_at?: string | null;
           created_at?: string;
           deleted_at?: string | null;
-          display_name: string;
           email: string;
           id: string;
           locked_until?: string | null;
@@ -774,7 +772,6 @@ export type Database = {
           banned_at?: string | null;
           created_at?: string;
           deleted_at?: string | null;
-          display_name?: string;
           email?: string;
           id?: string;
           locked_until?: string | null;
