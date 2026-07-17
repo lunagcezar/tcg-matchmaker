@@ -4,6 +4,8 @@ import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { apiGet } from '@/composables/useApi';
 
+const REMEMBER_ME_KEY = 'tcg_remember_me';
+
 export type UserProfile = {
   id: string;
   email: string;
@@ -19,10 +21,19 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false);
   const onboardingRequired = ref<boolean | null>(null);
 
+  function getRememberMe(): boolean {
+    return localStorage.getItem(REMEMBER_ME_KEY) !== 'false';
+  }
+
   async function restoreSession() {
     if (!supabase) return;
     const { data } = await supabase.auth.getSession();
     if (data.session?.user) {
+      if (!getRememberMe()) {
+        await supabase.auth.signOut();
+        user.value = null;
+        return;
+      }
       user.value = data.session.user;
       await fetchProfile();
       if (!profile.value) {
@@ -73,12 +84,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signIn(email: string, password: string) {
+  async function signIn(email: string, password: string, rememberMe = true) {
     if (!supabase) throw new Error('Supabase not configured');
     loading.value = true;
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      localStorage.setItem(REMEMBER_ME_KEY, rememberMe ? 'true' : 'false');
       user.value = data.user;
       await fetchProfile();
       return data;
@@ -92,6 +104,15 @@ export const useAuthStore = defineStore('auth', () => {
     await supabase.auth.signOut();
     user.value = null;
     profile.value = null;
+  }
+
+  async function resolveIdentifier(identifier: string): Promise<string> {
+    const isEmail = identifier.includes('@');
+    if (isEmail) return identifier;
+    const res = await apiGet(`/api/auth/resolve/${encodeURIComponent(identifier)}`);
+    const data = res.data as { email: string } | null;
+    if (!data || !data.email) throw new Error('User not found');
+    return data.email;
   }
 
   async function updatePassword(newPassword: string): Promise<{ error?: string }> {
@@ -134,6 +155,7 @@ export const useAuthStore = defineStore('auth', () => {
     signUp,
     signIn,
     signOut,
+    resolveIdentifier,
     updatePassword,
     checkOnboarding,
   };

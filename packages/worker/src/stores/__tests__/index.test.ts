@@ -49,7 +49,7 @@ describe('Store routes', () => {
   describe('GET /api/stores', () => {
     it('returns a list of active stores', async () => {
       const { createClient } = await import('@supabase/supabase-js');
-      const c = chain({ order: vi.fn().mockResolvedValue({ data: [storeData], error: null }) });
+      const c = chain({ limit: vi.fn().mockResolvedValue({ data: [storeData], error: null }) });
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
         auth: { getUser: vi.fn() },
         from: vi.fn().mockReturnValue(c),

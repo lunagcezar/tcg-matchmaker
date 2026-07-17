@@ -45,7 +45,9 @@ const turnstileToken = ref('');
 
 const siteKey = import.meta.env.QCLI_TURNSTILE_SITE_KEY || '';
 
-async function handleSignup(data: { email: string; password: string }) {
+async function handleSignup(data: Record<string, unknown>) {
+  const email = data.email as string;
+  const password = data.password as string;
   loading.value = true;
   error.value = '';
   success.value = '';
@@ -57,7 +59,7 @@ async function handleSignup(data: { email: string; password: string }) {
         return;
       }
     }
-    await authStore.signUp(data.email, data.password);
+    await authStore.signUp(email, password);
     $q.notify({ type: 'positive', message: 'Account created! You can now sign in.' });
     void router.push('/login');
   } catch (e) {

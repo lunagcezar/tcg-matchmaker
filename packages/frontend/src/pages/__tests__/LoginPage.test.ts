@@ -15,6 +15,7 @@ const mockAuthStore = vi.hoisted(() => ({
   signIn: vi.fn().mockResolvedValue({} as never),
   signOut: vi.fn(),
   checkOnboarding: vi.fn().mockResolvedValue(false),
+  resolveIdentifier: vi.fn((id: string) => Promise.resolve(id)),
 }));
 
 vi.mock('@/stores/useAuthStore', () => ({
@@ -26,7 +27,12 @@ const i18n = createI18n({
   locale: 'en-US',
   messages: {
     'en-US': {
-      auth: { signIn: 'Sign In', noAccount: "Don't have an account?", signUp: 'Sign Up' },
+      auth: {
+        signIn: 'Sign In',
+        noAccount: "Don't have an account?",
+        signUp: 'Sign Up',
+        emailOrUsername: 'Email or Username',
+      },
       nav: { login: 'Login' },
     },
   },
@@ -75,10 +81,11 @@ describe('LoginPage', () => {
 
     const store = useAuthStore();
     const vm = wrapper.vm as unknown as {
-      handleLogin: (data: { email: string; password: string }) => Promise<void>;
+      handleLogin: (data: { identifier: string; password: string }) => Promise<void>;
     };
-    await vm.handleLogin({ email: 'test@test.com', password: 'password123' });
-    expect(store.signIn).toHaveBeenCalledWith('test@test.com', 'password123');
+    await vm.handleLogin({ identifier: 'test@test.com', password: 'password123' });
+    expect(store.resolveIdentifier).toHaveBeenCalledWith('test@test.com');
+    expect(store.signIn).toHaveBeenCalledWith('test@test.com', 'password123', true);
   });
 
   it('shows error message when signIn fails', async () => {
@@ -97,10 +104,10 @@ describe('LoginPage', () => {
     });
 
     const vm = wrapper.vm as unknown as {
-      handleLogin: (data: { email: string; password: string }) => Promise<void>;
+      handleLogin: (data: { identifier: string; password: string }) => Promise<void>;
       error: string;
     };
-    await vm.handleLogin({ email: 'test@test.com', password: 'wrong' });
+    await vm.handleLogin({ identifier: 'test@test.com', password: 'wrong' });
     expect(vm.error).toBe('Invalid credentials');
   });
 
@@ -121,13 +128,13 @@ describe('LoginPage', () => {
     });
 
     const vm = wrapper.vm as unknown as {
-      handleLogin: (data: { email: string; password: string }) => Promise<void>;
+      handleLogin: (data: { identifier: string; password: string }) => Promise<void>;
       error: string;
     };
-    await vm.handleLogin({ email: 'test@test.com', password: 'wrong' });
+    await vm.handleLogin({ identifier: 'test@test.com', password: 'wrong' });
     expect(vm.error).toBe('First error');
 
-    await vm.handleLogin({ email: 'test@test.com', password: 'correct' });
+    await vm.handleLogin({ identifier: 'test@test.com', password: 'correct' });
     expect(vm.error).toBe('');
   });
 });

@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.65.0] — 2026-07-16
+
+### Added
+
+- Worker: cursor-based pagination for `GET /api/stores` — supports `limit` and `cursor` query params, returns `meta.next_cursor`, `meta.has_more`.
+- Worker: `GET /api/auth/resolve/:identifier` — returns the email for a given email or username, enabling login-by-username.
+- Worker geocoding: added `addressdetails=1` to Nominatim search URL — structured address (city, state, country) now returned in results.
+- Frontend: `GeocodeAddress` interface (city, state, country) in `useGeocode` composable.
+- Frontend location autocomplete: emits `city`, `state`, `country` alongside lat/lng on selection.
+- Frontend: "Remember me" checkbox on login page — when unchecked, `restoreSession` signs out on page reload (session does not persist).
+- Frontend: Login accepts email or username — single "Email or Username" field; resolves to email via Worker before signing in.
+- Frontend: Store list now uses `q-infinite-scroll` with cursor-based pagination (20 items per page).
+
+### Changed
+
+- `StoreCreatePage`: replaced lat/lng/city/state inputs with `LocationAutocomplete` — fills all location fields from geocoding selection.
+- `useAuthStore.signIn`: accepts optional `rememberMe` boolean (default `true`); stores flag in localStorage.
+- `useAuthStore.restoreSession`: checks `tcg_remember_me` flag — signs out and clears session when flag is `false`.
+- `useStoreStore`: added `loadMore`, `hasMore`, `nextCursor` for infinite scroll pagination; `list` resets pagination state.
+- AuthForm: supports new `identifier` field type (accepts email or username, no email format validation).
+- LoginPage: uses `identifier` + `password` fields; calls `resolveIdentifier` before `signIn`.
+- i18n: added `auth.emailOrUsername`, `auth.rememberMe`, `store.searchLocation`.
+
+### Fixed
+
+- Worker stores pagination: replaced `Buffer` (unavailable in Workers) with `btoa`/`atob` base64url helpers.
+- Tests: updated LoginPage test mocks to include `resolveIdentifier` and new `handleLogin` signature.
+- Tests: fixed store GET mock — chained `.order().order().limit()` now resolves at `limit` instead of `order`.
+
 ## [0.64.0] — 2026-07-16
 
 ### Added

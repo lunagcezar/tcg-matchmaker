@@ -1,10 +1,22 @@
 import { ref } from 'vue';
 import { apiGet } from '@/composables/useApi';
 
+export interface GeocodeAddress {
+  city?: string;
+  state?: string;
+  country?: string;
+  road?: string;
+  house_number?: string;
+  town?: string;
+  village?: string;
+  municipality?: string;
+}
+
 export interface GeocodeResult {
   lat: string;
   lon: string;
   display_name: string;
+  address?: GeocodeAddress;
 }
 
 export function useGeocode() {

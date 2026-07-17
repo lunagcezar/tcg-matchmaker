@@ -127,6 +127,28 @@ authRouter.get('/me', authMiddleware, async (c) => {
   return c.json({ data: UserResponseSchema.parse(userRecord), error: null, meta: null });
 });
 
+authRouter.get('/resolve/:identifier', async (c) => {
+  const identifier = c.req.param('identifier')!;
+  if (!identifier) {
+    return c.json({ data: null, error: 'Identifier is required', meta: null }, 400);
+  }
+
+  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
+
+  const { data } = await supabase
+    .from('users')
+    .select('id, email, username')
+    .is('deleted_at', null)
+    .or(`email.eq.${identifier},username.eq.${identifier}`)
+    .maybeSingle();
+
+  if (!data) {
+    return c.json({ data: null, error: 'User not found', meta: null }, 404);
+  }
+
+  return c.json({ data: { email: data.email, username: data.username }, error: null, meta: null });
+});
+
 authRouter.patch('/profile', authMiddleware, async (c) => {
   const user = c.var.user;
   const body = await c.req.json().catch(() => ({}));

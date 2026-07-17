@@ -38,6 +38,8 @@ export default {
     invalidEmail: 'Email inválido',
     minLength: 'Deve ter pelo menos {min} caracteres',
     passwordsDontMatch: 'Senhas não conferem',
+    emailOrUsername: 'Email ou Usuário',
+    rememberMe: 'Lembrar de mim',
   },
   common: {
     loading: 'Carregando...',
@@ -79,6 +81,7 @@ export default {
     longitude: 'Longitude',
     details: 'Detalhes da Loja',
     noMembers: 'Sem membros',
+    searchLocation: 'Buscar local',
   },
   event: {
     create: 'Criar Evento',

@@ -23,7 +23,7 @@ geocodeRouter.get('/search', async (c) => {
     return c.json({ data: JSON.parse(cached), error: null, meta: { cached: true } });
   }
 
-  const url = `${NOMINATIM_BASE}/search?format=json&limit=5&q=${encodeURIComponent(q.trim())}`;
+  const url = `${NOMINATIM_BASE}/search?format=json&limit=5&addressdetails=1&q=${encodeURIComponent(q.trim())}`;
   const res = await fetch(url, {
     headers: { 'User-Agent': c.env.NOMINATIM_USER_AGENT },
   });

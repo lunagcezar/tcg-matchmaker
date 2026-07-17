@@ -23,14 +23,39 @@ const storeRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser }
 storeRouter.get('/', async (c) => {
   const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
 
-  const { data } = await supabase
+  const limit = Math.min(parseInt(c.req.query('limit') ?? '50', 10), 100);
+  const cursor = c.req.query('cursor');
+
+  let query = supabase
     .from('game_stores')
     .select('*')
     .is('deleted_at', null)
-    .neq('status', 'suspended')
-    .order('name');
+    .neq('status', 'suspended');
 
-  return c.json({ data: data ?? [], error: null, meta: null });
+  if (cursor) {
+    const decoded = atob(cursor.replace(/-/g, '+').replace(/_/g, '/'));
+    const parsed = JSON.parse(decoded) as { name: string; id: string };
+    query = query.or(`name.gt.${parsed.name},and(name.eq.${parsed.name},id.gt.${parsed.id})`);
+  }
+
+  const { data } = await query
+    .order('name')
+    .order('id')
+    .limit(limit + 1);
+
+  const page = data ?? [];
+  const hasMore = page.length > limit;
+  if (hasMore) page.pop();
+
+  const last = page[page.length - 1] as { name: string; id: string } | undefined;
+  const nextCursor = last
+    ? btoa(JSON.stringify({ name: last.name, id: last.id }))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '')
+    : null;
+
+  return c.json({ data: page, error: null, meta: { next_cursor: nextCursor, has_more: hasMore } });
 });
 
 storeRouter.get('/:id', async (c) => {

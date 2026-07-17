@@ -33,7 +33,14 @@ interface Props {
 defineProps<Props>();
 
 const emit = defineEmits<{
-  select: [lat: number, lng: number, displayName: string];
+  select: [
+    lat: number,
+    lng: number,
+    displayName: string,
+    city?: string,
+    state?: string,
+    country?: string,
+  ];
 }>();
 
 const { results, loading, search } = useGeocode();
@@ -56,7 +63,17 @@ function handleFilter(val: string, update: (fn: () => void) => void) {
 function handleSelect(val: GeocodeResult | string | null) {
   if (!val || typeof val === 'string') return;
   selected.value = val.display_name;
-  emit('select', parseFloat(val.lat), parseFloat(val.lon), val.display_name);
+  const addr = val.address || {};
+  const city = addr.city || addr.town || addr.village || addr.municipality || '';
+  emit(
+    'select',
+    parseFloat(val.lat),
+    parseFloat(val.lon),
+    val.display_name,
+    city,
+    addr.state,
+    addr.country,
+  );
 }
 
 function clear() {

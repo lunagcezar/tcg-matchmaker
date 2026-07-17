@@ -38,15 +38,18 @@ onMounted(async () => {
   }
 });
 
-async function handleOnboarding(data: { email: string; password: string; username?: string }) {
+async function handleOnboarding(data: Record<string, unknown>) {
+  const email = data.email as string;
+  const password = data.password as string;
+  const username = data.username as string | undefined;
   loading.value = true;
   error.value = '';
   success.value = '';
   try {
     const body = await apiPost('/api/auth/onboarding', {
-      email: data.email,
-      password: data.password,
-      username: data.username,
+      email,
+      password,
+      username,
     });
     if (body.error) {
       error.value = body.error || 'Failed to create admin';

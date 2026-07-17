@@ -38,6 +38,8 @@ export default {
     invalidEmail: 'Invalid email address',
     minLength: 'Must be at least {min} characters',
     passwordsDontMatch: 'Passwords do not match',
+    emailOrUsername: 'Email or Username',
+    rememberMe: 'Remember me',
   },
   common: {
     loading: 'Loading...',
@@ -79,6 +81,7 @@ export default {
     longitude: 'Longitude',
     details: 'Store Details',
     noMembers: 'No members',
+    searchLocation: 'Search location',
   },
   event: {
     create: 'Create Event',

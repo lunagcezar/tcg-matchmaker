@@ -5,7 +5,15 @@
     :success="success"
     page-class="row items-center justify-center"
   >
-    <AuthForm :submit-label="$t('auth.signIn')" :on-submit="handleLogin" :loading="loading">
+    <AuthForm
+      :fields="['identifier', 'password']"
+      :submit-label="$t('auth.signIn')"
+      :on-submit="handleLogin"
+      :loading="loading"
+    >
+      <template #extra>
+        <q-checkbox v-model="rememberMe" :label="$t('auth.rememberMe')" />
+      </template>
       <template #footer>
         <AuthFooter mode="login" />
       </template>
@@ -30,13 +38,17 @@ const route = useRoute();
 const loading = ref(false);
 const error = ref('');
 const success = ref('');
+const rememberMe = ref(true);
 
-async function handleLogin(data: { email: string; password: string }) {
+async function handleLogin(data: Record<string, unknown>) {
+  const identifier = data.identifier as string;
+  const password = data.password as string;
   loading.value = true;
   error.value = '';
   success.value = '';
   try {
-    await authStore.signIn(data.email, data.password);
+    const email = await authStore.resolveIdentifier(identifier);
+    await authStore.signIn(email, password, rememberMe.value);
     success.value = '';
     const redirect = (route.query.redirect as string) || '/';
     void router.push(redirect);
