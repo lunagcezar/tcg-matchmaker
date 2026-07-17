@@ -141,6 +141,68 @@ describe('Auth routes', () => {
       expect(res.status).toBe(201);
     });
 
+    it('returns 409 when username is already taken', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+
+      let callCount = 0;
+      const mockChain = chain({
+        maybeSingle: vi.fn().mockImplementation(() => {
+          callCount++;
+          if (callCount === 1) {
+            return Promise.resolve({
+              data: {
+                id: testUserId,
+                email: 'a@b.com',
+                username: 'u',
+                role: 'player',
+                banned_at: null,
+                deleted_at: null,
+              },
+              error: null,
+            });
+          }
+          return Promise.resolve({
+            data: { id: '00000000-0000-0000-0000-000000000099' },
+            error: null,
+          });
+        }),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: testUserId,
+            email: 'a@b.com',
+            username: 'existing',
+            role: 'player',
+            banned_at: null,
+            created_at: '2026-01-01T00:00:00.000Z',
+          },
+          error: null,
+        }),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: testUserId } }, error: null }),
+        },
+        from: vi.fn().mockReturnValue(mockChain),
+      });
+
+      const res = await createTestApp().request(
+        '/api/auth/profile',
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer t',
+          },
+          body: JSON.stringify({ username: 'taken' }),
+        },
+        env,
+      );
+      expect(res.status).toBe(409);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toBe('Username already taken');
+    });
+
     it('returns 400 when admin already exists', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       const c = chain({ is: vi.fn().mockResolvedValue({ data: null, error: null, count: 1 }) });

@@ -23,7 +23,7 @@
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="profile">
           <div class="q-gutter-sm">
-            <q-input v-model="username" :label="$t('auth.username')" outlined readonly />
+            <q-input v-model="username" :label="$t('auth.username')" outlined />
             <q-btn
               color="primary"
               :label="$t('common.save')"

@@ -29,6 +29,10 @@ export const useAuthStore = defineStore('auth', () => {
     if (data.session?.user) {
       user.value = data.session.user;
       await fetchProfile();
+      if (!profile.value) {
+        await supabase.auth.signOut();
+        user.value = null;
+      }
     }
   }
 

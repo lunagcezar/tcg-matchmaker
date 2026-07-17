@@ -1,9 +1,5 @@
 <template>
-  <AppDetailLayout
-    :title="profile?.username ?? ''"
-    :loading="loading"
-    :empty="!profile && !loading"
-  >
+  <AppDetailLayout :item="profile" :loading="loading" :show-empty="!profile && !loading">
     <div v-if="profile" class="q-pa-md">
       <div class="flex flex-center q-mb-md">
         <q-avatar size="80px" color="primary" text-color="white" class="text-h4">

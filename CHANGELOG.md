@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.62.0] — 2026-07-16
+
+### Added
+
+- Spec: `spec/spec-062-ux-fixes-tooling.md`.
+- Worker: username uniqueness validation on PATCH /profile (returns 409 if taken).
+- Worker test: duplicate username rejection (7 new auth test → 71 total worker tests).
+
+### Fixed
+
+- quasar.config.ts: registered `auth` boot file so session restore runs before route guards on page refresh.
+- quasar.config.ts: added `Dialog` Quasar plugin — `$q.dialog()` now works in SettingsPage account operations.
+- ProfilePage.vue vue-tsc error: passes `:item="profile"` to AppDetailLayout instead of invalid `:title` and `:empty` props.
+- useAuthStore.restoreSession: clears user and signs out when fetchProfile returns null (stale session after DB reset).
+- SettingsPage: username input is now editable (removed `readonly`).
+- Locale persistence: `auth` boot reads locale from localStorage before i18n init.
+
+### Changed
+
+- UserMenu display name prefers `authStore.profile?.username` over email prefix (no longer stuck showing email).
+
 ## [0.61.0] — 2026-07-16
 
 ### Added

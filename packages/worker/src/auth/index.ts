@@ -147,6 +147,17 @@ authRouter.patch('/profile', authMiddleware, async (c) => {
 
   const updateData: Record<string, string> = { updated_at: new Date().toISOString() };
   if (parsed.data.username) {
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', parsed.data.username)
+      .neq('id', user.id)
+      .maybeSingle();
+
+    if (existing) {
+      return c.json({ data: null, error: 'Username already taken', meta: null }, 409);
+    }
+
     updateData.username = parsed.data.username;
   }
 
