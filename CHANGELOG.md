@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.64.0] — 2026-07-16
+
+### Added
+
+- Spec: `spec/spec-063-tree-date-feedback.md`.
+- Worker: `GET /api/admin/users` — list all non-deleted users (id, username, email, role, banned_at, created_at) for the admin UserListPage.
+- Worker: `DELETE /api/admin/users/:id` — soft-delete a user with audit logging.
+- Frontend: `useGeocode` composable — debounced Nominatim search via Worker proxy.
+- Frontend: `LocationAutocomplete` molecule component — QSelect with use-input, filterable geocoding, emits lat/lng/displayName on selection.
+- Frontend: `TcgCreatePage` at `/admin/tcgs/create` — standalone page using AppCard for creating TCGs, replacing the inline dialog.
+- Frontend: `AdminPageHeader` `action-to` prop — action button becomes a router link when set.
+
+### Changed
+
+- All three create forms (matches, trading, tournaments): replaced raw lat/lng inputs with `LocationAutocomplete` — fills lat/lng from Nominatim result, stores address as `custom_location_name`.
+- Admin `UserListPage`: fetches all users via `GET /api/admin/users` instead of just the current user; added confirmation dialogs for ban/unban/promote.
+- Admin `TcgListPage`: "New TCG" button links to `/admin/tcgs/create` instead of opening a dialog; added confirmation dialog for delete.
+- `SiteBranch`: removed chevron expansion icon — parent items with children render as flat links with indented sub-items only.
+- `QDate+QTime` popups in create forms: wrapped in `<div class="row items-start no-wrap">` so date and time pickers sit side-by-side.
+
+### Fixed
+
+- CSS specificity for admin nav children: `.app-nav-children` selectors prefixed with `.app-sidebar__scroll` / `.app-mobile-drawer` to properly override the global `ul` reset.
+
+## [0.63.0] — 2026-07-16
+
+### Fixed
+
+- SettingsPage profile save: shows API error message inline below the save button (same pattern as password tab); updates `authStore.profile` optimistically on success.
+- Date fields in create forms: replaced native `datetime-local` with Quasar QDate+QTime popups; `scheduled_at` is converted to ISO string before submission.
+
 ## [0.62.0] — 2026-07-16
 
 ### Added

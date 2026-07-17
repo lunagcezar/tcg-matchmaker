@@ -12,14 +12,24 @@
       <template #append>
         <q-icon name="event" class="cursor-pointer">
           <q-popup-proxy>
-            <q-date v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" />
-            <q-time v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" now-button />
+            <div class="row items-start no-wrap">
+              <q-date v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" />
+              <q-time v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" now-button />
+            </div>
           </q-popup-proxy>
         </q-icon>
       </template>
     </q-input>
-    <q-input v-model="form.lat" :label="$t('store.latitude')" type="number" outlined />
-    <q-input v-model="form.lng" :label="$t('store.longitude')" type="number" outlined />
+    <LocationAutocomplete
+      :label="$t('event.location')"
+      @select="
+        (lat: number, lng: number, displayName: string) => {
+          form.lat = lat;
+          form.lng = lng;
+          form.custom_location_name = displayName;
+        }
+      "
+    />
     <q-input
       v-model="form.max_participants"
       :label="$t('event.maxParticipants')"
@@ -58,6 +68,7 @@ import { useRouter } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import AppCard from '@/components/molecules/AppCard.vue';
+import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
 import { BRACKET_OPTIONS, BEST_OF_OPTIONS } from '@/constants/tournament';
 
 usePageMeta({ titleKey: 'tournament.create' });
@@ -71,6 +82,7 @@ const form = reactive({
   scheduled_at: '',
   lat: 0,
   lng: 0,
+  custom_location_name: '',
   max_participants: 16,
   bracket_type: 'single_elimination',
   best_of: 1,

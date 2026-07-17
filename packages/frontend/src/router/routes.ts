@@ -109,6 +109,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/admin/TcgListPage.vue'),
       },
       {
+        path: 'tcgs/create',
+        name: 'admin-tcg-create',
+        component: () => import('@/pages/admin/TcgCreatePage.vue'),
+      },
+      {
         path: 'tcgs/:id/formats',
         name: 'admin-tcg-formats',
         component: () => import('@/pages/admin/FormatListPage.vue'),

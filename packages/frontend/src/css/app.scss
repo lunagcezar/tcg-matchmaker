@@ -377,30 +377,6 @@ pre,
   border-left: 1px solid var(--border);
 }
 
-.app-nav-item-row {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.app-nav-chevron {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1rem;
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-  color: var(--muted-foreground);
-}
-
-.app-nav-chevron--open {
-  transform: rotate(90deg);
-}
-
-.app-nav-item-row .app-nav-link {
-  flex: 1;
-}
-
 .app-mobile-drawer {
   position: fixed;
   top: 3rem;

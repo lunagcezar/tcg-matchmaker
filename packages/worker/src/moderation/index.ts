@@ -101,6 +101,36 @@ reportRouter.patch('/:id', authMiddleware, adminMiddleware, async (c) => {
   return c.json({ data: ReportSchema.parse(data), error: null, meta: null });
 });
 
+adminRouter.get('/users', authMiddleware, adminMiddleware, async (c) => {
+  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
+
+  const { data } = await supabase
+    .from('users')
+    .select('id, username, email, role, banned_at, created_at')
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
+
+  return c.json({ data: data ?? [], error: null, meta: null });
+});
+
+adminRouter.delete('/users/:id', authMiddleware, adminMiddleware, async (c) => {
+  const user = c.var.user;
+  const targetId = c.req.param('id')!;
+  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
+
+  const { error } = await supabase
+    .from('users')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', targetId)
+    .is('deleted_at', null);
+
+  if (error) return c.json({ data: null, error: error.message, meta: null }, 400);
+
+  await logAudit(supabase, user.id, 'user_deleted', 'user', targetId);
+
+  return c.json({ data: { success: true }, error: null, meta: null });
+});
+
 adminRouter.post('/users/:id/ban', authMiddleware, adminMiddleware, async (c) => {
   const user = c.var.user;
   const targetId = c.req.param('id')!;

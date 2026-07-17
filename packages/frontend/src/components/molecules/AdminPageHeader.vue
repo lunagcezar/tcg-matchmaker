@@ -9,12 +9,13 @@
       color="primary"
       icon="add"
       :label="actionLabel"
-      @click="$emit('action')"
+      :to="actionTo"
+      @click="actionTo ? undefined : $emit('action')"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ title: string; actionLabel?: string; backTo?: string }>();
+defineProps<{ title: string; actionLabel?: string; backTo?: string; actionTo?: string }>();
 defineEmits<{ action: [] }>();
 </script>

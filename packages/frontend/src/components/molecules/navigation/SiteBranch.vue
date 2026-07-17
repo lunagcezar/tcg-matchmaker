@@ -1,21 +1,12 @@
 <template>
   <li>
-    <div class="app-nav-item-row">
-      <span
-        v-if="hasChildren"
-        class="app-nav-chevron"
-        :class="{ 'app-nav-chevron--open': expanded }"
-      >
-        <q-icon name="chevron_right" size="0.85rem" />
-      </span>
-      <router-link
-        :to="node.href"
-        :class="['app-nav-link', { 'app-nav-link--active': active }]"
-        @click="handleClick"
-      >
-        {{ $t(node.labelKey) }}
-      </router-link>
-    </div>
+    <router-link
+      :to="node.href"
+      :class="['app-nav-link', { 'app-nav-link--active': active }]"
+      @click="handleClick"
+    >
+      {{ $t(node.labelKey) }}
+    </router-link>
     <ul v-if="hasChildren && expanded" class="app-nav-children">
       <SiteBranch
         v-for="child in node.children"

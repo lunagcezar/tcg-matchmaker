@@ -25,7 +25,55 @@ Fix three UX regressions: admin sidebar tree indentation (CSS specificity breaks
 - **AC-004**: Given any create form (match/trading/tournament), When the user clicks the date field, Then a QDate+QTime popup appears instead of a native date picker
 - **AC-005**: Given a scheduled_at selected via QDate+QTime, When the form is submitted, Then the API receives a valid ISO datetime string
 
-## 3. Implementation
+## 3. Additional Requirements
+
+- **REQ-006**: LocationAutocomplete molecule replaces raw lat/lng inputs in create forms — uses Nominatim geocoding via Worker proxy
+- **REQ-007**: Admin user list fetches all users (not just current user); ban/unban/promote require confirmation dialog
+- **REQ-008**: TCG create form is a standalone page using AppCard, not a dialog
+- **REQ-009**: AdminPageHeader supports `action-to` prop for navigation links
+
+## 4. Implementation Changes
+
+### Worker: Add admin user list and delete endpoints
+
+- `GET /api/admin/users` — returns all non-deleted users (id, username, email, role, banned_at, created_at)
+- `DELETE /api/admin/users/:id` — soft-deletes a user (sets deleted_at), logs audit
+
+### Frontend: Remove SiteBranch chevron
+
+Revert the chevron expansion icon; parent items render as flat links just like items without children. Children expand with indentation only when the route is active.
+
+### Frontend: Fix QDate+QTime alignment
+
+Wrap QDate and QTime in `<div class="row items-start no-wrap">` so they sit side-by-side inside the popup.
+
+### Frontend: useGeocode composable
+
+New composable that searches via `GET /api/geocode/search?q=...` and returns Nominatim results.
+
+### Frontend: LocationAutocomplete molecule
+
+QSelect with `use-input` and `@filter`, debounced geocode search, emits `(lat, lng, displayName)` on selection.
+
+### Frontend: CreatePages — address autocomplete
+
+Replace lat/lng inputs with `<LocationAutocomplete>` in all three create forms. lat/lng are filled from selection, address stored as `custom_location_name`.
+
+### Frontend: Fix UserListPage
+
+- Use `GET /api/admin/users` instead of `/api/auth/me` to list all users
+- Add confirmation dialogs for ban, unban, and promote actions
+- Add typed interface for user rows
+
+### Frontend: TcgCreatePage
+
+New standalone page at `/admin/tcgs/create` using AppCard. TcgListPage links to it via AdminPageHeader `action-to` prop; removes AdminFormDialog and unused form state.
+
+### Frontend: AdminPageHeader `action-to` prop
+
+When `action-to` is provided, the action button becomes a router-link instead of emitting `action`.
+
+## 5. Implementation (original)
 
 ### Fix 1: CSS specificity
 
