@@ -52,7 +52,7 @@ describe('useAccountManagement', () => {
   });
 
   it('exports data', async () => {
-    const mockData = { profile: { display_name: 'Test' }, consents: [] };
+    const mockData = { profile: { username: 'testuser' }, consents: [] };
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: vi.fn().mockResolvedValue({ data: mockData }),
     });

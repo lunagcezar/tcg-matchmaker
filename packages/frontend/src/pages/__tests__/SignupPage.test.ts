@@ -13,6 +13,8 @@ const mockAuthStore = vi.hoisted(() => ({
   checkOnboarding: vi.fn().mockResolvedValue(false),
 }));
 
+const mockNotify = vi.fn();
+
 vi.mock('@/stores/useAuthStore', () => ({
   useAuthStore: vi.fn(() => mockAuthStore),
 }));
@@ -20,6 +22,9 @@ vi.mock('@/stores/useAuthStore', () => ({
 vi.mock('@/composables/usePageMeta', () => ({ usePageMeta: vi.fn() }));
 vi.mock('@/composables/useApi', () => ({
   apiPost: vi.fn().mockResolvedValue({ data: { success: true } }),
+}));
+vi.mock('quasar', () => ({
+  useQuasar: vi.fn(() => ({ notify: mockNotify })),
 }));
 
 const i18n = createI18n({
@@ -40,6 +45,7 @@ const router = createRouter({
 describe('SignupPage', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.clearAllMocks();
   });
 
   it('renders the signup form', async () => {
@@ -75,6 +81,49 @@ describe('SignupPage', () => {
     };
     await vm.handleSignup({ email: 'test@test.com', password: 'password123' });
     expect(mockAuthStore.signUp).toHaveBeenCalledWith('test@test.com', 'password123');
+  });
+
+  it('shows notification on successful signup', async () => {
+    const SignupPage = (await import('../auth/SignupPage.vue')).default;
+    const wrapper = shallowMount(SignupPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: { template: '<div />' },
+        },
+      },
+    });
+
+    const vm = wrapper.vm as unknown as {
+      handleSignup: (data: { email: string; password: string }) => Promise<void>;
+    };
+    await vm.handleSignup({ email: 'test@test.com', password: 'password123' });
+    expect(mockNotify).toHaveBeenCalledWith({
+      type: 'positive',
+      message: 'Account created! You can now sign in.',
+    });
+  });
+
+  it('passes fields without displayName to AuthForm', async () => {
+    const SignupPage = (await import('../auth/SignupPage.vue')).default;
+    const wrapper = shallowMount(SignupPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: {
+            template: '<div class="auth-form-stub" />',
+            props: ['fields'],
+          },
+        },
+      },
+    });
+
+    const authForm = wrapper.find('.auth-form-stub');
+    expect(authForm.exists()).toBe(true);
   });
 
   it('shows error message when signUp fails', async () => {

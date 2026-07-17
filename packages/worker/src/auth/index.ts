@@ -82,7 +82,6 @@ authRouter.post('/onboarding', rateLimitMiddleware('onboarding', 10, 3600), asyn
     id: authData.user.id,
     email: parsed.data.email,
     username: parsed.data.username,
-    display_name: parsed.data.display_name,
     role: 'admin',
   });
 
@@ -146,10 +145,12 @@ authRouter.patch('/profile', authMiddleware, async (c) => {
 
   const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
 
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ display_name: parsed.data.display_name, updated_at: new Date().toISOString() })
-    .eq('id', user.id);
+  const updateData: Record<string, string> = { updated_at: new Date().toISOString() };
+  if (parsed.data.username) {
+    updateData.username = parsed.data.username;
+  }
+
+  const { error: updateError } = await supabase.from('users').update(updateData).eq('id', user.id);
 
   if (updateError) {
     return c.json({ data: null, error: 'Failed to update profile', meta: null }, 500);
@@ -227,7 +228,6 @@ authRouter.delete(
     const { data: deletedUsers, error: anonymizeError } = await supabase
       .from('users')
       .update({
-        display_name: `Deleted User #${user.id.slice(0, 8)}`,
         avatar_path: null,
         email: `deleted-${user.id.slice(0, 8)}@deleted.local`,
         deleted_at: new Date().toISOString(),

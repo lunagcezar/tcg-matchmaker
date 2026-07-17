@@ -12,7 +12,6 @@ export type UserProfile = {
   id: string;
   email: string;
   username: string;
-  display_name: string | null;
   role: 'player' | 'organizer' | 'admin';
   avatar_path: string | null;
   created_at: string;
@@ -95,6 +94,17 @@ export const useAuthStore = defineStore('auth', () => {
     profile.value = null;
   }
 
+  async function updatePassword(newPassword: string): Promise<{ error?: string }> {
+    if (!supabase) return { error: 'Supabase not configured' };
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) return { error: error.message };
+      return {};
+    } catch {
+      return { error: 'Failed to update password' };
+    }
+  }
+
   async function checkOnboarding(): Promise<boolean> {
     if (onboardingRequired.value !== null) return onboardingRequired.value;
     try {
@@ -124,6 +134,7 @@ export const useAuthStore = defineStore('auth', () => {
     signUp,
     signIn,
     signOut,
+    updatePassword,
     checkOnboarding,
   };
 });

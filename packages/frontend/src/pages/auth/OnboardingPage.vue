@@ -9,7 +9,7 @@
       :submit-label="$t('auth.signUp')"
       :on-submit="handleOnboarding"
       :loading="loading"
-      :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
+      :fields="['email', 'username', 'password', 'confirmPassword']"
     />
   </AppCard>
 </template>
@@ -38,12 +38,7 @@ onMounted(async () => {
   }
 });
 
-async function handleOnboarding(data: {
-  email: string;
-  password: string;
-  username?: string;
-  displayName?: string;
-}) {
+async function handleOnboarding(data: { email: string; password: string; username?: string }) {
   loading.value = true;
   error.value = '';
   success.value = '';
@@ -52,7 +47,6 @@ async function handleOnboarding(data: {
       email: data.email,
       password: data.password,
       username: data.username,
-      display_name: data.displayName,
     });
     if (body.error) {
       error.value = body.error || 'Failed to create admin';

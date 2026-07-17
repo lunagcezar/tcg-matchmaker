@@ -24,8 +24,9 @@ export default {
     email: 'Email',
     password: 'Senha',
     confirmPassword: 'Confirmar Senha',
+    currentPassword: 'Senha Atual',
+    newPassword: 'Nova Senha',
     username: 'Usuário',
-    displayName: 'Nome de Exibição',
     signIn: 'Entrar',
     signUp: 'Cadastrar',
     signOut: 'Sair',
@@ -180,6 +181,9 @@ export default {
     pushEnabled: 'Notificações push estão ativadas',
   },
   settings: {
+    tabProfile: 'Perfil',
+    tabPassword: 'Senha',
+    tabAccount: 'Conta',
     dangerZone: 'Zona de Perigo',
     deleteAccount: 'Excluir Conta',
     deleteAccountConfirm:

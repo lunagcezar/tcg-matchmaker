@@ -38,11 +38,7 @@ const authStore = useAuthStore();
 const router = useRouter();
 
 const displayName = computed(
-  () =>
-    authStore.profile?.display_name ||
-    authStore.profile?.username ||
-    authStore.user?.email?.split('@')[0] ||
-    'User',
+  () => authStore.profile?.username || authStore.user?.email?.split('@')[0] || 'User',
 );
 const userInitial = computed(() => (displayName.value[0] || 'U').toUpperCase());
 

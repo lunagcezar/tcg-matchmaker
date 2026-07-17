@@ -24,8 +24,9 @@ export default {
     email: 'Email',
     password: 'Password',
     confirmPassword: 'Confirm Password',
+    currentPassword: 'Current Password',
+    newPassword: 'New Password',
     username: 'Username',
-    displayName: 'Display Name',
     signIn: 'Sign In',
     signUp: 'Sign Up',
     signOut: 'Sign Out',
@@ -180,6 +181,9 @@ export default {
     pushEnabled: 'Push notifications are enabled',
   },
   settings: {
+    tabProfile: 'Profile',
+    tabPassword: 'Password',
+    tabAccount: 'Account',
     dangerZone: 'Danger Zone',
     deleteAccount: 'Delete Account',
     deleteAccountConfirm:

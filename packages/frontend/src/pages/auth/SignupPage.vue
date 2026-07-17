@@ -8,7 +8,7 @@
     <AuthForm
       :submit-label="$t('auth.signUp')"
       :on-submit="handleSignup"
-      :fields="['email', 'username', 'displayName', 'password', 'confirmPassword']"
+      :fields="['email', 'username', 'password', 'confirmPassword']"
       :loading="loading"
     >
       <template #extra>
@@ -24,6 +24,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import AppCard from '@/components/molecules/AppCard.vue';
@@ -34,6 +35,7 @@ usePageMeta({ titleKey: 'meta.signup', descKey: 'meta.signupDesc' });
 import TurnstileWidget from '@/components/molecules/TurnstileWidget.vue';
 import { apiPost } from '@/composables/useApi';
 
+const $q = useQuasar();
 const authStore = useAuthStore();
 const router = useRouter();
 const loading = ref(false);
@@ -56,7 +58,7 @@ async function handleSignup(data: { email: string; password: string }) {
       }
     }
     await authStore.signUp(data.email, data.password);
-    success.value = 'Account created! You can now sign in.';
+    $q.notify({ type: 'positive', message: 'Account created! You can now sign in.' });
     void router.push('/login');
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to sign up';

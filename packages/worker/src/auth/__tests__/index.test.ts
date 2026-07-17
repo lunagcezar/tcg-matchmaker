@@ -71,7 +71,6 @@ describe('Auth routes', () => {
           data: {
             id: testUserId,
             username: 'testuser',
-            display_name: 'Test User',
             role: 'player',
             avatar_path: null,
             banned_at: null,
@@ -105,24 +104,6 @@ describe('Auth routes', () => {
       const adminCheckChain = chain({
         is: vi.fn().mockResolvedValue({ data: null, error: null, count: 0 }),
       });
-      const insertChain = chain({
-        single: vi.fn(),
-        insert: vi.fn().mockReturnThis(),
-      });
-      const userChain = chain({
-        single: vi.fn().mockResolvedValue(
-          toMockResponse({
-            id: adminId,
-            username: 'firstadmin',
-            display_name: 'First Admin',
-            role: 'admin',
-            avatar_path: null,
-            banned_at: null,
-            suspended_at: null,
-            created_at: '2026-07-15T00:00:00.000Z',
-          }),
-        ),
-      });
 
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
         auth: {
@@ -153,7 +134,6 @@ describe('Auth routes', () => {
             email: 'admin@test.com',
             password: 'password123',
             username: 'firstadmin',
-            display_name: 'First Admin',
           }),
         },
         env,
@@ -178,7 +158,6 @@ describe('Auth routes', () => {
             email: 'admin@test.com',
             password: 'password123',
             username: 'firstadmin',
-            display_name: 'First Admin',
           }),
         },
         env,

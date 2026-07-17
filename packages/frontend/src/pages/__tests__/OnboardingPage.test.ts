@@ -85,7 +85,6 @@ describe('OnboardingPage', () => {
         email: string;
         password: string;
         username?: string;
-        displayName?: string;
       }) => Promise<void>;
       error: string;
     };
@@ -93,7 +92,6 @@ describe('OnboardingPage', () => {
       email: 'admin@test.com',
       password: 'password123',
       username: 'admin',
-      displayName: 'Admin',
     });
     expect(vm.error).toBe('Email already registered');
   });
@@ -122,7 +120,6 @@ describe('OnboardingPage', () => {
         email: string;
         password: string;
         username?: string;
-        displayName?: string;
       }) => Promise<void>;
       success: string;
     };
@@ -130,7 +127,6 @@ describe('OnboardingPage', () => {
       email: 'admin@test.com',
       password: 'password123',
       username: 'admin',
-      displayName: 'Admin',
     });
     expect(vm.success).toBe('Admin account created! Redirecting to login...');
   });

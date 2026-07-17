@@ -1,82 +1,55 @@
 <template>
   <AppDetailLayout
-    :item="profile"
+    :title="profile?.username ?? ''"
     :loading="loading"
-    width="600px"
-    show-empty
-    :empty-text="$t('common.noResults')"
+    :empty="!profile && !loading"
   >
-    <q-card>
-      <q-card-section class="text-center">
-        <q-avatar size="80px" class="q-mb-md">
-          <q-icon name="person" size="80px" />
+    <div v-if="profile" class="q-pa-md">
+      <div class="flex flex-center q-mb-md">
+        <q-avatar size="80px" color="primary" text-color="white" class="text-h4">
+          {{ (profile.username?.[0] || 'U').toUpperCase() }}
         </q-avatar>
-        <h5 class="q-my-none">{{ profile!.display_name || profile!.username }}</h5>
-        <div class="text-caption text-grey">@{{ profile!.username }}</div>
-        <q-badge :color="roleColor(profile!.role)" class="q-mt-sm">{{ profile!.role }}</q-badge>
-        <div class="text-caption text-grey q-mt-sm">
-          {{ $t('profile.memberSince') }}: {{ formatDate(profile!.created_at) }}
-        </div>
-      </q-card-section>
-    </q-card>
-    <q-card class="q-mt-md">
-      <q-card-section
-        ><h6>{{ $t('profile.eventHistory') }}</h6></q-card-section
-      >
-      <q-card-section v-if="events.length === 0" class="text-grey">{{
-        $t('profile.noEvents')
-      }}</q-card-section>
-      <q-list v-else>
-        <q-item
-          v-for="e in events"
-          :key="e.id as string"
-          clickable
-          :to="eventRoute(e)"
-          class="q-mb-sm"
-        >
-          <q-item-section>
-            <q-badge :color="eventColor(e.type)" class="q-mr-sm">{{ e.type }}</q-badge>
-            <div class="text-body2">{{ e.name || e.type }}</div>
-            <div class="text-caption text-grey">{{ formatDate(e.scheduled_at) }}</div>
-          </q-item-section>
-          <q-item-section side
-            ><q-badge>{{ e.status }}</q-badge></q-item-section
-          >
-        </q-item>
-      </q-list>
-    </q-card>
+      </div>
+      <h5 class="q-my-none text-center">{{ profile.username }}</h5>
+      <div class="text-center q-mt-sm">
+        <q-badge :color="roleColor(profile.role)" class="q-px-sm q-py-xs">
+          {{ $t(`profile.role`) }}: {{ profile.role }}
+        </q-badge>
+      </div>
+      <p class="text-caption text-center text-grey q-mt-sm">
+        {{ $t('profile.memberSince') }} {{ formatDate(profile.created_at) }}
+      </p>
+    </div>
   </AppDetailLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { apiGet } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
-import { roleColor, eventColor } from '@/lib/colors';
-import { eventRoute } from '@/lib/router';
+import { roleColor } from '@/lib/colors';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
+usePageMeta({ titleKey: 'profile.title', descKey: 'profile.title' });
+
 const route = useRoute();
-const username = route.params.username as string;
-usePageMeta({ title: `@${username}`, description: `View ${username}'s TCG event history` });
-const eventStore = useEventStore();
 const loading = ref(true);
-const profile = ref<Record<string, string> | null>(null);
-const events = computed(() => eventStore.items);
+const profile = ref<{
+  id: string;
+  username: string;
+  role: 'player' | 'organizer' | 'admin';
+  avatar_path: string | null;
+  created_at: string;
+} | null>(null);
 
 onMounted(async () => {
-  loading.value = true;
   try {
-    const j = await apiGet('/api/auth/me');
-    profile.value = (j.data ?? null) as Record<string, string> | null;
-    if (profile.value?.username === username) {
-      await eventStore.list();
-    }
+    const { data } = await apiGet(`/api/auth/me`);
+    profile.value = data as typeof profile.value;
   } catch {
-    /* ignore */
+    profile.value = null;
   } finally {
     loading.value = false;
   }

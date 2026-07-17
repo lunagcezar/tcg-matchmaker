@@ -6,21 +6,20 @@
 
 ## Users
 
-| Column       | Type       | Notes                                                                  |
-| ------------ | ---------- | ---------------------------------------------------------------------- |
-| id           | UUID       | PK, matches Supabase Auth user                                         |
-| email        | string     | from Supabase Auth                                                     |
-| username     | string     | unique, permanent (kept on deletion for referential integrity)         |
-| display_name | string     | changeable, anonymized to "Deleted User #N" on account deletion (LGPD) |
-| role         | enum       | `player`                                                               | `organizer` | `admin` |
-| avatar_path  | string?    | path in Supabase Storage (JPG only, max 2MB)                           |
-| banned_at    | timestamp? | if set, user is banned; API middleware rejects requests                |
-| ban_reason   | text?      | admin-provided reason                                                  |
-| locked_until | timestamp? | after 5 failed login attempts, blocks login for 15 min                 |
-| suspended_at | timestamp? | user-initiated suspension (LGPD); blocks event creation/joining        |
-| created_at   | timestamp  |                                                                        |
-| updated_at   | timestamp  |                                                                        |
-| deleted_at   | timestamp? | soft delete — all data preserved                                       |
+| Column       | Type       | Notes                                                           |
+| ------------ | ---------- | --------------------------------------------------------------- |
+| id           | UUID       | PK, matches Supabase Auth user                                  |
+| email        | string     | from Supabase Auth                                              |
+| username     | string     | unique, permanent (kept on deletion for referential integrity)  |
+| role         | enum       | `player`                                                        | `organizer` | `admin` |
+| avatar_path  | string?    | path in Supabase Storage (JPG only, max 2MB)                    |
+| banned_at    | timestamp? | if set, user is banned; API middleware rejects requests         |
+| ban_reason   | text?      | admin-provided reason                                           |
+| locked_until | timestamp? | after 5 failed login attempts, blocks login for 15 min          |
+| suspended_at | timestamp? | user-initiated suspension (LGPD); blocks event creation/joining |
+| created_at   | timestamp  |                                                                 |
+| updated_at   | timestamp  |                                                                 |
+| deleted_at   | timestamp? | soft delete — all data preserved                                |
 
 **Roles:**
 

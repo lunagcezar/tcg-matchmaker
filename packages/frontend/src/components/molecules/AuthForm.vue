@@ -24,14 +24,6 @@
       ]"
     />
     <q-input
-      v-if="showField('displayName')"
-      v-model="form.displayName"
-      :label="$t('auth.displayName')"
-      outlined
-      lazy-rules
-      :rules="[(val: string) => !!val || $t('auth.required')]"
-    />
-    <q-input
       v-if="showField('password')"
       v-model="form.password"
       :label="$t('auth.password')"
@@ -81,12 +73,7 @@ const props = defineProps<{
   fields?: string[];
   submitLabel: string;
   loading?: boolean;
-  onSubmit: (data: {
-    email: string;
-    password: string;
-    username?: string;
-    displayName?: string;
-  }) => Promise<void>;
+  onSubmit: (data: { email: string; password: string; username?: string }) => Promise<void>;
 }>();
 
 const form = reactive({
@@ -94,7 +81,6 @@ const form = reactive({
   password: '',
   confirmPassword: '',
   username: '',
-  displayName: '',
 });
 const defaultFields = ['email', 'password'];
 const activeFields = props.fields ?? defaultFields;
