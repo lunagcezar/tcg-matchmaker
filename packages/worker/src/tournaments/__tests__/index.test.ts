@@ -275,12 +275,6 @@ describe('Tournament routes', () => {
     const bracketRoundId = '00000000-0000-0000-0000-000000000200';
     const eventId = tournamentId;
 
-    function setupOrgGuard(createdByUserId: string) {
-      const { createClient } = vi.importActual('@supabase/supabase-js');
-      // already mocked, just return the mock
-      return createClient;
-    }
-
     it('POST /:id/report returns 403 when user is not the organizer', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({

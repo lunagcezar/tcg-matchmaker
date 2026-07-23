@@ -1,5 +1,72 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+export async function generateSingleElimination(
+  supabase: SupabaseClient,
+  tournamentId: string,
+  playerIds: string[],
+) {
+  const totalRounds = Math.ceil(Math.log2(playerIds.length));
+  const roundNames = ['Finals', 'Semifinals', 'Quarterfinals', 'Round 4', 'Round 5', 'Round 6'];
+
+  const roundRecords: Array<{ id: string; round_number: number; name: string }> = [];
+
+  for (let r = 0; r < totalRounds; r++) {
+    const roundNum = totalRounds - r;
+    const name = roundNames[r] ?? `Round ${roundNum}`;
+    const { data: roundData } = await supabase
+      .from('bracket_rounds')
+      .insert({ event_id: tournamentId, round_number: roundNum, name })
+      .select()
+      .single();
+    if (roundData) roundRecords.push(roundData);
+  }
+
+  roundRecords.reverse();
+
+  let matchCount = Math.pow(2, totalRounds - 1);
+  const matchRecords: Array<{
+    id: string;
+    round_id: string;
+    player1_id: string | null;
+    player2_id: string | null;
+  }> = [];
+
+  for (const round of roundRecords) {
+    for (let m = 0; m < matchCount; m++) {
+      const p1 = round.round_number === 1 ? (playerIds[m * 2] ?? null) : null;
+      const p2 = round.round_number === 1 ? (playerIds[m * 2 + 1] ?? null) : null;
+      const { data: matchData } = await supabase
+        .from('bracket_matches')
+        .insert({
+          round_id: round.id,
+          player1_id: p1,
+          player2_id: p2,
+          status: 'pending',
+        })
+        .select()
+        .single();
+      if (matchData) matchRecords.push(matchData);
+    }
+    matchCount = Math.max(1, Math.floor(matchCount / 2));
+  }
+
+  const nextRoundStart = Math.floor(matchRecords.length / 2);
+  for (let i = 0; i < nextRoundStart; i++) {
+    const match = matchRecords[i];
+    const nextMatchIndex = Math.floor(i / 2) + nextRoundStart;
+    if (nextMatchIndex < matchRecords.length) {
+      const nextMatch = matchRecords[nextMatchIndex];
+      await supabase
+        .from('bracket_matches')
+        .update({
+          next_match_id: nextMatch.id,
+          next_match_player_slot: (i % 2) + 1,
+        })
+        .eq('id', match.id);
+    }
+  }
+}
+
 export async function generateRoundRobin(
   supabase: SupabaseClient,
   tournamentId: string,

@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.66.0] — 2026-07-23
+
+### Added
+
+- Spec: `spec/spec-065-worker-domain-refactor.md`.
+- Worker domain refactoring: every domain folder (`auth/`, `events/`, `moderation/`, `notifications/`, `stores/`, `tcgs/`, `tournaments/`) now follows a consistent three-layer structure:
+  - `router.ts` — thin Hono route definitions that parse request params and delegate to service functions
+  - `service.ts` — business logic, Zod validation orchestration, auth checks
+  - `repository.ts` — pure Supabase query functions
+  - `index.ts` — re-exports from `router.ts` so `src/index.ts` imports remain unchanged
+- `tournaments/bracket-generators.ts`: added `generateSingleElimination` with the same `(supabase, tournamentId, playerIds)` signature as the other 4 generators, replacing the inline version in `tournaments/index.ts`.
+- Spec: `spec/plan.md` with technical decisions and refactoring order.
+
+### Changed
+
+- Worker `tournaments/index.ts`: reduced from 506 to 1 line (re-export); logic split into `router.ts`, `service.ts`, `repository.ts`.
+- Worker `events/index.ts`: reduced from 365 to 1 line (re-export).
+- Worker `stores/index.ts`: reduced from 320 to 1 line (re-export).
+- Worker `auth/index.ts`: reduced from 280 to 1 line (re-export).
+- Worker `moderation/index.ts`: reduced from 231 to 1 line (re-export).
+- Worker `tcgs/index.ts`: reduced from 218 to 1 line (re-export).
+- Worker `notifications/index.ts`: reduced from 120 to 1 line (re-export).
+- Worker `tournaments/__tests__/index.test.ts`: removed unused `setupOrgGuard` dead function to fix pre-existing tsc error.
+- `geocoding/` (74 lines) left as-is — small enough to keep monolithic.
+
+### Fixed
+
+- All `createSecretClient` imports in service/repository files use `import type` for `@typescript-eslint/consistent-type-imports` compliance.
+- Router files use non-null assertions (`c.req.param('id')!`) for strict TypeScript compatibility with Hono 4's `string | undefined` param types.
+
 ## [0.65.0] — 2026-07-16
 
 ### Added
