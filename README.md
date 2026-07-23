@@ -104,7 +104,10 @@ supabase start
 # 4. Generate TypeScript types from local DB
 supabase gen types typescript --local > packages/shared/src/database.types.ts
 
-# 5. In separate terminals:
+# 5. Seed the database with sample data and create auth users:
+bash scripts/setup-dev.sh
+
+# 6. In separate terminals:
 pnpm dev:worker    # Worker at http://localhost:8787
 pnpm dev:frontend  # Frontend at http://localhost:9000
 ```
@@ -148,9 +151,20 @@ The `supabase/seed.sql` file creates sample data for local development:
 | `carol@example.com`  | `carol`  | Player |
 | `dave@example.com`   | `dave`   | Player |
 
-The seed also creates Supabase Auth records with bcrypt-hashed passwords, so you can log in directly after `supabase db reset --local`. No need to create users through the dashboard.
+The seed creates profile records (`public.users`) but **cannot** create Supabase Auth records, because the `auth` schema is created by the auth container on startup — after the seed runs. To create auth users and enable login, run the setup script:
 
-The seed runs automatically when you run `supabase db reset --local`. To apply migrations without seed:
+```bash
+bash scripts/setup-dev.sh
+```
+
+This script:
+
+1. Runs `supabase db reset --local` (applies migrations + seed)
+2. Waits for the auth container to start
+3. Inserts auth users with bcrypt passwords into `auth.users` and `auth.identities`
+4. Uses the same hardcoded UUIDs from the seed, so all foreign key references work
+
+To apply migrations without seed:
 
 ```bash
 supabase db push --local          # Applies pending migrations only (no seed)
@@ -159,8 +173,6 @@ supabase db push --local          # Applies pending migrations only (no seed)
 This is useful when you already have seed data you want to keep. For production, `supabase db push` (without `--local`) always runs migrations only — seed is local-only by design.
 
 To disable seed entirely, set `enabled = false` in the `[db.seed]` section of `supabase/config.toml`.
-
-**Note**: The seed creates both Supabase Auth records (`auth.users`, `auth.identities`) and profile records (`public.users`), so all accounts are ready to sign in immediately after `supabase db reset --local`. No manual setup needed.
 
 ### Running tests
 

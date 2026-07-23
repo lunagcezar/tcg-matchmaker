@@ -5,7 +5,7 @@ export const BracketRoundSchema = z.object({
   event_id: z.string().uuid(),
   round_number: z.number().int(),
   name: z.string(),
-  created_at: z.string().datetime(),
+  created_at: z.string(),
 });
 
 export const BracketMatchSchema = z.object({
@@ -19,9 +19,9 @@ export const BracketMatchSchema = z.object({
   status: z.enum(['pending', 'in_progress', 'completed', 'walkover']),
   next_match_id: z.string().uuid().nullable(),
   next_match_player_slot: z.number().int().nullable(),
-  scheduled_at: z.string().datetime().nullable(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
+  scheduled_at: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
 });
 
 export type BracketRound = z.infer<typeof BracketRoundSchema>;

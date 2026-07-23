@@ -7,8 +7,8 @@ export const NotificationSchema = z.object({
   title: z.string(),
   body: z.string(),
   data: z.record(z.unknown()).nullable(),
-  read_at: z.string().datetime().nullable(),
-  created_at: z.string().datetime(),
+  read_at: z.string().nullable(),
+  created_at: z.string(),
 });
 
 export const PushSubscriptionSchema = z.object({
@@ -18,8 +18,8 @@ export const PushSubscriptionSchema = z.object({
   p256dh: z.string(),
   auth: z.string(),
   user_agent: z.string().nullable(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
+  created_at: z.string(),
+  updated_at: z.string(),
 });
 
 export type Notification = z.infer<typeof NotificationSchema>;

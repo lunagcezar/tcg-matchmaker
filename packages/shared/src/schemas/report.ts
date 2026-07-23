@@ -8,8 +8,8 @@ export const ReportSchema = z.object({
   reason: z.string(),
   status: z.enum(['pending', 'resolved', 'dismissed']),
   admin_notes: z.string().nullable(),
-  created_at: z.string().datetime(),
-  resolved_at: z.string().datetime().nullable(),
+  created_at: z.string(),
+  resolved_at: z.string().nullable(),
 });
 
 export const CreateReportSchema = z.object({

@@ -13,8 +13,8 @@ export const CreateEventSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   details: z.string().optional(),
-  scheduled_at: z.string().datetime(),
-  end_at: z.string().datetime().optional(),
+  scheduled_at: z.string(),
+  end_at: z.string().optional(),
   tcg_id: z.string().uuid().optional(),
   format_id: z.string().uuid().optional(),
   max_participants: z.number().int().positive().optional(),
@@ -39,8 +39,8 @@ export const EventSchema = z.object({
   name: z.string().nullable(),
   description: z.string().nullable(),
   details: z.string().nullable(),
-  scheduled_at: z.string().datetime(),
-  end_at: z.string().datetime().nullable(),
+  scheduled_at: z.string(),
+  end_at: z.string().nullable(),
   status: z.enum([
     'open',
     'challenged',
@@ -61,9 +61,9 @@ export const EventSchema = z.object({
     .enum(['single_elimination', 'double_elimination', 'round_robin', 'swiss', 'pool_play'])
     .nullable(),
   best_of: z.number().int().nullable(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  deleted_at: z.string().datetime().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  deleted_at: z.string().nullable(),
 });
 
 export const EventParticipantSchema = z.object({
@@ -72,11 +72,11 @@ export const EventParticipantSchema = z.object({
   user_id: z.string().uuid(),
   role: z.enum(['opponent', 'participant']),
   status: z.enum(['pending', 'confirmed', 'declined', 'checked_in']),
-  confirmed_at: z.string().datetime().nullable(),
+  confirmed_at: z.string().nullable(),
   score: z.string().nullable(),
   placement: z.number().int().nullable(),
   seed: z.number().int().nullable(),
-  created_at: z.string().datetime(),
+  created_at: z.string(),
 });
 
 export const ReportMatchSchema = z

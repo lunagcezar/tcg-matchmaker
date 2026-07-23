@@ -31,11 +31,11 @@ export const StoreSchema = z.object({
   created_by_user_id: z.string().uuid(),
   is_verified: z.boolean(),
   status: z.enum(['active', 'suspended']),
-  suspended_at: z.string().datetime().nullable(),
+  suspended_at: z.string().nullable(),
   suspension_reason: z.string().nullable(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  deleted_at: z.string().datetime().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  deleted_at: z.string().nullable(),
 });
 
 export const StoreMembershipSchema = z.object({
@@ -43,7 +43,7 @@ export const StoreMembershipSchema = z.object({
   store_id: z.string().uuid(),
   user_id: z.string().uuid(),
   role: z.enum(['owner', 'manager', 'staff']),
-  created_at: z.string().datetime(),
+  created_at: z.string(),
 });
 
 export type CreateStoreInput = z.input<typeof CreateStoreSchema>;

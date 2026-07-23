@@ -17,9 +17,9 @@ export const TcgSchema = z.object({
   slug: z.string(),
   description: z.string().nullable(),
   logo_path: z.string().nullable(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  deleted_at: z.string().datetime().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  deleted_at: z.string().nullable(),
 });
 
 export const FormatSchema = z.object({
@@ -28,9 +28,9 @@ export const FormatSchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  deleted_at: z.string().datetime().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  deleted_at: z.string().nullable(),
 });
 
 export const CreateFormatSchema = z.object({
