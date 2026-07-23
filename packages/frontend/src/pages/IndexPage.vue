@@ -4,14 +4,18 @@
       <EventMap :events="filteredEvents" />
     </section>
     <section class="feed-section">
-      <FilterBar v-model="selectedTypes" @geolocate="geolocate" />
+      <FilterBar
+        v-model="selectedTypes"
+        @geolocate="geolocate"
+        @update:model-value="onFilterChange"
+      />
       <EventFeed :events="filteredEvents" :loading="eventStore.loading" @load-more="loadMore" />
     </section>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import FilterBar from '@/components/organisms/home/FilterBar.vue';
@@ -37,6 +41,11 @@ const filteredEvents = computed(() => {
   return events.filter((e) => selectedTypes.value.includes(e.type));
 });
 
+function onFilterChange() {
+  eventStore.reset();
+  void eventStore.list(filterParams());
+}
+
 function geolocate() {
   if ('geolocation' in navigator) {
     navigator.geolocation.getCurrentPosition(
@@ -49,11 +58,6 @@ function geolocate() {
 function loadMore(done: (stop?: boolean) => void) {
   void eventStore.loadMore(filterParams()).then(() => done(!eventStore.hasMore));
 }
-
-watch(selectedTypes, () => {
-  eventStore.reset();
-  void eventStore.list(filterParams());
-});
 
 onMounted(() => {
   void eventStore.list();
