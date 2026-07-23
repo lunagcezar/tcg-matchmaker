@@ -25,7 +25,7 @@ const selectedTypes = ref<string[]>([]);
 
 function filterParams(): Record<string, string> | undefined {
   if (selectedTypes.value.length === 1) {
-    return { type: selectedTypes.value[0] };
+    return { type: selectedTypes.value[0]! };
   }
   return undefined;
 }
