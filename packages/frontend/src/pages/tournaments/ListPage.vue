@@ -12,20 +12,17 @@
         to="/tournaments/new"
       />
     </template>
-    <q-card
+    <router-link
       v-for="t in tournaments"
       :key="t.id as string"
-      clickable
       :to="`/tournaments/${t.id}`"
-      class="q-mb-sm"
+      class="list-item"
     >
-      <q-card-section class="q-py-sm row items-center">
-        <q-badge :color="badgeColor(t.status)" class="q-mr-sm">{{ t.status }}</q-badge>
-        <div class="text-body2">{{ t.name || $t('nav.tournaments') }}</div>
-        <q-space />
-        <div class="text-caption text-grey">{{ formatDate(t.scheduled_at) }}</div>
-      </q-card-section>
-    </q-card>
+      <q-badge :color="badgeColor(t.status)" class="q-mr-sm">{{ t.status }}</q-badge>
+      <div class="text-body2">{{ t.name || $t('nav.tournaments') }}</div>
+      <q-space />
+      <div class="text-caption text-grey">{{ formatDate(t.scheduled_at) }}</div>
+    </router-link>
   </AppListLayout>
 </template>
 
@@ -47,3 +44,22 @@ function badgeColor(s: string | undefined) {
 }
 onMounted(() => store.list({ type: 'tournament' }));
 </script>
+
+<style scoped>
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.list-item:hover {
+  background-color: var(--muted);
+}
+</style>

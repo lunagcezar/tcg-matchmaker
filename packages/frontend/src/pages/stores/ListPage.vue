@@ -9,15 +9,13 @@
     <q-infinite-scroll :offset="250" :initial-index="0" @load="onLoad">
       <div class="row q-col-gutter-md">
         <div v-for="s in stores" :key="s.id as string" class="col-12 col-sm-6 col-md-4">
-          <q-card clickable :to="`/stores/${s.id}`">
-            <q-card-section>
-              <div class="text-h6">{{ s.name }}</div>
-              <div class="text-caption text-grey">{{ s.city }}, {{ s.state }}</div>
-              <q-badge v-if="s.is_verified" color="positive" class="q-mt-sm">{{
-                $t('store.verified')
-              }}</q-badge>
-            </q-card-section>
-          </q-card>
+          <router-link :to="`/stores/${s.id}`" class="store-card">
+            <div class="text-h6">{{ s.name }}</div>
+            <div class="text-caption text-grey">{{ s.city }}, {{ s.state }}</div>
+            <q-badge v-if="s.is_verified" color="positive" class="q-mt-sm">{{
+              $t('store.verified')
+            }}</q-badge>
+          </router-link>
         </div>
       </div>
       <template #loading>
@@ -58,3 +56,22 @@ async function onLoad(_index: number, done: (stop?: boolean) => void) {
 
 onMounted(() => storeStore.list());
 </script>
+
+<style scoped>
+.store-card {
+  display: block;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.store-card:hover {
+  background-color: var(--muted);
+  border-color: var(--primary);
+}
+</style>

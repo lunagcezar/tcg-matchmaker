@@ -6,24 +6,21 @@
     <template #filters>
       <FilterToggle v-model="statusFilter" :options="statusOptions" class="q-mb-md" />
     </template>
-    <q-card
+    <router-link
       v-for="m in matches"
       :key="m.id as string"
-      clickable
       :to="`/matches/${m.id}`"
-      class="q-mb-sm"
+      class="list-item"
     >
-      <q-card-section class="q-py-sm row items-center">
-        <q-badge color="primary" class="q-mr-sm">{{ m.status }}</q-badge>
-        <div class="text-body2">
-          {{ (m as unknown as MatchListItem).tcg_name || $t('event.anyTcg') }}
-        </div>
-        <q-space />
-        <div class="text-caption text-grey">
-          {{ formatDate((m as unknown as MatchListItem).scheduled_at) }}
-        </div>
-      </q-card-section>
-    </q-card>
+      <q-badge color="primary" class="q-mr-sm">{{ m.status }}</q-badge>
+      <div class="text-body2">
+        {{ (m as unknown as MatchListItem).tcg_name || $t('event.anyTcg') }}
+      </div>
+      <q-space />
+      <div class="text-caption text-grey">
+        {{ formatDate((m as unknown as MatchListItem).scheduled_at) }}
+      </div>
+    </router-link>
   </AppListLayout>
 </template>
 
@@ -59,3 +56,22 @@ const loading = computed(() => store.loading);
 
 onMounted(() => store.list({ type: 'match' }));
 </script>
+
+<style scoped>
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.list-item:hover {
+  background-color: var(--muted);
+}
+</style>
