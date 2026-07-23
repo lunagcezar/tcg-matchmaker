@@ -6,41 +6,33 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Worker architecture docs: `docs/worker-architecture.md` — documents the Router → Service → Repository three-layer pattern, file conventions, layer rules, and cross-cutting concerns.
-- Seed data: `supabase/seed.sql` — creates 5 users, 4 TCGs with formats, 3 Fortaleza game stores, 5 events, notifications, a report, and audit log for local development.
-
-### Changed
-
-- README: added Supabase seed data section with setup instructions.
-- ...
-
-### Added
-
 - Spec: `spec/spec-065-worker-domain-refactor.md`.
-- Worker domain refactoring: every domain folder (`auth/`, `events/`, `moderation/`, `notifications/`, `stores/`, `tcgs/`, `tournaments/`) now follows a consistent three-layer structure:
-  - `router.ts` — thin Hono route definitions that parse request params and delegate to service functions
-  - `service.ts` — business logic, Zod validation orchestration, auth checks
+- Worker domain refactoring: every domain folder (`auth/`, `events/`, `moderation/`, `notifications/`, `stores/`, `tcgs/`, `tournaments/`) now follows a three-layer structure:
+  - `router.ts` — thin Hono route definitions
+  - `service.ts` — business logic and validation orchestration
   - `repository.ts` — pure Supabase query functions
-  - `index.ts` — re-exports from `router.ts` so `src/index.ts` imports remain unchanged
-- `tournaments/bracket-generators.ts`: added `generateSingleElimination` with the same `(supabase, tournamentId, playerIds)` signature as the other 4 generators, replacing the inline version in `tournaments/index.ts`.
+  - `index.ts` — re-exports from `router.ts` (imports unchanged)
+- `tournaments/bracket-generators.ts`: added `generateSingleElimination` with the same `(supabase, tournamentId, playerIds)` signature as the other 4 generators.
+- Worker architecture docs: `docs/worker-architecture.md` — documents the Router → Service → Repository pattern, layer rules, and conventions.
+- Seed data: `supabase/seed.sql` — 5 users, 4 TCGs with formats, 3 Fortaleza stores, 5 events, participants, notifications, a report, and audit log.
+- Dev setup docs: `docs/dev-setup.md` — includes quick start, seed documentation, troubleshooting guide.
+- Dev setup script: `scripts/setup-dev.sh` — runs `supabase db reset --local`, waits for Auth API, creates auth users with matching UUIDs via admin API.
 - Spec: `spec/plan.md` with technical decisions and refactoring order.
 
 ### Changed
 
-- Worker `tournaments/index.ts`: reduced from 506 to 1 line (re-export); logic split into `router.ts`, `service.ts`, `repository.ts`.
-- Worker `events/index.ts`: reduced from 365 to 1 line (re-export).
-- Worker `stores/index.ts`: reduced from 320 to 1 line (re-export).
-- Worker `auth/index.ts`: reduced from 280 to 1 line (re-export).
-- Worker `moderation/index.ts`: reduced from 231 to 1 line (re-export).
-- Worker `tcgs/index.ts`: reduced from 218 to 1 line (re-export).
-- Worker `notifications/index.ts`: reduced from 120 to 1 line (re-export).
-- Worker `tournaments/__tests__/index.test.ts`: removed unused `setupOrgGuard` dead function to fix pre-existing tsc error.
-- `geocoding/` (74 lines) left as-is — small enough to keep monolithic.
+- Worker domain files reduced from monolithic 120–506 lines to 1-line re-exports (all logic split into router/service/repository).
+- Shared schemas: all `z.string().datetime()` replaced with `z.string()` across event, store, notification, tcg, report, and tournament schemas (Supabase timestamp format incompatible with Zod's strict datetime validator).
+- `supabase/seed.sql`: removed `auth.users`/`auth.identities` inserts (auth schema doesn't exist at seed time — handled by setup script instead).
+- README: updated quick start and seed docs with `bash scripts/setup-dev.sh` step and instructions.
 
 ### Fixed
 
-- All `createSecretClient` imports in service/repository files use `import type` for `@typescript-eslint/consistent-type-imports` compliance.
-- Router files use non-null assertions (`c.req.param('id')!`) for strict TypeScript compatibility with Hono 4's `string | undefined` param types.
+- `GET /api/events/:id` returning 500 with `ZodError` — timestamp fields now use `z.string()` instead of `z.string().datetime()`.
+- Login failing for seed accounts — auth users now created via Auth Admin API with custom `id` parameter after auth container starts.
+- All `createSecretClient` imports use `import type` for `@typescript-eslint/consistent-type-imports` compliance.
+- Router files use non-null assertions (`c.req.param('id')!`) for Hono 4's `string | undefined` param types.
+- Removed unused `setupOrgGuard` dead function from tournament test (pre-existing tsc error).
 
 ## [0.65.0] — 2026-07-16
 
