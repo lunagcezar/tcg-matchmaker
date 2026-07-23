@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Worker architecture docs: `docs/worker-architecture.md` — documents the Router → Service → Repository three-layer pattern, file conventions, layer rules, and cross-cutting concerns.
+- Seed data: `supabase/seed.sql` — creates 5 users, 4 TCGs with formats, 3 Fortaleza game stores, 5 events, notifications, a report, and audit log for local development.
+
+### Changed
+
+- README: added Supabase seed data section with setup instructions.
+- ...
+
+### Added
+
 - Spec: `spec/spec-065-worker-domain-refactor.md`.
 - Worker domain refactoring: every domain folder (`auth/`, `events/`, `moderation/`, `notifications/`, `stores/`, `tcgs/`, `tournaments/`) now follows a consistent three-layer structure:
   - `router.ts` — thin Hono route definitions that parse request params and delegate to service functions

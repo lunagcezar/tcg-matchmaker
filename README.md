@@ -126,7 +126,36 @@ The local Supabase dashboard is available at `http://localhost:54323`.
 
 **Migrating**: After adding a new migration to `supabase/migrations/`, run `supabase db push --local` to apply it. Then regenerate types with `supabase gen types typescript --local > packages/shared/src/database.types.ts`.
 
-**Resetting**: To start fresh, run `supabase db reset --local`. This drops all data and re-applies every migration from scratch. Useful when testing schema changes or recovering from a broken state.
+**Resetting**: To start fresh, run `supabase db reset --local`. This drops all data, re-applies every migration, and runs `supabase/seed.sql`. Useful when testing schema changes or recovering from a broken state.
+
+### Seed data
+
+The `supabase/seed.sql` file creates sample data for local development:
+
+- 5 users (1 admin + 4 players)
+- 4 TCGs with formats (Magic, Pokémon, Yu-Gi-Oh!, One Piece)
+- 3 game stores in Fortaleza
+- 5 events (matches and trading sessions, some with participants)
+- Sample notifications, a report, and an audit log entry
+
+The seed runs automatically when you run `supabase db reset --local`. To apply it manually after `supabase start`:
+
+```bash
+supabase db reset --local         # Applies migrations + seed
+```
+
+**Note**: The seed inserts users directly into `public.users`. To authenticate as these users in the app, you must first create them through Supabase Auth (they need password hashes). For local dev, the simplest approach is:
+
+1. Start Supabase: `supabase start`
+2. Open the dashboard at `http://localhost:54323`
+3. Go to **Authentication → Users → Add User** and create each user (admin, alice, bob, carol, dave) with a known password (e.g., `password123`)
+4. The auto-generated UUID from Supabase Auth will differ from the seed's hardcoded UUIDs — update `supabase/seed.sql` with the real IDs, then re-run `supabase db reset --local`
+
+Alternatively, use the app's signup flow to create users, then set their role to `admin` in the dashboard's SQL editor:
+
+```sql
+UPDATE public.users SET role = 'admin' WHERE email = 'admin@tcgmatch.app';
+```
 
 ### Running tests
 
