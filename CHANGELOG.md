@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
 - All `createSecretClient` imports use `import type` for `@typescript-eslint/consistent-type-imports` compliance.
 - Router files use non-null assertions (`c.req.param('id')!`) for Hono 4's `string | undefined` param types.
 - Removed unused `setupOrgGuard` dead function from tournament test (pre-existing tsc error).
+- Added schema validation tests (`src/__tests__/schemas.test.ts`) — 12 tests covering all domain schemas with Supabase-style timestamp format, preventing timestamp format regressions.
 
 ## [0.65.0] — 2026-07-16
 
