@@ -74,53 +74,154 @@ VALUES
   ('00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000001', 'owner')
 ON CONFLICT (store_id, user_id) DO NOTHING;
 
--- ── Events (Matches & Trading Sessions) ────────────────────────────
-INSERT INTO public.events (id, type, created_by_user_id, organizer_user_id, name, description, lat, lng, scheduled_at, status, tcg_id, max_participants)
-VALUES
-  -- Open match: Commander
-  ('00000000-0000-0000-0000-000000000040', 'match', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002',
-   'Commander at Dragon''s Lair', 'Looking for a pod of 4 for casual Commander.',
-   -3.7278, -38.5274, now() + interval '2 days', 'open', '00000000-0000-0000-0000-000000000010', 4),
+-- ── Events ─────────────────────────────────────────────────────────
+-- Generates 20 matches, 20 trading sessions, and 20 tournaments.
+-- All events are scheduled in the future (upcoming) or in_progress.
+-- Tournaments include bracket_type for bracket visualization.
+-- Each event is associated with one of the 5 seed users (cycled).
+DO $$
+DECLARE
+  user_ids UUID[] := ARRAY[
+    '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000004',
+    '00000000-0000-0000-0000-000000000005'
+  ];
+  store_ids UUID[] := ARRAY[
+    '00000000-0000-0000-0000-000000000030',
+    '00000000-0000-0000-0000-000000000031',
+    '00000000-0000-0000-0000-000000000032'
+  ];
+  tcg_ids UUID[] := ARRAY[
+    '00000000-0000-0000-0000-000000000010',
+    '00000000-0000-0000-0000-000000000011',
+    '00000000-0000-0000-0000-000000000012',
+    '00000000-0000-0000-0000-000000000013'
+  ];
+  bracket_types TEXT[] := ARRAY['single_elimination', 'double_elimination', 'round_robin', 'swiss', 'pool_play'];
+  match_names TEXT[] := ARRAY[
+    'Casual Commander', 'Standard Showdown', 'Modern Night', 'Pauper Fight',
+    'Limited Draft', 'Pioneer Practice', 'Legacy Open', 'Vintage Fun',
+    'Standard BO3', 'Commander Pod', 'Modern Grind', 'Sealed League',
+    'Frontier Test', 'Historic Brawl', 'Oathbreaker Duel', 'Pauper EDH',
+    'Two-Headed Giant', 'Planechase', 'Arena BO1', 'Draft Sim'
+  ];
+  trading_names TEXT[] := ARRAY[
+    'Card Binder Night', 'Trade & Binder', 'Buylist Session', 'Rare Exchange',
+    'Bulk Trade Day', 'Collector Meet', 'Foil Swap', 'Foreign Cards Trade',
+    'Sealed Trade', 'Singles Market', 'High-End Trade', 'Budget Trade',
+    'Japanese Imports', 'Alter Art Trade', 'Playmat Swap', 'Deck Trade',
+    'Promo Exchange', 'Misprint Trade', 'Signed Cards', 'Vintage Trade'
+  ];
+  tournament_names TEXT[] := ARRAY[
+    'Friday Night Magic', 'Store Championship', 'Weekly Tournament', 'Monthly Cup',
+    'Dragon''s Lair Open', 'Mana Point Masters', 'PokéCenter League', 'Commander Fest',
+    'Standard Royale', 'Modern Clash', 'Pauper Gauntlet', 'Draft Tournament',
+    'Legacy Challenge', 'Pioneer Showdown', 'Sealed Battle', 'Team Tournament',
+    'Rookie Tournament', 'Pro Qualifier', 'Charity Tournament', 'Season Finale'
+  ];
+  descriptions TEXT[] := ARRAY[
+    'Casual event for all skill levels. Beginners welcome!',
+    'Competitive play with prize support. Top 3 get store credit.',
+    'Bring your best deck and test your skills against the best.',
+    'Friendly atmosphere. Focus on learning and improving.',
+    'Proxy-friendly event. No meta deck required.',
+    'Side events available. Food and drinks on site.',
+    'Judge on site. Rules questions welcome.',
+    'Streamed and commentated. Spectators welcome.',
+    'Part of the weekly league circuit. Points accumulate.',
+    'Special event with extended prize pool.'
+  ];
+  i INT;
+  uid UUID;
+  sid UUID;
+  tid UUID;
+  bid TEXT;
+  days INT;
+  eid TEXT;
+  etype TEXT;
+  ename TEXT;
+  descr TEXT;
+BEGIN
+  i := 0;
 
-  -- Open match: Standard MTG
-  ('00000000-0000-0000-0000-000000000041', 'match', '00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000003',
-   'Standard practice', 'Need practice for the next FNM. BO3.',
-   -3.7342, -38.5361, now() + interval '1 day', 'open', '00000000-0000-0000-0000-000000000010', 2),
+  -- 20 Matches
+  FOREACH ename IN ARRAY match_names LOOP
+    uid := user_ids[1 + (i % array_length(user_ids, 1))];
+    sid := store_ids[1 + (i % array_length(store_ids, 1))];
+    tid := tcg_ids[1 + (i % array_length(tcg_ids, 1))];
+    descr := descriptions[1 + (i % array_length(descriptions, 1))];
+    days := 1 + (i % 14); -- spread across next 2 weeks
+    eid := '00000000-0000-0000-0000-' || lpad((100 + i)::text, 12, '0');
 
-  -- Open trading session
-  ('00000000-0000-0000-0000-000000000042', 'trading', '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004',
-   'Card trading meetup', 'Bring binders. Looking for modern staples and selling some EDH cards.',
-   -3.7278, -38.5274, now() + interval '5 days', 'open', '00000000-0000-0000-0000-000000000010', 8),
+    INSERT INTO public.events (id, type, created_by_user_id, organizer_user_id, name, description, lat, lng, scheduled_at, status, tcg_id, max_participants)
+    VALUES (eid::uuid, 'match', uid, uid, ename, descr,
+      (CASE WHEN sid = store_ids[1] THEN -3.7278 WHEN sid = store_ids[2] THEN -3.7342 ELSE -3.7415 END),
+      (CASE WHEN sid = store_ids[1] THEN -38.5274 WHEN sid = store_ids[2] THEN -38.5361 ELSE -38.4789 END),
+      now() + (days || ' days')::interval, 'open', tid, 2 + (i % 4))
+    ON CONFLICT (id) DO NOTHING;
+    i := i + 1;
+  END LOOP;
 
-  -- Planned trading session
-  ('00000000-0000-0000-0000-000000000043', 'trading', '00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000005',
-   'Pokémon trade night', 'Looking for Scarlet & Violet era cards. Selling sealed product.',
-   -3.7415, -38.4789, now() + interval '7 days', 'planned', '00000000-0000-0000-0000-000000000011', 6),
+  -- 20 Trading Sessions
+  i := 0;
+  FOREACH ename IN ARRAY trading_names LOOP
+    uid := user_ids[1 + (i % array_length(user_ids, 1))];
+    sid := store_ids[1 + (i % array_length(store_ids, 1))];
+    tid := tcg_ids[1 + (i % array_length(tcg_ids, 1))];
+    descr := descriptions[1 + ((i + 3) % array_length(descriptions, 1))];
+    days := 1 + ((i + 7) % 14);
+    eid := '00000000-0000-0000-0000-' || lpad((200 + i)::text, 12, '0');
 
-  -- Past completed match
-  ('00000000-0000-0000-0000-000000000044', 'match', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002',
-   'Casual Modern', 'Had a great Modern session last week.',
-   -3.7278, -38.5274, now() - interval '7 days', 'completed', '00000000-0000-0000-0000-000000000010', 2)
-ON CONFLICT (id) DO NOTHING;
+    INSERT INTO public.events (id, type, created_by_user_id, organizer_user_id, name, description, lat, lng, scheduled_at, status, tcg_id, max_participants)
+    VALUES (eid::uuid, 'trading', uid, uid, ename, descr,
+      (CASE WHEN sid = store_ids[1] THEN -3.7278 WHEN sid = store_ids[2] THEN -3.7342 ELSE -3.7415 END),
+      (CASE WHEN sid = store_ids[1] THEN -38.5274 WHEN sid = store_ids[2] THEN -38.5361 ELSE -38.4789 END),
+      now() + (days || ' days')::interval,
+      CASE WHEN i % 4 = 0 THEN 'planned' ELSE 'open' END,
+      tid, 4 + (i % 8))
+    ON CONFLICT (id) DO NOTHING;
+    i := i + 1;
+  END LOOP;
+
+  -- 20 Tournaments
+  i := 0;
+  FOREACH ename IN ARRAY tournament_names LOOP
+    uid := user_ids[1 + ((i + 2) % array_length(user_ids, 1))];
+    sid := store_ids[1 + ((i + 1) % array_length(store_ids, 1))];
+    tid := tcg_ids[1 + ((i + 2) % array_length(tcg_ids, 1))];
+    bid := bracket_types[1 + (i % array_length(bracket_types, 1))];
+    descr := descriptions[1 + ((i + 7) % array_length(descriptions, 1))];
+    days := 1 + ((i + 14) % 21); -- spread across next 3 weeks
+    eid := '00000000-0000-0000-0000-' || lpad((300 + i)::text, 12, '0');
+
+    INSERT INTO public.events (id, type, created_by_user_id, organizer_user_id, name, description, lat, lng, scheduled_at, status, tcg_id, max_participants, bracket_type)
+    VALUES (eid::uuid, 'tournament', uid, uid, ename, descr,
+      (CASE WHEN sid = store_ids[1] THEN -3.7278 WHEN sid = store_ids[2] THEN -3.7342 ELSE -3.7415 END),
+      (CASE WHEN sid = store_ids[1] THEN -38.5274 WHEN sid = store_ids[2] THEN -38.5361 ELSE -38.4789 END),
+      now() + (days || ' days')::interval,
+      CASE WHEN i < 2 THEN 'in_progress' WHEN i % 5 = 0 THEN 'draft' ELSE 'open' END,
+      tid, 8 + (i % 16), bid)
+    ON CONFLICT (id) DO NOTHING;
+    i := i + 1;
+  END LOOP;
+END $$;
 
 -- ── Event Participants ─────────────────────────────────────────────
+-- Adds participants to the first 3 matches and 2 trading sessions.
 INSERT INTO public.event_participants (event_id, user_id, role, status, confirmed_at)
 VALUES
-  -- Alice + Bob in the Commander match
-  ('00000000-0000-0000-0000-000000000040', '00000000-0000-0000-0000-000000000002', 'participant', 'confirmed', now()),
-  ('00000000-0000-0000-0000-000000000040', '00000000-0000-0000-0000-000000000003', 'participant', 'pending', NULL),
-
-  -- Bob (creator) + Carol as pending opponent in Standard practice
-  ('00000000-0000-0000-0000-000000000041', '00000000-0000-0000-0000-000000000003', 'participant', 'confirmed', now()),
-  ('00000000-0000-0000-0000-000000000041', '00000000-0000-0000-0000-000000000004', 'opponent', 'pending', NULL),
-
-  -- Carol (creator) + Dave + Alice in trading session
-  ('00000000-0000-0000-0000-000000000042', '00000000-0000-0000-0000-000000000004', 'participant', 'confirmed', now()),
-  ('00000000-0000-0000-0000-000000000042', '00000000-0000-0000-0000-000000000005', 'participant', 'pending', NULL),
-
-  -- Past match participants (completed)
-  ('00000000-0000-0000-0000-000000000044', '00000000-0000-0000-0000-000000000002', 'participant', 'confirmed', now() - interval '7 days'),
-  ('00000000-0000-0000-0000-000000000044', '00000000-0000-0000-0000-000000000003', 'opponent', 'confirmed', now() - interval '7 days')
+  ('00000000-0000-0000-0000-000000000100', '00000000-0000-0000-0000-000000000002', 'participant', 'confirmed', now()),
+  ('00000000-0000-0000-0000-000000000100', '00000000-0000-0000-0000-000000000003', 'opponent', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000003', 'participant', 'confirmed', now()),
+  ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000004', 'opponent', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000005', 'participant', 'confirmed', now()),
+  ('00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000001', 'opponent', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000200', '00000000-0000-0000-0000-000000000004', 'participant', 'confirmed', now()),
+  ('00000000-0000-0000-0000-000000000200', '00000000-0000-0000-0000-000000000001', 'participant', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000005', 'participant', 'confirmed', now()),
+  ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000002', 'participant', 'pending', NULL)
 ON CONFLICT (event_id, user_id) DO NOTHING;
 
 -- ── Notifications ──────────────────────────────────────────────────
