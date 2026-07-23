@@ -34,6 +34,8 @@ All notable changes to this project will be documented in this file.
 - Router files use non-null assertions (`c.req.param('id')!`) for Hono 4's `string | undefined` param types.
 - Removed unused `setupOrgGuard` dead function from tournament test (pre-existing tsc error).
 - Added schema validation tests (`src/__tests__/schemas.test.ts`) — 12 tests covering all domain schemas with Supabase-style timestamp format, preventing timestamp format regressions.
+- `IndexPage.vue`: home page filter now re-fetches from server when the filter tab changes; `loadMore` passes the active type filter so infinite scroll loads more of the selected type instead of all events.
+- `EventFeed.vue`: added status badge next to the type badge on each event row.
 
 ## [0.65.0] — 2026-07-16
 

@@ -13,6 +13,9 @@
         <q-badge :color="eventColor(event.type as string)" class="q-mr-sm">
           {{ event.type }}
         </q-badge>
+        <q-badge :color="statusColor(event.status as string)" outline class="q-mr-sm">
+          {{ event.status }}
+        </q-badge>
         <div class="event-feed__name">{{ event.name || event.type }}</div>
         <q-space />
         <div class="event-feed__time">{{ relativeTime(event.scheduled_at as string) }}</div>
@@ -27,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { eventColor } from '@/lib/colors';
+import { eventColor, statusColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
 import { relativeTime } from '@/lib/format';
 

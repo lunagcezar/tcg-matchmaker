@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import FilterBar from '@/components/organisms/home/FilterBar.vue';
@@ -23,28 +23,37 @@ usePageMeta({ titleKey: 'meta.home', descKey: 'meta.homeDesc' });
 const eventStore = useEventStore();
 const selectedTypes = ref<string[]>([]);
 
+function filterParams(): Record<string, string> | undefined {
+  if (selectedTypes.value.length === 1) {
+    return { type: selectedTypes.value[0] };
+  }
+  return undefined;
+}
+
 const filteredEvents = computed(() => {
   const events = eventStore.items;
   if (selectedTypes.value.length === 0) return events;
+  if (selectedTypes.value.length === 1) return events;
   return events.filter((e) => selectedTypes.value.includes(e.type));
 });
 
 function geolocate() {
   if ('geolocation' in navigator) {
     navigator.geolocation.getCurrentPosition(
-      () => {
-        /* map already centers on user via Leaflet */
-      },
-      () => {
-        /* permission denied, stay at default */
-      },
+      () => {},
+      () => {},
     );
   }
 }
 
 function loadMore(done: (stop?: boolean) => void) {
-  void eventStore.loadMore().then(() => done(!eventStore.hasMore));
+  void eventStore.loadMore(filterParams()).then(() => done(!eventStore.hasMore));
 }
+
+watch(selectedTypes, () => {
+  eventStore.reset();
+  void eventStore.list(filterParams());
+});
 
 onMounted(() => {
   void eventStore.list();
