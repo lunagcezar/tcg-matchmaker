@@ -138,11 +138,15 @@ The `supabase/seed.sql` file creates sample data for local development:
 - 5 events (matches and trading sessions, some with participants)
 - Sample notifications, a report, and an audit log entry
 
-The seed runs automatically when you run `supabase db reset --local`. To apply it manually after `supabase start`:
+The seed runs automatically when you run `supabase db reset --local`. To apply migrations without seed:
 
 ```bash
-supabase db reset --local         # Applies migrations + seed
+supabase db push --local          # Applies pending migrations only (no seed)
 ```
+
+This is useful when you already have seed data you want to keep. For production, `supabase db push` (without `--local`) always runs migrations only — seed is local-only by design.
+
+To disable seed entirely, set `enabled = false` in the `[db.seed]` section of `supabase/config.toml`.
 
 **Note**: The seed inserts users directly into `public.users`. To authenticate as these users in the app, you must first create them through Supabase Auth (they need password hashes). For local dev, the simplest approach is:
 
