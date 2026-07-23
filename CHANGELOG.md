@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
   - `index.ts` — re-exports from `router.ts` (imports unchanged)
 - `tournaments/bracket-generators.ts`: added `generateSingleElimination` with the same `(supabase, tournamentId, playerIds)` signature as the other 4 generators.
 - Worker architecture docs: `docs/worker-architecture.md` — documents the Router → Service → Repository pattern, layer rules, and conventions.
-- Seed data: `supabase/seed.sql` — 5 users, 4 TCGs with formats, 3 Fortaleza stores, 60 events (20 matches, 20 trading, 20 tournaments), participants, notifications, a report, and audit log. All events are future-dated or in_progress. Tournaments span all 5 bracket types.
+- Seed data: `supabase/seed.sql` — 5 users, 4 TCGs with formats, 3 Fortaleza stores, 60 events (20 matches, 20 trading, 20 tournaments), bracket rounds and matches for 2 in_progress tournaments, participants, notifications, a report, and audit log. All events are future-dated or in_progress. Tournaments span all 5 bracket types. Two in_progress tournaments have pre-generated brackets (single_elimination + double_elimination) with checked-in players for immediate bracket visualization.
 - Dev setup docs: `docs/dev-setup.md` — includes quick start, seed documentation, troubleshooting guide.
 - Dev setup script: `scripts/setup-dev.sh` — runs `supabase db reset --local`, waits for Auth API, creates auth users with matching UUIDs via admin API.
 - Spec: `spec/plan.md` with technical decisions and refactoring order.

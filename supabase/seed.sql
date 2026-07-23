@@ -209,20 +209,69 @@ BEGIN
 END $$;
 
 -- ── Event Participants ─────────────────────────────────────────────
--- Adds participants to the first 3 matches and 2 trading sessions.
+-- Adds participants to matches, trading sessions, and tournaments.
 INSERT INTO public.event_participants (event_id, user_id, role, status, confirmed_at)
 VALUES
+  -- Matches: participants for first 3 matches
   ('00000000-0000-0000-0000-000000000100', '00000000-0000-0000-0000-000000000002', 'participant', 'confirmed', now()),
   ('00000000-0000-0000-0000-000000000100', '00000000-0000-0000-0000-000000000003', 'opponent', 'pending', NULL),
   ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000003', 'participant', 'confirmed', now()),
   ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000004', 'opponent', 'pending', NULL),
   ('00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000005', 'participant', 'confirmed', now()),
   ('00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000001', 'opponent', 'pending', NULL),
+  -- Trading: participants for first 2 sessions
   ('00000000-0000-0000-0000-000000000200', '00000000-0000-0000-0000-000000000004', 'participant', 'confirmed', now()),
   ('00000000-0000-0000-0000-000000000200', '00000000-0000-0000-0000-000000000001', 'participant', 'pending', NULL),
   ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000005', 'participant', 'confirmed', now()),
-  ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000002', 'participant', 'pending', NULL)
+  ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000002', 'participant', 'pending', NULL),
+  -- Tournament participants (checked_in = bracket-ready):
+  -- Torunament 300 (in_progress, single_elimination)
+  ('00000000-0000-0000-0000-000000000300', '00000000-0000-0000-0000-000000000001', 'participant', 'checked_in', now()),
+  ('00000000-0000-0000-0000-000000000300', '00000000-0000-0000-0000-000000000002', 'participant', 'checked_in', now()),
+  ('00000000-0000-0000-0000-000000000300', '00000000-0000-0000-0000-000000000003', 'participant', 'checked_in', now()),
+  ('00000000-0000-0000-0000-000000000300', '00000000-0000-0000-0000-000000000004', 'participant', 'checked_in', now()),
+  -- Torunament 301 (in_progress, double_elimination)
+  ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000001', 'participant', 'checked_in', now()),
+  ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000003', 'participant', 'checked_in', now()),
+  ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000005', 'participant', 'checked_in', now()),
+  -- Torunaments 302-305 (open): add pending participants
+  ('00000000-0000-0000-0000-000000000302', '00000000-0000-0000-0000-000000000002', 'participant', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000302', '00000000-0000-0000-0000-000000000004', 'participant', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000303', '00000000-0000-0000-0000-000000000001', 'participant', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000303', '00000000-0000-0000-0000-000000000005', 'participant', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000304', '00000000-0000-0000-0000-000000000003', 'participant', 'pending', NULL),
+  ('00000000-0000-0000-0000-000000000304', '00000000-0000-0000-0000-000000000004', 'participant', 'pending', NULL)
 ON CONFLICT (event_id, user_id) DO NOTHING;
+
+-- ── Bracket Data (for in_progress tournaments) ─────────────────────
+-- Tournament 300 (single_elimination, 4 players)
+-- Round 1: Semifinals (2 matches), Round 2: Finals (1 match)
+INSERT INTO public.bracket_rounds (id, event_id, round_number, name)
+VALUES
+  ('00000000-0000-0000-0000-000000000400', '00000000-0000-0000-0000-000000000300', 2, 'Semifinals'),
+  ('00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000300', 1, 'Finals')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.bracket_matches (id, round_id, player1_id, player2_id, status, next_match_id, next_match_player_slot)
+VALUES
+  ('00000000-0000-0000-0000-000000000500', '00000000-0000-0000-0000-000000000400', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'pending', '00000000-0000-0000-0000-000000000502', 1),
+  ('00000000-0000-0000-0000-000000000501', '00000000-0000-0000-0000-000000000400', '00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000004', 'pending', '00000000-0000-0000-0000-000000000502', 2),
+  ('00000000-0000-0000-0000-000000000502', '00000000-0000-0000-0000-000000000401', NULL, NULL, 'pending', NULL, NULL)
+ON CONFLICT (id) DO NOTHING;
+
+-- Tournament 301 (double_elimination, 3 players — pool has odd count)
+-- Bracket structure: Round 1 with 1 match + a BYE scenario
+INSERT INTO public.bracket_rounds (id, event_id, round_number, name)
+VALUES
+  ('00000000-0000-0000-0000-000000000410', '00000000-0000-0000-0000-000000000301', 1, 'Round 1'),
+  ('00000000-0000-0000-0000-000000000411', '00000000-0000-0000-0000-000000000301', 2, 'Finals')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.bracket_matches (id, round_id, player1_id, player2_id, status, next_match_id, next_match_player_slot)
+VALUES
+  ('00000000-0000-0000-0000-000000000510', '00000000-0000-0000-0000-000000000410', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'pending', '00000000-0000-0000-0000-000000000511', 1),
+  ('00000000-0000-0000-0000-000000000511', '00000000-0000-0000-0000-000000000411', NULL, '00000000-0000-0000-0000-000000000005', 'pending', NULL, NULL)
+ON CONFLICT (id) DO NOTHING;
 
 -- ── Notifications ──────────────────────────────────────────────────
 INSERT INTO public.notifications (user_id, type, title, body)
