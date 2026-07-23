@@ -2,12 +2,36 @@
 -- Apply with: supabase db reset --local
 -- Regenerate types after: supabase gen types typescript --local > packages/shared/src/database.types.ts
 --
--- Creates: admin user, sample players, TCGs, formats, game stores, events
+-- All passwords: password123
+-- Accounts:
+--   admin@tcgmatch.app  (role: admin)
+--   alice@example.com   (role: player)
+--   bob@example.com     (role: player)
+--   carol@example.com   (role: player)
+--   dave@example.com    (role: player)
 
--- ── Users ──────────────────────────────────────────────────────────
--- IDs must match Supabase Auth user IDs in local dev.
--- After `supabase start`, get real IDs from supabase/auth/users or
--- create users through the app and update these IDs accordingly.
+-- ── Auth Users (Supabase Auth) ──────────────────────────────────────
+-- Creates password-authenticated users so they can sign in directly.
+INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, confirmation_sent_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, role, aud)
+VALUES
+  ('00000000-0000-0000-0000-000000000001', 'admin@tcgmatch.app', crypt('password123', gen_salt('bf')), now(), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-000000000002', 'alice@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-000000000003', 'bob@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-000000000004', 'carol@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-000000000005', 'dave@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated')
+ON CONFLICT (id) DO NOTHING;
+
+-- ── Auth Identities ─────────────────────────────────────────────────
+INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+VALUES
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '{"sub":"00000000-0000-0000-0000-000000000001","email":"admin@tcgmatch.app"}', 'email', now(), now(), now()),
+  ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', '{"sub":"00000000-0000-0000-0000-000000000002","email":"alice@example.com"}', 'email', now(), now(), now()),
+  ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000003', '{"sub":"00000000-0000-0000-0000-000000000003","email":"bob@example.com"}', 'email', now(), now(), now()),
+  ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', '{"sub":"00000000-0000-0000-0000-000000000004","email":"carol@example.com"}', 'email', now(), now(), now()),
+  ('00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000005', '{"sub":"00000000-0000-0000-0000-000000000005","email":"dave@example.com"}', 'email', now(), now(), now())
+ON CONFLICT (id) DO NOTHING;
+
+-- ── Public Users Profile ────────────────────────────────────────────
 INSERT INTO public.users (id, email, username, role, created_at, updated_at)
 VALUES
   ('00000000-0000-0000-0000-000000000001', 'admin@tcgmatch.app', 'admin', 'admin', now(), now()),

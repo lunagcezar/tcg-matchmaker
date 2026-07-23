@@ -138,6 +138,18 @@ The `supabase/seed.sql` file creates sample data for local development:
 - 5 events (matches and trading sessions, some with participants)
 - Sample notifications, a report, and an audit log entry
 
+**All seed accounts use the password `password123`:**
+
+| Email                | Username | Role   |
+| -------------------- | -------- | ------ |
+| `admin@tcgmatch.app` | `admin`  | Admin  |
+| `alice@example.com`  | `alice`  | Player |
+| `bob@example.com`    | `bob`    | Player |
+| `carol@example.com`  | `carol`  | Player |
+| `dave@example.com`   | `dave`   | Player |
+
+The seed also creates Supabase Auth records with bcrypt-hashed passwords, so you can log in directly after `supabase db reset --local`. No need to create users through the dashboard.
+
 The seed runs automatically when you run `supabase db reset --local`. To apply migrations without seed:
 
 ```bash
@@ -148,18 +160,7 @@ This is useful when you already have seed data you want to keep. For production,
 
 To disable seed entirely, set `enabled = false` in the `[db.seed]` section of `supabase/config.toml`.
 
-**Note**: The seed inserts users directly into `public.users`. To authenticate as these users in the app, you must first create them through Supabase Auth (they need password hashes). For local dev, the simplest approach is:
-
-1. Start Supabase: `supabase start`
-2. Open the dashboard at `http://localhost:54323`
-3. Go to **Authentication → Users → Add User** and create each user (admin, alice, bob, carol, dave) with a known password (e.g., `password123`)
-4. The auto-generated UUID from Supabase Auth will differ from the seed's hardcoded UUIDs — update `supabase/seed.sql` with the real IDs, then re-run `supabase db reset --local`
-
-Alternatively, use the app's signup flow to create users, then set their role to `admin` in the dashboard's SQL editor:
-
-```sql
-UPDATE public.users SET role = 'admin' WHERE email = 'admin@tcgmatch.app';
-```
+**Note**: The seed creates both Supabase Auth records (`auth.users`, `auth.identities`) and profile records (`public.users`), so all accounts are ready to sign in immediately after `supabase db reset --local`. No manual setup needed.
 
 ### Running tests
 
