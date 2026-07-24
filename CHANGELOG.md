@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Spec: `spec/plan.md` with technical decisions and refactoring order.
 - Spec: `spec/spec-066-map-list-layout.md`.
 - Spec: `spec/spec-067-leaflet-map-fixes.md`.
+- Spec: `spec/spec-068-filter-segment-admin-table.md`.
 
 ### Changed
 
@@ -45,6 +46,12 @@ All notable changes to this project will be documented in this file.
 - `vue-tsc` type errors: `scroll-target` prop type narrowed, `null` filtered via computed.
 - `EventMap` height no longer hardcoded — controlled by parent layout (flex).
 - Leaflet map fixes: zoom control z-index lowered to 400 (below navbar), attribution control removed, `fitBounds` animation disabled (`{ animate: false }`).
+- Filter controls replaced with segmented-control pattern: native `<button>` elements with shared outer border, inner dividers, ghost/transparent background, active state shows bold primary text. Wraps on small screens.
+- Home page filter tabs: added "All" option, exclusive selection (clicking a type deselects "All" and vice versa), i18n support for labels.
+- Matches list page status filter uses the same segmented-control pattern (was `FilterToggle` / `q-btn-toggle`).
+- AdminTable: transparent `card-style` background so it inherits the page background. All cells left-aligned by default, `.q-td--actions` right-aligned. Header and body backgrounds transparent.
+- NotificationBell: added `dense` prop to `q-btn-dropdown` for consistent padding with other nav buttons.
+- Leaflet map: added `leaflet.markercluster` for clustering nearby markers. Map container background set to `var(--background)` to prevent white flash before tiles load in dark mode. On mount, skips intermediate `setView` when events are already available.
 
 ## [0.65.0] — 2026-07-16
 
