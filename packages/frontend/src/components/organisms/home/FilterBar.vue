@@ -20,10 +20,22 @@ const emit = defineEmits<{ (e: 'update:modelValue', v: string[]): void; (e: 'geo
 
 const selectedTypes = computed({
   get: () => props.modelValue,
-  set: (v: string[]) => emit('update:modelValue', v),
+  set: (v: string[]) => {
+    const added = v.find((x) => !props.modelValue.includes(x));
+    if (added === '') {
+      emit('update:modelValue', ['']);
+    } else if (added) {
+      emit('update:modelValue', [added]);
+    } else if (v.length === 0) {
+      emit('update:modelValue', ['']);
+    } else {
+      emit('update:modelValue', v);
+    }
+  },
 });
 
 const typeOptions = [
+  { label: 'All', value: '' },
   { label: 'Matches', value: 'match' },
   { label: 'Trading', value: 'trading' },
   { label: 'Tournaments', value: 'tournament' },

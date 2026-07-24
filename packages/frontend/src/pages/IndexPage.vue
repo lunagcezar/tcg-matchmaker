@@ -63,17 +63,18 @@ const layoutRef = ref<InstanceType<typeof MapListLayout> | null>(null);
 const scrollTarget = computed(() => layoutRef.value?.scrollRef ?? undefined);
 
 function filterParams(): Record<string, string> | undefined {
-  if (selectedTypes.value.length === 1) {
-    return { type: selectedTypes.value[0]! };
+  const t = selectedTypes.value;
+  if (t.length === 1 && t[0]) {
+    return { type: t[0] };
   }
   return undefined;
 }
 
 const filteredEvents = computed(() => {
   const events = eventStore.items;
-  if (selectedTypes.value.length === 0) return events;
-  if (selectedTypes.value.length === 1) return events;
-  return events.filter((e) => selectedTypes.value.includes(e.type));
+  const t = selectedTypes.value;
+  if (t.length === 0 || t.includes('')) return events;
+  return events.filter((e) => t.includes(e.type));
 });
 
 function onFilterChange(value: string[]) {
