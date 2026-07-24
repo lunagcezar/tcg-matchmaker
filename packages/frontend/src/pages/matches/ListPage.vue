@@ -50,7 +50,6 @@ import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { formatDate } from '@/lib/format';
 import MapListLayout from '@/layouts/MapListLayout.vue';
-import FilterToggle from '@/components/molecules/FilterToggle.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 
 usePageMeta({ titleKey: 'meta.matches', descKey: 'meta.matchesDesc' });
