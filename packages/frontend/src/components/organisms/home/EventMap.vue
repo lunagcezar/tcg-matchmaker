@@ -103,6 +103,12 @@ onUnmounted(() => {
   height: 100%;
   border-radius: var(--radius-lg);
   overflow: hidden;
+  background: var(--background);
+}
+
+.map-container :deep(.leaflet-layer),
+.map-container :deep(.leaflet-tile-pane) {
+  background: var(--background);
 }
 
 .map-container :deep(.leaflet-control-zoom) {
