@@ -71,6 +71,6 @@ describe('IndexPage', () => {
       global: { plugins: [i18n, createPinia()], stubs: stubs() },
     });
     expect(wrapper.find('.event-map-stub').exists()).toBe(true);
-    expect(wrapper.find('.filter-tabs').exists()).toBe(true);
+    expect(wrapper.find('.filter-segment').exists()).toBe(true);
   });
 });
