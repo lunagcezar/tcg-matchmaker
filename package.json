@@ -4,6 +4,7 @@
   "packageManager": "pnpm@11.13.0",
   "scripts": {
     "dev": "concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
+    "dev:restart": "lsof -ti :8787 | xargs -r kill -9 2>/dev/null; lsof -ti :9000 | xargs -r kill -9 2>/dev/null; sleep 1; concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
     "dev:e2e": "concurrently -k \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\" \"pnpm -F @tcg/frontend test:e2e\"",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
