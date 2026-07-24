@@ -7,11 +7,14 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster';
 
 const props = defineProps<{ events: Array<Record<string, unknown>> }>();
 const mapContainer = ref<HTMLDivElement | null>(null);
 let map: L.Map | null = null;
-let markers: L.Marker[] = [];
+let markerGroup: L.MarkerClusterGroup | null = null;
 let tileLayer: L.TileLayer | null = null;
 const $q = useQuasar();
 const defaultCenter: [number, number] = [-3.7184, -38.5434];
@@ -45,20 +48,20 @@ function iconForType(type: string) {
 }
 
 function rebuildMarkers() {
-  markers.forEach((m) => map?.removeLayer(m));
-  markers = [];
+  if (!markerGroup) return;
+  markerGroup.clearLayers();
+  const latlngs: L.LatLng[] = [];
   props.events.forEach((e) => {
     const lat = e.lat as number;
     const lng = e.lng as number;
     if (!lat || !lng) return;
-    const marker = L.marker([lat, lng], { icon: iconForType(e.type as string) })
-      .addTo(map!)
-      .bindPopup(`<b>${(e.name || e.type) as string}</b>`);
-    markers.push(marker);
+    latlngs.push(L.latLng(lat, lng));
+    const marker = L.marker([lat, lng], { icon: iconForType(e.type as string) });
+    marker.bindPopup(`<b>${(e.name || e.type) as string}</b>`);
+    markerGroup!.addLayer(marker);
   });
-  if (markers.length > 0) {
-    const group = L.featureGroup(markers);
-    map?.fitBounds(group.getBounds().pad(0.1), { animate: false, duration: 0 });
+  if (latlngs.length > 0) {
+    map?.fitBounds(L.latLngBounds(latlngs).pad(0.1), { animate: false, duration: 0 });
   }
 }
 
@@ -82,8 +85,10 @@ onMounted(() => {
   if (!mapContainer.value) return;
   map = L.map(mapContainer.value, {
     attributionControl: false,
-    zoomControl: true,
+    zoomControl: false,
   });
+  markerGroup = L.markerClusterGroup({ chunkedLoading: true });
+  map.addLayer(markerGroup);
   tileLayer = L.tileLayer(tileUrl()).addTo(map);
   if (props.events.length > 0) {
     rebuildMarkers();
@@ -109,9 +114,5 @@ onUnmounted(() => {
 .map-container :deep(.leaflet-layer),
 .map-container :deep(.leaflet-tile-pane) {
   background: var(--background);
-}
-
-.map-container :deep(.leaflet-control-zoom) {
-  z-index: 400;
 }
 </style>
