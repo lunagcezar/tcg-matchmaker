@@ -13,7 +13,6 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 let map: L.Map | null = null;
 let markers: L.Marker[] = [];
 let tileLayer: L.TileLayer | null = null;
-let initialFitDone = false;
 const $q = useQuasar();
 const defaultCenter: [number, number] = [-3.7184, -38.5434];
 
@@ -84,8 +83,13 @@ onMounted(() => {
   map = L.map(mapContainer.value, {
     attributionControl: false,
     zoomControl: true,
-  }).setView(defaultCenter, 13);
+  });
   tileLayer = L.tileLayer(tileUrl()).addTo(map);
+  if (props.events.length > 0) {
+    rebuildMarkers();
+  } else {
+    map.setView(defaultCenter, 13);
+  }
 });
 
 onUnmounted(() => {
