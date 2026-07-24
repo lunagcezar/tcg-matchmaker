@@ -146,8 +146,12 @@ export async function findAllMatchesByEvent(
   if (rounds.length === 0) {
     return { rounds: [], matches: [] };
   }
-  const matches = await findMatchesByRound(supabase, rounds[0].id);
-  return { rounds, matches };
+  const allMatches = [];
+  for (const round of rounds) {
+    const matches = await findMatchesByRound(supabase, round.id);
+    allMatches.push(...matches);
+  }
+  return { rounds, matches: allMatches };
 }
 
 export async function findMatchById(

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
-import type { AuthUser } from '../middleware/auth.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { createSecretClient } from '../db/client.js';
+import { result, badRequest, notFound, forbidden } from '../lib/responses.js';
+import type { Bindings, Variables } from '../types/hono.js';
 import {
   createTournament,
   listTournaments,
@@ -17,104 +17,112 @@ import {
   walkoverMatch,
 } from './service.js';
 
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_SECRET_KEY: string;
-};
-
-const tournamentRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
-const bracketMatchRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
+const tournamentRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+const bracketMatchRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 tournamentRouter.post('/', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await createTournament(supabase, c.var.user.id, body);
-  if (result.error) return c.json(result, 400);
-  return c.json(result, 201);
+  const svcResult = await createTournament(c.var.db, c.var.user.id, body);
+  if (svcResult.error) return badRequest(c, svcResult.error);
+  return result(c, svcResult, 201);
 });
 
 tournamentRouter.get('/', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await listTournaments(supabase, c.req.query('status')));
+  return result(c, await listTournaments(c.var.db, c.req.query('status')));
 });
 
 tournamentRouter.get('/:id', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await getTournament(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await getTournament(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 tournamentRouter.patch('/:id', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
-  const result = await updateTournament(supabase, c.var.user.id, c.req.param('id')!, body);
-  if (!result.data) return c.json(result, 403);
-  return c.json(result);
+  const svcResult = await updateTournament(c.var.db, c.var.user.id, c.req.param('id')!, body);
+  if (!svcResult.data) return forbidden(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 tournamentRouter.post('/:id/publish', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await publishTournament(supabase, c.var.user.id, c.req.param('id')!);
-  if (!result.data) return c.json(result, result.error === 'Forbidden' ? 403 : 400);
-  return c.json(result);
+  const svcResult = await publishTournament(c.var.db, c.var.user.id, c.req.param('id')!);
+  if (!svcResult.data) {
+    return svcResult.error === 'Forbidden'
+      ? forbidden(c)
+      : badRequest(c, svcResult.error ?? 'Bad request');
+  }
+  return result(c, svcResult);
 });
 
 tournamentRouter.post('/:id/cancel', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await cancelTournament(supabase, c.var.user.id, c.req.param('id')!);
-  if (result.error) return c.json(result, 403);
-  return c.json(result);
+  const svcResult = await cancelTournament(c.var.db, c.var.user.id, c.req.param('id')!);
+  if (svcResult.error) return forbidden(c, svcResult.error);
+  return result(c, svcResult);
 });
 
 tournamentRouter.post('/:id/register', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await registerForTournament(supabase, c.var.user.id, c.req.param('id')!);
-  if (result.error) return c.json(result, 400);
-  return c.json(result);
+  const svcResult = await registerForTournament(c.var.db, c.var.user.id, c.req.param('id')!);
+  if (svcResult.error) return badRequest(c, svcResult.error);
+  return result(c, svcResult);
 });
 
 tournamentRouter.post('/:id/check-in', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = (await c.req.json().catch(() => ({}))) as { user_id: string };
-  const result = await checkInParticipant(
-    supabase,
+  const svcResult = await checkInParticipant(
+    c.var.db,
     c.var.user.id,
     c.req.param('id')!,
     body.user_id,
   );
-  if (!result.data) return c.json(result, result.error === 'Forbidden' ? 403 : 404);
-  return c.json(result);
+  if (!svcResult.data) {
+    return svcResult.error === 'Forbidden'
+      ? forbidden(c)
+      : notFound(c, svcResult.error ?? undefined);
+  }
+  return result(c, svcResult);
 });
 
 tournamentRouter.post('/:id/start', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await startTournament(supabase, c.var.user.id, c.req.param('id')!);
-  if (!result.data) return c.json(result, result.error === 'Forbidden' ? 403 : 400);
-  return c.json(result);
+  const svcResult = await startTournament(c.var.db, c.var.user.id, c.req.param('id')!);
+  if (!svcResult.data) {
+    return svcResult.error === 'Forbidden'
+      ? forbidden(c)
+      : badRequest(c, svcResult.error ?? 'Bad request');
+  }
+  return result(c, svcResult);
 });
 
 tournamentRouter.get('/:id/bracket', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await getBracket(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await getBracket(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 bracketMatchRouter.post('/:id/report', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await reportMatchResult(supabase, c.var.user.id, c.req.param('id')!, body);
-  if (!result.data) return c.json(result, result.error === 'Forbidden' ? 403 : 404);
-  return c.json(result);
+  const svcResult = await reportMatchResult(c.var.db, c.var.user.id, c.req.param('id')!, body);
+  if (!svcResult.data) {
+    return svcResult.error === 'Forbidden'
+      ? forbidden(c)
+      : notFound(c, svcResult.error ?? undefined);
+  }
+  return result(c, svcResult);
 });
 
 bracketMatchRouter.post('/:id/walkover', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = (await c.req.json().catch(() => ({}))) as { winner_id?: string };
-  const result = await walkoverMatch(supabase, c.var.user.id, c.req.param('id')!, body.winner_id);
-  if (!result.data) return c.json(result, result.error === 'Forbidden' ? 403 : 404);
-  return c.json(result);
+  const svcResult = await walkoverMatch(
+    c.var.db,
+    c.var.user.id,
+    c.req.param('id')!,
+    body.winner_id,
+  );
+  if (!svcResult.data) {
+    return svcResult.error === 'Forbidden'
+      ? forbidden(c)
+      : notFound(c, svcResult.error ?? undefined);
+  }
+  return result(c, svcResult);
 });
 
 export { tournamentRouter, bracketMatchRouter };

@@ -1,5 +1,7 @@
 import { vi } from 'vitest';
 import { Hono } from 'hono';
+import { dbClientMiddleware } from '../middleware/db.js';
+import type { Bindings, Variables } from '../types/hono.js';
 
 type MockResponse<T = unknown> = { data: T | null; error: unknown; count?: number };
 
@@ -33,27 +35,36 @@ export function chain(overrides?: Partial<Record<string, ReturnType<typeof vi.fn
   return c;
 }
 
-type WorkerEnv = {
-  SUPABASE_URL: string;
-  SUPABASE_SECRET_KEY: string;
-  SUPABASE_PUBLISHABLE_KEY: string;
-};
+const mockKv: KVNamespace = {
+  get: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
+  list: vi.fn(),
+  getWithMetadata: vi.fn(),
+} as unknown as KVNamespace;
 
-type WorkerVars = {
-  user: { id: string; email: string; username: string; role: string };
-};
-
-export const env: WorkerEnv = {
+export const env: Bindings = {
   SUPABASE_URL: 'https://test.supabase.co',
   SUPABASE_SECRET_KEY: 'test-secret',
   SUPABASE_PUBLISHABLE_KEY: 'test-publishable',
+  RESEND_API_KEY: 'test-resend',
+  TURNSTILE_SECRET_KEY: 'test-turnstile',
+  SENTRY_DSN: '',
+  NOMINATIM_USER_AGENT: 'TCG Matchmaker Test',
+  GEOCODING_KV: mockKv,
 };
 
 export const testUserId = '00000000-0000-0000-0000-000000000001';
 export const testUserId2 = '00000000-0000-0000-0000-000000000002';
 
 export function makeApp() {
-  return new Hono<{ Bindings: WorkerEnv; Variables: WorkerVars }>();
+  return new Hono<{ Bindings: Bindings; Variables: Partial<Variables> }>();
+}
+
+export function createTestApp<R>(basePath: string, router: R) {
+  return makeApp()
+    .use('*', dbClientMiddleware)
+    .route(basePath, router as unknown as Hono<{ Bindings: Bindings; Variables: Variables }>);
 }
 
 export function makeUser(
@@ -97,4 +108,4 @@ export function authMock(uid: string = testUserId) {
 }
 
 export { toMockResponse };
-export type { MockResponse, WorkerEnv, WorkerVars };
+export type { MockResponse };

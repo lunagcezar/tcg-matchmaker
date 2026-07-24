@@ -1,10 +1,11 @@
+import { ROLES } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
 
 export async function countAdminUsers(supabase: ReturnType<typeof createSecretClient>) {
   const { count } = await supabase
     .from('users')
     .select('id', { count: 'exact', head: true })
-    .eq('role', 'admin')
+    .eq('role', ROLES[2])
     .is('deleted_at', null);
   return count ?? 0;
 }

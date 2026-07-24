@@ -1,3 +1,4 @@
+import { ROLES } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
 
 export async function insertReport(
@@ -81,7 +82,7 @@ export async function findUserById(supabase: ReturnType<typeof createSecretClien
 }
 
 export async function promoteUser(supabase: ReturnType<typeof createSecretClient>, id: string) {
-  const { error } = await supabase.from('users').update({ role: 'admin' }).eq('id', id);
+  const { error } = await supabase.from('users').update({ role: ROLES[2] }).eq('id', id);
   return { error };
 }
 

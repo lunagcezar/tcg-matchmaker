@@ -6,6 +6,7 @@ import {
   ReportMatchSchema,
 } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
+import { validate } from '../lib/validation.js';
 import {
   insertEvent,
   findTournaments,
@@ -39,13 +40,9 @@ export async function createTournament(
   userId: string,
   body: unknown,
 ) {
-  const parsed = CreateEventSchema.safeParse(body);
+  const parsed = validate(CreateEventSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
 
   const { data, error } = await insertEvent(supabase, {
@@ -264,9 +261,9 @@ export async function reportMatchResult(
     return { data: null, error: 'Forbidden', meta: null };
   }
 
-  const parsed = ReportMatchSchema.safeParse(body);
+  const parsed = validate(ReportMatchSchema, body);
   if (!parsed.success) {
-    return { data: null, error: 'Invalid match report', meta: null };
+    return { data: null, error: parsed.error, meta: null };
   }
 
   const { winner_id: winnerId, score_player1: score1, score_player2: score2 } = parsed.data;

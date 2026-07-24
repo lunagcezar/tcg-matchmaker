@@ -2,7 +2,8 @@ import { Hono } from 'hono';
 import type { AuthUser } from '../middleware/auth.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { rateLimitMiddleware } from '../middleware/rate-limit.js';
-import { createSecretClient } from '../db/client.js';
+import { result, badRequest, notFound, serverError } from '../lib/responses.js';
+import type { Bindings } from '../types/hono.js';
 import {
   checkOnboarding,
   createFirstAdmin,
@@ -14,67 +15,52 @@ import {
   deleteAccount,
 } from './service.js';
 
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_SECRET_KEY: string;
-  SUPABASE_PUBLISHABLE_KEY: string;
-  RATE_LIMIT_KV?: {
-    get: (key: string) => Promise<string | null>;
-    put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
-  };
-};
-
 const authRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
 
 authRouter.get('/onboarding', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await checkOnboarding(supabase));
+  return result(c, await checkOnboarding(c.var.db));
 });
 
 authRouter.post('/onboarding', rateLimitMiddleware('onboarding', 10, 3600), async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await createFirstAdmin(supabase, body);
-  if (result.error) return c.json(result, 400);
-  return c.json(result, 201);
+  const svcResult = await createFirstAdmin(c.var.db, body);
+  if (svcResult.error) return badRequest(c, svcResult.error);
+  return result(c, svcResult, 201);
 });
 
 authRouter.get('/me', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await getProfile(supabase, c.var.user.id);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await getProfile(c.var.db, c.var.user.id);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? 'Profile not found');
+  return result(c, svcResult);
 });
 
 authRouter.get('/resolve/:identifier', async (c) => {
   const identifier = c.req.param('identifier');
   if (!identifier) {
-    return c.json({ data: null, error: 'Identifier is required', meta: null }, 400);
+    return badRequest(c, 'Identifier is required');
   }
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await resolveIdentifier(supabase, identifier);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await resolveIdentifier(c.var.db, identifier);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? 'User not found');
+  return result(c, svcResult);
 });
 
 authRouter.patch('/profile', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await updateProfile(supabase, c.var.user.id, body);
-  if (result.error) return c.json(result, result.error === 'Username already taken' ? 409 : 400);
-  return c.json(result);
+  const svcResult = await updateProfile(c.var.db, c.var.user.id, body);
+  if (svcResult.error) {
+    return result(c, svcResult, svcResult.error === 'Username already taken' ? 409 : 400);
+  }
+  return result(c, svcResult);
 });
 
 authRouter.post('/suspend', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await suspendAccount(supabase, c.var.user.id);
-  if (result.error) return c.json(result, 500);
-  return c.json(result);
+  const svcResult = await suspendAccount(c.var.db, c.var.user.id);
+  if (svcResult.error) return serverError(c, svcResult.error);
+  return result(c, svcResult);
 });
 
 authRouter.post('/export', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await exportUserData(supabase, c.var.user.id));
+  return result(c, await exportUserData(c.var.db, c.var.user.id));
 });
 
 authRouter.delete(
@@ -82,10 +68,9 @@ authRouter.delete(
   authMiddleware,
   rateLimitMiddleware('account_delete', 10, 900),
   async (c) => {
-    const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-    const result = await deleteAccount(supabase, c.var.user.id, c.var.user.role);
-    if (result.error) return c.json(result, 400);
-    return c.json(result);
+    const svcResult = await deleteAccount(c.var.db, c.var.user.id, c.var.user.role);
+    if (svcResult.error) return badRequest(c, svcResult.error);
+    return result(c, svcResult);
   },
 );
 

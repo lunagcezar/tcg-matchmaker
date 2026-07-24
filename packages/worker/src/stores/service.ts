@@ -1,5 +1,12 @@
-import { CreateStoreSchema, StoreSchema, StoreMembershipSchema } from '@tcg/shared';
+import {
+  CreateStoreSchema,
+  StoreSchema,
+  StoreMembershipSchema,
+  STORE_MEMBERSHIP_ROLES,
+} from '@tcg/shared';
+import type { StoreMembershipRole } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
+import { validate } from '../lib/validation.js';
 import {
   findStoresPaginated,
   findStoreById,
@@ -66,13 +73,9 @@ export async function createStore(
   userId: string,
   body: unknown,
 ) {
-  const parsed = CreateStoreSchema.safeParse(body);
+  const parsed = validate(CreateStoreSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
 
   const { data: store, error: insertError } = await insertStore(supabase, {
@@ -86,7 +89,7 @@ export async function createStore(
   const { error: memberError } = await insertStoreMembership(supabase, {
     store_id: store!.id,
     user_id: userId,
-    role: 'owner',
+    role: STORE_MEMBERSHIP_ROLES[0],
   });
 
   if (memberError) {
@@ -104,7 +107,10 @@ export async function updateStoreById(
   body: Record<string, unknown>,
 ) {
   const membership = await findStoreMembership(supabase, storeId, userId);
-  if (!membership || (membership.role !== 'owner' && membership.role !== 'manager')) {
+  if (
+    !membership ||
+    (membership.role !== STORE_MEMBERSHIP_ROLES[0] && membership.role !== STORE_MEMBERSHIP_ROLES[1])
+  ) {
     return { data: null, error: 'Forbidden', meta: null };
   }
 
@@ -174,8 +180,11 @@ export async function addMember(
   const membership = await findStoreMembership(supabase, storeId, userId);
   if (!membership) return { data: null, error: 'Forbidden', meta: null };
 
-  const targetRole = body.role ?? 'staff';
-  if (membership.role === 'manager' && (targetRole === 'owner' || targetRole === 'manager')) {
+  const targetRole = (body.role ?? STORE_MEMBERSHIP_ROLES[2]) as StoreMembershipRole;
+  if (
+    membership.role === STORE_MEMBERSHIP_ROLES[1] &&
+    (targetRole === STORE_MEMBERSHIP_ROLES[0] || targetRole === STORE_MEMBERSHIP_ROLES[1])
+  ) {
     return { data: null, error: 'Forbidden', meta: null };
   }
 
@@ -195,7 +204,7 @@ export async function removeMember(
   memberUserId: string,
 ) {
   const membership = await findStoreMembership(supabase, storeId, userId);
-  if (!membership || membership.role !== 'owner') {
+  if (!membership || membership.role !== STORE_MEMBERSHIP_ROLES[0]) {
     return { data: null, error: 'Forbidden', meta: null };
   }
 

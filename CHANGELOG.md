@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.67.0] — 2026-07-24
+
+### Added
+
+- Spec: `spec/spec-069-audit-remediation-p0.md` and `spec/plan-spec-069-audit-remediation-p0.md`.
+- Shared constants: `STORE_MEMBERSHIP_ROLES` and `StoreMembershipRole` in `packages/shared/src/constants.ts`.
+- Worker helpers: `src/lib/responses.ts` and `src/lib/validation.ts` for standard `{ data, error, meta }` responses and Zod validation.
+- Worker middleware: `src/middleware/db.ts` attaches the secret Supabase client to `c.var.db` once per request.
+- Frontend helper: `src/lib/i18n.ts` exports `detectLocale()` so the locale decision is testable outside the Quasar boot file.
+- Regression tests: `src/lib/__tests__/validation.test.ts`, `src/boot/__tests__/i18n.test.ts`, `src/constants/__tests__/tournament.test.ts`, and an expanded `tournaments/__tests__/index.test.ts` bracket round test.
+
+### Changed
+
+- Worker: all domain routers now read `c.var.db` instead of constructing `createSecretClient(...)` in every route handler.
+- Worker: all domain services now use the shared `validate()` helper from `src/lib/validation.js` instead of hand-formatting Zod error messages.
+- Worker: all response envelopes are built through helpers in `src/lib/responses.js`.
+- Worker: `authMiddleware`, `adminMiddleware`, `auth/repository.ts`, `moderation/repository.ts`, and `stores/repository.ts` now use the shared `ROLES`/`STORE_MEMBERSHIP_ROLES` constants instead of string literals.
+- Frontend: `boot/i18n.ts` now uses `detectLocale()` from `src/lib/i18n.ts`.
+- Frontend: `BEST_OF_OPTIONS` in `src/constants/tournament.ts` now uses numeric values, matching the `CreateEventSchema` `best_of` type.
+- Frontend: `useAuthStore.fetchProfile()` now uses the shared `apiGet()` wrapper instead of raw `fetch`.
+- Frontend: `useAdminStore.ts`, `useAccountManagement.ts`, `ProfilePage.vue`, `router/index.ts`, `useNavTree.ts`, and `lib/colors.ts` use the shared `Role`/`ROLES`/`STORE_MEMBERSHIP_ROLES` types and constants.
+- Shared: `types/index.ts` re-exports `Role` and `StoreMembershipRole` from `constants.ts`.
+- Shared: `StoreMembershipSchema.role` now derives its enum from `STORE_MEMBERSHIP_ROLES`.
+- Tests: worker route tests use `createTestApp()` from `test-utils/supabase.ts`, which wires `dbClientMiddleware` automatically.
+
+### Fixed
+
+- Locale precedence bug: `localStorage.locale = 'en-US'` is now respected instead of always defaulting to Portuguese.
+- Bracket endpoint bug: `GET /api/tournaments/:id/bracket` now returns matches for every round, not just the first round.
+- Tournament creation bug: `best_of` is now sent as a number, satisfying the Zod schema.
+- Removed explicit `any` usage from `useAdminStore.ts` and `useAccountManagement.ts`.
+- Removed pre-existing unused `vi` import warning in `FilterToggle.test.ts`.
+
 ## [0.66.0] — 2026-07-23
 
 ### Added

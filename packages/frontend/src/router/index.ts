@@ -6,6 +6,8 @@ import {
   createWebHistory,
 } from 'vue-router';
 
+import { ROLES } from '@tcg/shared';
+
 import routes from './routes';
 
 export default defineRouter((/* { store, ssrContext } */) => {
@@ -61,7 +63,7 @@ export default defineRouter((/* { store, ssrContext } */) => {
       }
       const j = await apiGet('/api/auth/me');
       const profile = j.data as Record<string, unknown> | null;
-      if (profile?.role !== 'admin') {
+      if (profile?.role !== ROLES[2]) {
         next({ name: 'home' });
         return;
       }

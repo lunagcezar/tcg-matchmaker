@@ -3,8 +3,11 @@ import {
   ProfileUpdateSchema,
   OnboardingStatusSchema,
   UserResponseSchema,
+  ROLES,
 } from '@tcg/shared';
+import type { Role } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
+import { validate } from '../lib/validation.js';
 import {
   countAdminUsers,
   insertUser,
@@ -33,18 +36,14 @@ export async function createFirstAdmin(
   const count = await countAdminUsers(supabase);
   if (count > 0) return { data: null, error: 'Admin already exists', meta: null };
 
-  const parsed = SignupSchema.safeParse(body);
-  if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+  const result = validate(SignupSchema, body);
+  if (!result.success) {
+    return { data: null, error: result.error, meta: null };
   }
 
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email: parsed.data.email,
-    password: parsed.data.password,
+    email: result.data.email,
+    password: result.data.password,
     email_confirm: true,
   });
 
@@ -54,9 +53,9 @@ export async function createFirstAdmin(
 
   const { error: insertError } = await insertUser(supabase, {
     id: authData.user.id,
-    email: parsed.data.email,
-    username: parsed.data.username,
-    role: 'admin',
+    email: result.data.email,
+    username: result.data.username,
+    role: ROLES[2],
   });
 
   if (insertError) {
@@ -101,20 +100,16 @@ export async function updateProfile(
   userId: string,
   body: unknown,
 ) {
-  const parsed = ProfileUpdateSchema.safeParse(body);
-  if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+  const result = validate(ProfileUpdateSchema, body);
+  if (!result.success) {
+    return { data: null, error: result.error, meta: null };
   }
 
   const updateData: Record<string, string> = { updated_at: new Date().toISOString() };
-  if (parsed.data.username) {
-    const existing = await findUserByUsername(supabase, parsed.data.username, userId);
+  if (result.data.username) {
+    const existing = await findUserByUsername(supabase, result.data.username, userId);
     if (existing) return { data: null, error: 'Username already taken', meta: null };
-    updateData.username = parsed.data.username;
+    updateData.username = result.data.username;
   }
 
   const { error: updateError } = await updateUser(supabase, userId, updateData);
@@ -156,9 +151,9 @@ export async function exportUserData(
 export async function deleteAccount(
   supabase: ReturnType<typeof createSecretClient>,
   userId: string,
-  userRole: string,
+  userRole: Role,
 ) {
-  if (userRole === 'admin') {
+  if (userRole === ROLES[2]) {
     const count = await countAdminUsers(supabase);
     if (count === 1) {
       return {

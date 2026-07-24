@@ -5,7 +5,14 @@ vi.mock('@supabase/supabase-js', () => ({
 }));
 
 import { notificationRouter } from '../index.js';
-import { env, testUserId, chain, makeApp, userChain, authMock } from '../../test-utils/supabase.js';
+import {
+  env,
+  testUserId,
+  chain,
+  createTestApp,
+  userChain,
+  authMock,
+} from '../../test-utils/supabase.js';
 
 const notificationId = '00000000-0000-0000-0000-000000000100';
 
@@ -26,9 +33,11 @@ describe('Notification routes', () => {
         from: vi.fn(),
       });
 
-      const res = await makeApp()
-        .route('/api/notifications', notificationRouter)
-        .request('/api/notifications', {}, env);
+      const res = await createTestApp('/api/notifications', notificationRouter).request(
+        '/api/notifications',
+        {},
+        env,
+      );
       expect(res.status).toBe(401);
     });
 
@@ -45,15 +54,13 @@ describe('Notification routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/notifications', notificationRouter)
-        .request(
-          '/api/notifications',
-          {
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/notifications', notificationRouter).request(
+        '/api/notifications',
+        {
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -88,16 +95,14 @@ describe('Notification routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/notifications', notificationRouter)
-        .request(
-          `/api/notifications/${notificationId}/read`,
-          {
-            method: 'PATCH',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/notifications', notificationRouter).request(
+        `/api/notifications/${notificationId}/read`,
+        {
+          method: 'PATCH',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -120,16 +125,14 @@ describe('Notification routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/notifications', notificationRouter)
-        .request(
-          '/api/notifications/read-all',
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/notifications', notificationRouter).request(
+        '/api/notifications/read-all',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -150,15 +153,13 @@ describe('Notification routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/notifications', notificationRouter)
-        .request(
-          '/api/notifications/unread-count',
-          {
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/notifications', notificationRouter).request(
+        '/api/notifications/unread-count',
+        {
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });

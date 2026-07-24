@@ -1,3 +1,4 @@
+import { STORE_MEMBERSHIP_ROLES } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
 
 export async function findStoresPaginated(
@@ -122,6 +123,6 @@ export async function countOwnerMemberships(
     .from('store_memberships')
     .select('id', { count: 'exact', head: true })
     .eq('store_id', storeId)
-    .eq('role', 'owner');
+    .eq('role', STORE_MEMBERSHIP_ROLES[0]);
   return count ?? 0;
 }

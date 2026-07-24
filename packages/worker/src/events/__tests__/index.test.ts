@@ -10,7 +10,7 @@ import {
   testUserId,
   testUserId2,
   chain,
-  makeApp,
+  createTestApp,
   userChain,
   authMock,
 } from '../../test-utils/supabase.js';
@@ -61,7 +61,7 @@ describe('Event routes', () => {
         from: vi.fn().mockReturnValue(c),
       });
 
-      const res = await makeApp().route('/api/events', eventRouter).request('/api/events', {}, env);
+      const res = await createTestApp('/api/events', eventRouter).request('/api/events', {}, env);
       const body = (await res.json()) as { data: unknown[] };
       expect(Array.isArray(body.data)).toBe(true);
     });
@@ -86,9 +86,11 @@ describe('Event routes', () => {
         from: vi.fn().mockReturnValue(c),
       });
 
-      const res = await makeApp()
-        .route('/api/events', eventRouter)
-        .request('/api/events?limit=1', {}, env);
+      const res = await createTestApp('/api/events', eventRouter).request(
+        '/api/events?limit=1',
+        {},
+        env,
+      );
       const body = (await res.json()) as {
         data: unknown[];
         meta: { next_cursor: string | null; limit: number };
@@ -111,9 +113,11 @@ describe('Event routes', () => {
         from: vi.fn(),
       });
 
-      const res = await makeApp()
-        .route('/api/events', eventRouter)
-        .request('/api/events', { method: 'POST' }, env);
+      const res = await createTestApp('/api/events', eventRouter).request(
+        '/api/events',
+        { method: 'POST' },
+        env,
+      );
       expect(res.status).toBe(401);
     });
 
@@ -133,22 +137,20 @@ describe('Event routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/events', eventRouter)
-        .request(
-          '/api/events',
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              type: 'match',
-              scheduled_at: '2026-07-20T14:00:00.000Z',
-              lat: -3.7,
-              lng: -38.5,
-            }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/events', eventRouter).request(
+        '/api/events',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'match',
+            scheduled_at: '2026-07-20T14:00:00.000Z',
+            lat: -3.7,
+            lng: -38.5,
+          }),
+        },
+        env,
+      );
       expect(res.status).toBe(201);
     });
   });
@@ -165,16 +167,14 @@ describe('Event routes', () => {
         from: vi.fn(),
       });
 
-      const res = await makeApp()
-        .route('/api/events', eventRouter)
-        .request(
-          `/api/events/${eventId}/join`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/events', eventRouter).request(
+        `/api/events/${eventId}/join`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(401);
     });
 
@@ -221,16 +221,14 @@ describe('Event routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/events', eventRouter)
-        .request(
-          `/api/events/${eventId}/join`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/events', eventRouter).request(
+        `/api/events/${eventId}/join`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -254,16 +252,14 @@ describe('Event routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/events', eventRouter)
-        .request(
-          `/api/events/${eventId}`,
-          {
-            method: 'DELETE',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/events', eventRouter).request(
+        `/api/events/${eventId}`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(403);
     });
   });

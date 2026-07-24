@@ -7,6 +7,7 @@ import {
   FormatSchema,
 } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
+import { validate } from '../lib/validation.js';
 import {
   findAllTcgs,
   findTcgById,
@@ -31,13 +32,9 @@ export async function getTcg(supabase: ReturnType<typeof createSecretClient>, id
 }
 
 export async function createTcg(supabase: ReturnType<typeof createSecretClient>, body: unknown) {
-  const parsed = CreateTcgSchema.safeParse(body);
+  const parsed = validate(CreateTcgSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
   const { data, error } = await insertTcg(supabase, parsed.data as Record<string, unknown>);
   if (error) return { data: null, error: error.message, meta: null };
@@ -49,13 +46,9 @@ export async function editTcg(
   id: string,
   body: unknown,
 ) {
-  const parsed = UpdateTcgSchema.safeParse(body);
+  const parsed = validate(UpdateTcgSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
   const { data, error } = await updateTcg(supabase, id, parsed.data as Record<string, unknown>);
   if (error || !data) return { data: null, error: 'TCG not found', meta: null };
@@ -78,13 +71,9 @@ export async function createFormat(
   tcgId: string,
   body: unknown,
 ) {
-  const parsed = CreateFormatSchema.safeParse(body);
+  const parsed = validate(CreateFormatSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
   const { data, error } = await insertFormat(supabase, {
     ...(parsed.data as Record<string, unknown>),
@@ -99,13 +88,9 @@ export async function editFormat(
   id: string,
   body: unknown,
 ) {
-  const parsed = UpdateFormatSchema.safeParse(body);
+  const parsed = validate(UpdateFormatSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
   const { data, error } = await updateFormat(supabase, id, parsed.data as Record<string, unknown>);
   if (error || !data) return { data: null, error: 'Format not found', meta: null };

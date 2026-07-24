@@ -22,5 +22,13 @@ export const PushSubscriptionSchema = z.object({
   updated_at: z.string(),
 });
 
+export const CreatePushSubscriptionSchema = z.object({
+  endpoint: z.string(),
+  p256dh: z.string(),
+  auth: z.string(),
+  user_agent: z.string().optional(),
+});
+
 export type Notification = z.infer<typeof NotificationSchema>;
 export type PushSubscription = z.infer<typeof PushSubscriptionSchema>;
+export type CreatePushSubscriptionInput = z.input<typeof CreatePushSubscriptionSchema>;

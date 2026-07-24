@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
-import type { AuthUser } from '../middleware/auth.js';
+import { CreatePushSubscriptionSchema } from '@tcg/shared';
 import { authMiddleware } from '../middleware/auth.js';
-import { createSecretClient } from '../db/client.js';
+import { result, badRequest, notFound } from '../lib/responses.js';
+import { validate } from '../lib/validation.js';
+import type { Bindings, Variables } from '../types/hono.js';
 import {
   listNotifications,
   getUnreadCount,
@@ -11,60 +13,42 @@ import {
   removePushSubscription,
 } from './service.js';
 
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_SECRET_KEY: string;
-};
-
-const notificationRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
-const pushSubscriptionRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
+const notificationRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+const pushSubscriptionRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 notificationRouter.get('/', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await listNotifications(supabase, c.var.user.id));
+  return result(c, await listNotifications(c.var.db, c.var.user.id));
 });
 
 notificationRouter.get('/unread-count', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await getUnreadCount(supabase, c.var.user.id));
+  return result(c, await getUnreadCount(c.var.db, c.var.user.id));
 });
 
 notificationRouter.patch('/:id/read', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await readNotification(supabase, c.var.user.id, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await readNotification(c.var.db, c.var.user.id, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 notificationRouter.post('/read-all', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await readAllNotifications(supabase, c.var.user.id));
+  return result(c, await readAllNotifications(c.var.db, c.var.user.id));
 });
 
 pushSubscriptionRouter.post('/', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const body = (await c.req.json().catch(() => ({}))) as {
-    endpoint?: string;
-    p256dh?: string;
-    auth?: string;
-    user_agent?: string;
-  };
-  if (!body.endpoint || !body.p256dh || !body.auth) {
-    return c.json(
-      { data: null, error: 'endpoint, p256dh, and auth are required', meta: null },
-      400,
-    );
+  const body = await c.req.json().catch(() => ({}));
+  const parsed = validate(CreatePushSubscriptionSchema, body);
+  if (!parsed.success) {
+    return badRequest(c, parsed.error);
   }
-  const result = await addPushSubscription(supabase, c.var.user.id, body as Required<typeof body>);
-  if (result.error) return c.json(result, 400);
-  return c.json(result, 201);
+  const svcResult = await addPushSubscription(c.var.db, c.var.user.id, parsed.data);
+  if (svcResult.error) return badRequest(c, svcResult.error);
+  return result(c, svcResult, 201);
 });
 
 pushSubscriptionRouter.delete('/:id', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await removePushSubscription(supabase, c.var.user.id, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await removePushSubscription(c.var.db, c.var.user.id, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 export { notificationRouter, pushSubscriptionRouter };

@@ -10,7 +10,7 @@ import {
   testUserId,
   testUserId2,
   chain,
-  makeApp,
+  createTestApp,
   userChain,
   authMock,
 } from '../../test-utils/supabase.js';
@@ -35,9 +35,11 @@ describe('Moderation routes', () => {
         from: vi.fn(),
       });
 
-      const res = await makeApp()
-        .route('/api/reports', reportRouter)
-        .request('/api/reports', { method: 'POST' }, env);
+      const res = await createTestApp('/api/reports', reportRouter).request(
+        '/api/reports',
+        { method: 'POST' },
+        env,
+      );
       expect(res.status).toBe(401);
     });
 
@@ -70,21 +72,19 @@ describe('Moderation routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/reports', reportRouter)
-        .request(
-          '/api/reports',
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              target_type: 'user',
-              target_id: targetUserId,
-              reason: 'Abusive behavior',
-            }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/reports', reportRouter).request(
+        '/api/reports',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target_type: 'user',
+            target_id: targetUserId,
+            reason: 'Abusive behavior',
+          }),
+        },
+        env,
+      );
       expect(res.status).toBe(201);
     });
   });
@@ -94,15 +94,13 @@ describe('Moderation routes', () => {
       const { createClient } = await import('@supabase/supabase-js');
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue(authMock(testUserId));
 
-      const res = await makeApp()
-        .route('/api/reports', reportRouter)
-        .request(
-          '/api/reports',
-          {
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/reports', reportRouter).request(
+        '/api/reports',
+        {
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(403);
     });
   });
@@ -139,16 +137,14 @@ describe('Moderation routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/admin', adminRouter)
-        .request(
-          `/api/admin/users/${targetUserId}/ban`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/admin', adminRouter).request(
+        `/api/admin/users/${targetUserId}/ban`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -181,16 +177,14 @@ describe('Moderation routes', () => {
         from: vi.fn().mockImplementation((_t: string) => chainCalls),
       });
 
-      const res = await makeApp()
-        .route('/api/admin', adminRouter)
-        .request(
-          `/api/admin/users/${targetUserId}/promote`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/admin', adminRouter).request(
+        `/api/admin/users/${targetUserId}/promote`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });

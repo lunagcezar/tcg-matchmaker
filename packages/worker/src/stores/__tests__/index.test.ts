@@ -10,7 +10,7 @@ import {
   testUserId,
   testUserId2,
   chain,
-  makeApp,
+  createTestApp,
   userChain,
   authMock,
 } from '../../test-utils/supabase.js';
@@ -55,7 +55,7 @@ describe('Store routes', () => {
         from: vi.fn().mockReturnValue(c),
       });
 
-      const res = await makeApp().route('/api/stores', storeRouter).request('/api/stores', {}, env);
+      const res = await createTestApp('/api/stores', storeRouter).request('/api/stores', {}, env);
       const body = (await res.json()) as { data: Array<{ name: string }> };
       expect(body.data[0].name).toBe('Test Store');
     });
@@ -73,9 +73,11 @@ describe('Store routes', () => {
         from: vi.fn(),
       });
 
-      const res = await makeApp()
-        .route('/api/stores', storeRouter)
-        .request('/api/stores', { method: 'POST' }, env);
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        '/api/stores',
+        { method: 'POST' },
+        env,
+      );
       expect(res.status).toBe(401);
     });
 
@@ -97,22 +99,20 @@ describe('Store routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/stores', storeRouter)
-        .request(
-          '/api/stores',
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: 'Test Store',
-              address: 'Rua Teste, 123',
-              lat: -3.7,
-              lng: -38.5,
-            }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        '/api/stores',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Test Store',
+            address: 'Rua Teste, 123',
+            lat: -3.7,
+            lng: -38.5,
+          }),
+        },
+        env,
+      );
       expect(res.status).toBe(201);
     });
   });
@@ -131,17 +131,15 @@ describe('Store routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/stores', storeRouter)
-        .request(
-          `/api/stores/${storeId}`,
-          {
-            method: 'PATCH',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: 'Updated' }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}`,
+        {
+          method: 'PATCH',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: 'Updated' }),
+        },
+        env,
+      );
       expect(res.status).toBe(403);
     });
   });
@@ -151,16 +149,14 @@ describe('Store routes', () => {
       const { createClient } = await import('@supabase/supabase-js');
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue(authMock(testUserId2));
 
-      const res = await makeApp()
-        .route('/api/stores', storeRouter)
-        .request(
-          `/api/stores/${storeId}/verify`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}/verify`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(403);
     });
   });
@@ -185,15 +181,13 @@ describe('Store routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/stores', storeRouter)
-        .request(
-          `/api/stores/${storeId}/members`,
-          {
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}/members`,
+        {
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });

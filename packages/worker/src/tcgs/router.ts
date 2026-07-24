@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
-import type { AuthUser } from '../middleware/auth.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { adminMiddleware } from '../middleware/admin.js';
-import { createSecretClient } from '../db/client.js';
+import { result, badRequest, notFound } from '../lib/responses.js';
+import type { Bindings, Variables } from '../types/hono.js';
 import {
   listTcgs,
   getTcg,
@@ -15,76 +15,62 @@ import {
   removeFormat,
 } from './service.js';
 
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_SECRET_KEY: string;
-};
-
-const tcgRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
+const tcgRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 tcgRouter.get('/', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await listTcgs(supabase));
+  return result(c, await listTcgs(c.var.db));
 });
 
 tcgRouter.get('/:id', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await getTcg(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await getTcg(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 tcgRouter.post('/', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await createTcg(supabase, body);
-  if (result.error) return c.json(result, 400);
-  return c.json(result, 201);
+  const svcResult = await createTcg(c.var.db, body);
+  if (svcResult.error) return badRequest(c, svcResult.error);
+  return result(c, svcResult, 201);
 });
 
 tcgRouter.patch('/:id', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await editTcg(supabase, c.req.param('id')!, body);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await editTcg(c.var.db, c.req.param('id')!, body);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 tcgRouter.delete('/:id', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await removeTcg(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await removeTcg(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 tcgRouter.get('/:tcgId/formats', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await listFormats(supabase, c.req.param('tcgId')!));
+  return result(c, await listFormats(c.var.db, c.req.param('tcgId')!));
 });
 
 tcgRouter.post('/:tcgId/formats', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await createFormat(supabase, c.req.param('tcgId')!, body);
-  if (result.error) return c.json(result, 400);
-  return c.json(result, 201);
+  const svcResult = await createFormat(c.var.db, c.req.param('tcgId')!, body);
+  if (svcResult.error) return badRequest(c, svcResult.error);
+  return result(c, svcResult, 201);
 });
 
-const formatRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
+const formatRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 formatRouter.patch('/:id', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await editFormat(supabase, c.req.param('id')!, body);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await editFormat(c.var.db, c.req.param('id')!, body);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 formatRouter.delete('/:id', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await removeFormat(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await removeFormat(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 export { tcgRouter, formatRouter };

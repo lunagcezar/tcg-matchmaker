@@ -14,9 +14,11 @@ export function statusColor(status: string | undefined): string {
   return 'grey';
 }
 
+import { ROLES, STORE_MEMBERSHIP_ROLES } from '@tcg/shared';
+
 export function roleColor(role: string | undefined): string {
-  if (role === 'admin') return 'red';
-  if (role === 'organizer') return 'warning';
+  if (role === ROLES[2]) return 'red';
+  if (role === ROLES[1]) return 'warning';
   return 'primary';
 }
 
@@ -27,8 +29,8 @@ export function eventColor(type: string | undefined): string {
 }
 
 export function memberRoleColor(role: string): string {
-  if (role === 'owner') return 'red';
-  if (role === 'manager') return 'warning';
+  if (role === STORE_MEMBERSHIP_ROLES[0]) return 'red';
+  if (role === STORE_MEMBERSHIP_ROLES[1]) return 'warning';
   return 'primary';
 }
 

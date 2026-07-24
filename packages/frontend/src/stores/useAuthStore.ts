@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { apiGet } from '@/composables/useApi';
+import type { Role } from '@tcg/shared';
 
 const REMEMBER_ME_KEY = 'tcg_remember_me';
 
@@ -10,7 +11,7 @@ export type UserProfile = {
   id: string;
   email: string;
   username: string;
-  role: 'player' | 'organizer' | 'admin';
+  role: Role;
   avatar_path: string | null;
   created_at: string;
 };
@@ -48,24 +49,11 @@ export const useAuthStore = defineStore('auth', () => {
       profile.value = null;
       return;
     }
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-    if (!token) {
-      profile.value = null;
-      return;
-    }
     try {
-      const res = await fetch(
-        `${import.meta.env.QCLI_API_URL || 'http://localhost:8787'}/api/auth/me`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      if (!res.ok) {
-        profile.value = null;
-        return;
-      }
-      const json = (await res.json()) as { data: UserProfile | null; error: string | null };
+      const json = (await apiGet('/api/auth/me')) as {
+        data: UserProfile | null;
+        error: string | null;
+      };
       profile.value = json.data ?? null;
     } catch {
       profile.value = null;

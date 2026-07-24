@@ -152,13 +152,17 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 - **RLS is enabled on all tables as defense-in-depth** — Hono bypasses it via the secret key, but RLS blocks direct misuse of the publishable key against the DB endpoint
 - Standard REST: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
 - Response format: `{ data, error, meta }`
+- **Worker DB client**: create the Supabase secret client exactly once per request in `src/middleware/db.ts` (`dbClientMiddleware`) and attach it to `c.var.db`. Routers and services read `c.var.db` instead of constructing `createSecretClient(...)` directly.
+- **Worker response helpers**: build all `{ data, error, meta }` envelopes through `src/lib/responses.ts` (`ok`, `created`, `result`, `badRequest`, `notFound`, `forbidden`, `unauthorized`, `serverError`, `tooManyRequests`).
+- **Worker validation helper**: validate incoming bodies with `validate(schema, body)` from `src/lib/validation.js`. Do not hand-format Zod error strings in services.
+- **Shared constants**: user roles (`ROLES`, `Role`) and store membership roles (`STORE_MEMBERSHIP_ROLES`, `StoreMembershipRole`) live in `@tcg/shared`. Use them in both worker and frontend instead of string literals.
 - **Frontend API calls**: use `apiGet`, `apiPost`, `apiPatch`, `apiDelete` from `@/composables/useApi` — typed fetch wrappers, NOT raw `fetch()` or Hono RPC client (Hono RPC types don't resolve across monorepo packages due to Cloudflare Worker bindings)
   - Always import from `@/composables/useApi`
   - Never import `hc` from `hono/client` directly
   - Cast response data at the assignment point with `as Record<string, unknown>[]` or similar
 - Shared state lives in **Pinia stores** (`useEventStore`, `useStoreStore`, `useAuthStore`, `useAppStore`, `useNotificationStore`)
 - Stateless API logic goes in **composables** or direct `api*` calls from stores
-- Utility functions (formatting, colors, routing) go in **`src/lib/`** — pure functions, no Vue reactivity
+- Utility functions (formatting, colors, routing, locale detection) go in **`src/lib/`** — pure functions, no Vue reactivity
 
 ## Docs Maintenance
 
@@ -285,9 +289,12 @@ tcg-matchmaker/
         moderation/                # Reports, bans, suspensions, admin promotions
         geocoding/                 # Nominatim proxy + KV cache
         tcgs/                      # TCG + format CRUD
-        middleware/                # auth (JWT verify + banned check), rate-limit (KV), logger, …
-        db/                        # Supabase client (secret key for all DB operations)
+        middleware/                # auth (JWT verify + banned check), rate-limit (KV), logger, db client, …
+        lib/                       # result/validation helpers, shared server-side utilities
+        types/                     # Shared Hono Bindings / Variables types
+        db/                        # Supabase client factory
         services/                  # Cross-domain business logic (if needed)
+        test-utils/                # Test helpers (createTestApp, mock Supabase chain)
       test/                        # Vitest with @cloudflare/vitest-pool-workers
 ```
 

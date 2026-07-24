@@ -1,5 +1,6 @@
-import { CreateReportSchema, ReportSchema } from '@tcg/shared';
+import { CreateReportSchema, ReportSchema, ROLES } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
+import { validate } from '../lib/validation.js';
 import {
   insertReport,
   findAllReports,
@@ -37,13 +38,9 @@ export async function createReport(
   userId: string,
   body: unknown,
 ) {
-  const parsed = CreateReportSchema.safeParse(body);
+  const parsed = validate(CreateReportSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
   const { data, error } = await insertReport(supabase, {
     ...(parsed.data as Record<string, unknown>),
@@ -124,7 +121,7 @@ export async function promoteUserAction(
 ) {
   const target = await findUserById(supabase, targetId);
   if (!target) return { data: null, error: 'User not found', meta: null };
-  if (target.role === 'admin') {
+  if (target.role === ROLES[2]) {
     return { data: null, error: 'User is already an admin', meta: null };
   }
   const { error } = await promoteUser(supabase, targetId);

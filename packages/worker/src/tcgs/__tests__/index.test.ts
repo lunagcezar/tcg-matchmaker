@@ -5,11 +5,7 @@ vi.mock('@supabase/supabase-js', () => ({
 }));
 
 import { tcgRouter } from '../index.js';
-import { env, testUserId2, chain, makeApp, authMock } from '../../test-utils/supabase.js';
-
-function createTcgApp() {
-  return makeApp().route('/api/tcgs', tcgRouter);
-}
+import { env, testUserId2, chain, createTestApp, authMock } from '../../test-utils/supabase.js';
 
 const tcgData = {
   id: '00000000-0000-0000-0000-000000000010',
@@ -36,7 +32,7 @@ describe('TCG routes', () => {
         from: vi.fn().mockReturnValue(c),
       });
 
-      const res = await createTcgApp().request('/api/tcgs', {}, env);
+      const res = await createTestApp('/api/tcgs', tcgRouter).request('/api/tcgs', {}, env);
       const body = (await res.json()) as { data: Array<{ name: string }> };
       expect(body.data[0].name).toBe('MTG');
     });
@@ -54,7 +50,11 @@ describe('TCG routes', () => {
         from: vi.fn(),
       });
 
-      const res = await createTcgApp().request('/api/tcgs', { method: 'POST' }, env);
+      const res = await createTestApp('/api/tcgs', tcgRouter).request(
+        '/api/tcgs',
+        { method: 'POST' },
+        env,
+      );
       expect(res.status).toBe(401);
     });
 
@@ -62,7 +62,7 @@ describe('TCG routes', () => {
       const { createClient } = await import('@supabase/supabase-js');
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue(authMock(testUserId2));
 
-      const res = await createTcgApp().request(
+      const res = await createTestApp('/api/tcgs', tcgRouter).request(
         '/api/tcgs',
         {
           method: 'POST',
@@ -104,7 +104,7 @@ describe('TCG routes', () => {
         }),
       });
 
-      const res = await createTcgApp().request(
+      const res = await createTestApp('/api/tcgs', tcgRouter).request(
         '/api/tcgs',
         {
           method: 'POST',
@@ -143,7 +143,7 @@ describe('TCG routes', () => {
         }),
       });
 
-      const res = await createTcgApp().request(
+      const res = await createTestApp('/api/tcgs', tcgRouter).request(
         '/api/tcgs/tcg-1',
         {
           method: 'DELETE',

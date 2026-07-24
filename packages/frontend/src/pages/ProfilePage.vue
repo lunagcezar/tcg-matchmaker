@@ -25,18 +25,13 @@ import { usePageMeta } from '@/composables/usePageMeta';
 import { apiGet } from '@/composables/useApi';
 import { formatDate } from '@/lib/format';
 import { roleColor } from '@/lib/colors';
+import type { UserProfile } from '@/stores/useAuthStore';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 usePageMeta({ titleKey: 'profile.title', descKey: 'profile.title' });
 
 const loading = ref(true);
-const profile = ref<{
-  id: string;
-  username: string;
-  role: 'player' | 'organizer' | 'admin';
-  avatar_path: string | null;
-  created_at: string;
-} | null>(null);
+const profile = ref<UserProfile | null>(null);
 
 onMounted(async () => {
   try {

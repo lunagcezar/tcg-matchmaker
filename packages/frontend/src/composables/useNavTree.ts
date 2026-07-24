@@ -1,5 +1,6 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { ROLES } from '@tcg/shared';
 import { navTree, type NavNode } from '@/router/navItems';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -30,7 +31,7 @@ export function useNavTree() {
   const route = useRoute();
   const authStore = useAuthStore();
 
-  const isAdmin = computed(() => authStore.profile?.role === 'admin');
+  const isAdmin = computed(() => authStore.profile?.role === ROLES[2]);
   const currentPath = computed(() => route.path);
   const tree = computed(() => filterTree(navTree, isAdmin.value));
 

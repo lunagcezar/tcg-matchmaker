@@ -11,27 +11,8 @@ import { reportRouter, adminRouter } from './moderation/index.js';
 import { notificationRouter, pushSubscriptionRouter } from './notifications/index.js';
 import { createLogger } from './middleware/logger.js';
 import { createSentryTransport } from './middleware/sentry.js';
-
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_SECRET_KEY: string;
-  SUPABASE_PUBLISHABLE_KEY: string;
-  RESEND_API_KEY: string;
-  TURNSTILE_SECRET_KEY: string;
-  SENTRY_DSN: string;
-  NOMINATIM_USER_AGENT: string;
-  GEOCODING_KV: KVNamespace;
-  RATE_LIMIT_KV?: KVNamespace;
-};
-
-type Variables = {
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    role: 'player' | 'organizer' | 'admin';
-  };
-};
+import { dbClientMiddleware } from './middleware/db.js';
+import type { Bindings, Variables } from './types/hono.js';
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -49,6 +30,8 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use('*', dbClientMiddleware);
 
 app.get('/health', (c) => c.json({ status: 'ok' }));
 

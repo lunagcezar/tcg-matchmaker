@@ -1,5 +1,6 @@
 import { CreateEventSchema, EventSchema, EventParticipantSchema } from '@tcg/shared';
 import type { createSecretClient } from '../db/client.js';
+import { validate } from '../lib/validation.js';
 import {
   findEventsPaginated,
   findEventById,
@@ -89,13 +90,9 @@ export async function createEvent(
   userId: string,
   body: unknown,
 ) {
-  const parsed = CreateEventSchema.safeParse(body);
+  const parsed = validate(CreateEventSchema, body);
   if (!parsed.success) {
-    return {
-      data: null,
-      error: `Validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
-      meta: null,
-    };
+    return { data: null, error: parsed.error, meta: null };
   }
 
   const defaultStatus = parsed.data.type === 'trading' ? 'planned' : 'open';

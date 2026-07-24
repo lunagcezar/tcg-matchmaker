@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { STORE_MEMBERSHIP_ROLES } from '../constants.js';
 
 export const CreateStoreSchema = z.object({
   name: z.string().min(1).max(200),
@@ -42,7 +43,7 @@ export const StoreMembershipSchema = z.object({
   id: z.string().uuid(),
   store_id: z.string().uuid(),
   user_id: z.string().uuid(),
-  role: z.enum(['owner', 'manager', 'staff']),
+  role: z.enum(STORE_MEMBERSHIP_ROLES),
   created_at: z.string(),
 });
 

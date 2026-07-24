@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
-import type { AuthUser } from '../middleware/auth.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { adminMiddleware } from '../middleware/admin.js';
-import { createSecretClient } from '../db/client.js';
+import { result, badRequest, notFound, forbidden } from '../lib/responses.js';
+import type { Bindings, Variables } from '../types/hono.js';
 import {
   listStores,
   getStore,
@@ -16,88 +16,81 @@ import {
   removeMember,
 } from './service.js';
 
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_SECRET_KEY: string;
-};
-
-const storeRouter = new Hono<{ Bindings: Bindings; Variables: { user: AuthUser } }>();
+const storeRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 storeRouter.get('/', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  return c.json(await listStores(supabase, c.req.query('limit'), c.req.query('cursor')));
+  return result(c, await listStores(c.var.db, c.req.query('limit'), c.req.query('cursor')));
 });
 
 storeRouter.get('/:id', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await getStore(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await getStore(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 storeRouter.post('/', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = await c.req.json().catch(() => ({}));
-  const result = await createStore(supabase, c.var.user.id, body);
-  if (result.error) return c.json(result, 400);
-  return c.json(result, 201);
+  const svcResult = await createStore(c.var.db, c.var.user.id, body);
+  if (svcResult.error) return badRequest(c, svcResult.error);
+  return result(c, svcResult, 201);
 });
 
 storeRouter.patch('/:id', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
-  const result = await updateStoreById(supabase, c.var.user.id, c.req.param('id')!, body);
-  if (!result.data) return c.json(result, result.error === 'Forbidden' ? 403 : 404);
-  return c.json(result);
+  const svcResult = await updateStoreById(c.var.db, c.var.user.id, c.req.param('id')!, body);
+  if (!svcResult.data) {
+    return svcResult.error === 'Forbidden'
+      ? forbidden(c)
+      : notFound(c, svcResult.error ?? undefined);
+  }
+  return result(c, svcResult);
 });
 
 storeRouter.delete('/:id', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await removeStore(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await removeStore(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 storeRouter.post('/:id/verify', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await verifyStore(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await verifyStore(c.var.db, c.req.param('id')!);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 storeRouter.post('/:id/suspend', authMiddleware, adminMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = (await c.req.json().catch(() => ({}))) as { reason?: string };
-  const result = await suspendStore(supabase, c.req.param('id')!, body.reason);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+  const svcResult = await suspendStore(c.var.db, c.req.param('id')!, body.reason);
+  if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 storeRouter.get('/:id/members', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await getMembers(supabase, c.var.user.id, c.req.param('id')!);
-  if (!result.data) return c.json(result, 403);
-  return c.json(result);
+  const svcResult = await getMembers(c.var.db, c.var.user.id, c.req.param('id')!);
+  if (!svcResult.data) return forbidden(c, svcResult.error ?? undefined);
+  return result(c, svcResult);
 });
 
 storeRouter.post('/:id/members', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
   const body = (await c.req.json().catch(() => ({}))) as { user_id: string; role?: string };
-  const result = await addMember(supabase, c.var.user.id, c.req.param('id')!, body);
-  if (result.error) return c.json(result, result.error === 'Forbidden' ? 403 : 400);
-  return c.json(result, 201);
+  const svcResult = await addMember(c.var.db, c.var.user.id, c.req.param('id')!, body);
+  if (svcResult.error) {
+    return svcResult.error === 'Forbidden' ? forbidden(c) : badRequest(c, svcResult.error);
+  }
+  return result(c, svcResult, 201);
 });
 
 storeRouter.delete('/:id/members/:userId', authMiddleware, async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await removeMember(
-    supabase,
+  const svcResult = await removeMember(
+    c.var.db,
     c.var.user.id,
     c.req.param('id')!,
     c.req.param('userId')!,
   );
-  if (result.error) return c.json(result, result.error === 'Forbidden' ? 403 : 400);
-  return c.json(result);
+  if (svcResult.error) {
+    return svcResult.error === 'Forbidden' ? forbidden(c) : badRequest(c, svcResult.error);
+  }
+  return result(c, svcResult);
 });
 
 export { storeRouter };

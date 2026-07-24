@@ -1,16 +1,15 @@
 import { apiDelete, apiPost } from '@/composables/useApi';
 
-interface ApiResult {
+export type AccountActionResult = {
   success?: boolean;
   error?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-}
+  [key: string]: unknown;
+};
 
-export async function deleteAccount(): Promise<ApiResult> {
+export async function deleteAccount(): Promise<AccountActionResult> {
   try {
     const json = (await apiDelete('/api/auth/account')) as {
-      data: ApiResult | null;
+      data: AccountActionResult | null;
       error: string | null;
     };
     if (json.error) return { error: json.error };
@@ -20,10 +19,10 @@ export async function deleteAccount(): Promise<ApiResult> {
   }
 }
 
-export async function suspendAccount(): Promise<ApiResult> {
+export async function suspendAccount(): Promise<AccountActionResult> {
   try {
     const json = (await apiPost('/api/auth/suspend')) as {
-      data: ApiResult | null;
+      data: AccountActionResult | null;
       error: string | null;
     };
     if (json.error) return { error: json.error };
@@ -33,8 +32,7 @@ export async function suspendAccount(): Promise<ApiResult> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function exportData(): Promise<any> {
+export async function exportData(): Promise<unknown> {
   try {
     const json = (await apiPost('/api/auth/export')) as { data: unknown; error: string | null };
     if (json.error) return null;

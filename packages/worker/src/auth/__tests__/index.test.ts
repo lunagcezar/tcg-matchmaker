@@ -4,16 +4,8 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { Hono } from 'hono';
 import { authRouter } from '../index.js';
-import { env, testUserId, chain, authMock, toMockResponse } from '../../test-utils/supabase.js';
-
-function createTestApp() {
-  return new Hono<{
-    Bindings: typeof env;
-    Variables: { user: { id: string; email: string; username: string; role: string } };
-  }>().route('/api/auth', authRouter);
-}
+import { env, testUserId, chain, authMock, createTestApp } from '../../test-utils/supabase.js';
 
 describe('Auth routes', () => {
   beforeEach(() => {
@@ -29,7 +21,11 @@ describe('Auth routes', () => {
         from: vi.fn().mockReturnValue(c),
       });
 
-      const res = await createTestApp().request('/api/auth/onboarding', {}, env);
+      const res = await createTestApp('/api/auth', authRouter).request(
+        '/api/auth/onboarding',
+        {},
+        env,
+      );
       const body = (await res.json()) as { data: { hasAdmin: boolean } };
       expect(body.data.hasAdmin).toBe(false);
     });
@@ -42,7 +38,11 @@ describe('Auth routes', () => {
         from: vi.fn().mockReturnValue(c),
       });
 
-      const res = await createTestApp().request('/api/auth/onboarding', {}, env);
+      const res = await createTestApp('/api/auth', authRouter).request(
+        '/api/auth/onboarding',
+        {},
+        env,
+      );
       const body = (await res.json()) as { data: { hasAdmin: boolean } };
       expect(body.data.hasAdmin).toBe(true);
     });
@@ -60,7 +60,7 @@ describe('Auth routes', () => {
         },
       });
 
-      const res = await createTestApp().request('/api/auth/me', {}, env);
+      const res = await createTestApp('/api/auth', authRouter).request('/api/auth/me', {}, env);
       expect(res.status).toBe(401);
     });
 
@@ -86,7 +86,7 @@ describe('Auth routes', () => {
         from: vi.fn().mockImplementation((table: string) => (table === 'users' ? c : chain())),
       });
 
-      const res = await createTestApp().request(
+      const res = await createTestApp('/api/auth', authRouter).request(
         '/api/auth/me',
         { headers: { Authorization: 'Bearer t' } },
         env,
@@ -125,7 +125,7 @@ describe('Auth routes', () => {
         }),
       });
 
-      const res = await createTestApp().request(
+      const res = await createTestApp('/api/auth', authRouter).request(
         '/api/auth/onboarding',
         {
           method: 'POST',
@@ -186,7 +186,7 @@ describe('Auth routes', () => {
         from: vi.fn().mockReturnValue(mockChain),
       });
 
-      const res = await createTestApp().request(
+      const res = await createTestApp('/api/auth', authRouter).request(
         '/api/auth/profile',
         {
           method: 'PATCH',
@@ -211,7 +211,7 @@ describe('Auth routes', () => {
         from: vi.fn().mockReturnValue(c),
       });
 
-      const res = await createTestApp().request(
+      const res = await createTestApp('/api/auth', authRouter).request(
         '/api/auth/onboarding',
         {
           method: 'POST',

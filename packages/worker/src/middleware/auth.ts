@@ -1,26 +1,28 @@
 import type { Context, Next } from 'hono';
-import { createAuthClient, createSecretClient } from '../db/client.js';
+import { createAuthClient } from '../db/client.js';
+import { unauthorized, notFound, forbidden } from '../lib/responses.js';
+import type { Role } from '@tcg/shared';
 
 export type AuthUser = {
   id: string;
   email: string;
   username: string;
-  role: 'player' | 'organizer' | 'admin';
+  role: Role;
 };
 
 export async function authMiddleware(c: Context, next: Next) {
   const authHeader = c.req.header('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    return c.json({ data: null, error: 'Unauthorized', meta: null }, 401);
+    return unauthorized(c);
   }
 
   const token = authHeader.slice(7);
   const authClient = createAuthClient(c.env.SUPABASE_URL, c.env.SUPABASE_PUBLISHABLE_KEY);
-  const dbClient = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
+  const dbClient = c.var.db;
 
   const { data: authData, error: authError } = await authClient.auth.getUser(token);
   if (authError || !authData.user) {
-    return c.json({ data: null, error: 'Unauthorized', meta: null }, 401);
+    return unauthorized(c);
   }
 
   const { data: userRecord, error: dbError } = await dbClient
@@ -30,22 +32,22 @@ export async function authMiddleware(c: Context, next: Next) {
     .single();
 
   if (dbError || !userRecord) {
-    return c.json({ data: null, error: 'Unauthorized', meta: null }, 401);
+    return unauthorized(c);
   }
 
   if (userRecord.deleted_at) {
-    return c.json({ data: null, error: 'Account not found', meta: null }, 404);
+    return notFound(c, 'Account not found');
   }
 
   if (userRecord.banned_at) {
-    return c.json({ data: null, error: 'Account is banned', meta: null }, 403);
+    return forbidden(c, 'Account is banned');
   }
 
   c.set('user', {
     id: userRecord.id,
     email: userRecord.email,
     username: userRecord.username,
-    role: userRecord.role,
+    role: userRecord.role as Role,
   } satisfies AuthUser);
 
   await next();

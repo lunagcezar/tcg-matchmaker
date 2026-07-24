@@ -10,7 +10,7 @@ import {
   testUserId,
   testUserId2,
   chain,
-  makeApp,
+  createTestApp,
   userChain,
   authMock,
   toMockResponse,
@@ -72,25 +72,23 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/tournaments', tournamentRouter)
-        .request(
-          '/api/tournaments',
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              type: 'tournament',
-              name: 'Test Tournament',
-              bracket_type: 'single_elimination',
-              scheduled_at: '2026-08-01T10:00:00.000Z',
-              lat: -3.7,
-              lng: -38.5,
-              max_participants: 8,
-            }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/tournaments', tournamentRouter).request(
+        '/api/tournaments',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'tournament',
+            name: 'Test Tournament',
+            bracket_type: 'single_elimination',
+            scheduled_at: '2026-08-01T10:00:00.000Z',
+            lat: -3.7,
+            lng: -38.5,
+            max_participants: 8,
+          }),
+        },
+        env,
+      );
       expect(res.status).toBe(201);
     });
   });
@@ -115,16 +113,14 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/tournaments', tournamentRouter)
-        .request(
-          `/api/tournaments/${tournamentId}/publish`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/tournaments', tournamentRouter).request(
+        `/api/tournaments/${tournamentId}/publish`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -163,16 +159,14 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/tournaments', tournamentRouter)
-        .request(
-          `/api/tournaments/${tournamentId}/start`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/tournaments', tournamentRouter).request(
+        `/api/tournaments/${tournamentId}/start`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -209,11 +203,66 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/tournaments', tournamentRouter)
-        .request(`/api/tournaments/${tournamentId}/bracket`, {}, env);
+      const res = await createTestApp('/api/tournaments', tournamentRouter).request(
+        `/api/tournaments/${tournamentId}/bracket`,
+        {},
+        env,
+      );
       const body = (await res.json()) as { data: { rounds: unknown[]; matches: unknown[] } };
       expect(body.data.rounds).toHaveLength(1);
+    });
+
+    it('returns matches from more than one round', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const round1Id = '00000000-0000-0000-0000-000000000201';
+      const round2Id = '00000000-0000-0000-0000-000000000202';
+      const matchForRound = (roundId: string) => ({
+        id: `00000000-0000-0000-0000-${roundId.slice(-12)}`,
+        round_id: roundId,
+      });
+
+      const rChain = chain({
+        order: vi.fn().mockResolvedValue({
+          data: [
+            { id: round1Id, event_id: tournamentId, round_number: 1, name: 'Round 1' },
+            { id: round2Id, event_id: tournamentId, round_number: 2, name: 'Round 2' },
+          ],
+          error: null,
+        }),
+      });
+      let callCount = 0;
+      const mChain = chain({
+        order: vi.fn().mockImplementation(() => {
+          callCount++;
+          const roundId = callCount === 1 ? round1Id : round2Id;
+          return Promise.resolve({ data: [matchForRound(roundId)], error: null });
+        }),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        auth: { getUser: vi.fn() },
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'events')
+            return chain({
+              single: vi.fn().mockResolvedValue({ data: { id: tournamentId }, error: null }),
+            });
+          if (t === 'bracket_rounds') return rChain;
+          if (t === 'bracket_matches') return mChain;
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/tournaments', tournamentRouter).request(
+        `/api/tournaments/${tournamentId}/bracket`,
+        {},
+        env,
+      );
+      const body = (await res.json()) as {
+        data: { rounds: unknown[]; matches: Array<{ round_id: string }> };
+      };
+      expect(body.data.rounds).toHaveLength(2);
+      expect(body.data.matches).toHaveLength(2);
+      expect(body.data.matches.map((m) => m.round_id).sort()).toEqual([round1Id, round2Id].sort());
     });
   });
 
@@ -256,16 +305,14 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/tournaments', tournamentRouter)
-        .request(
-          `/api/tournaments/${tournamentId}/register`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t' },
-          },
-          env,
-        );
+      const res = await createTestApp('/api/tournaments', tournamentRouter).request(
+        `/api/tournaments/${tournamentId}/register`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t' },
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -305,17 +352,15 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/bracket-matches', bracketMatchRouter)
-        .request(
-          `/api/bracket-matches/${matchId}/report`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ winner_id: testUserId, score_player1: 2, score_player2: 0 }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/bracket-matches', bracketMatchRouter).request(
+        `/api/bracket-matches/${matchId}/report`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ winner_id: testUserId, score_player1: 2, score_player2: 0 }),
+        },
+        env,
+      );
       expect(res.status).toBe(403);
     });
 
@@ -349,17 +394,15 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/bracket-matches', bracketMatchRouter)
-        .request(
-          `/api/bracket-matches/${matchId}/walkover`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ winner_id: testUserId }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/bracket-matches', bracketMatchRouter).request(
+        `/api/bracket-matches/${matchId}/walkover`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ winner_id: testUserId }),
+        },
+        env,
+      );
       expect(res.status).toBe(403);
     });
 
@@ -407,17 +450,15 @@ describe('Tournament routes', () => {
         }),
       });
 
-      const res = await makeApp()
-        .route('/api/bracket-matches', bracketMatchRouter)
-        .request(
-          `/api/bracket-matches/${matchId}/report`,
-          {
-            method: 'POST',
-            headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ winner_id: testUserId, score_player1: 2, score_player2: 0 }),
-          },
-          env,
-        );
+      const res = await createTestApp('/api/bracket-matches', bracketMatchRouter).request(
+        `/api/bracket-matches/${matchId}/report`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ winner_id: testUserId, score_player1: 2, score_player2: 0 }),
+        },
+        env,
+      );
       expect(res.status).toBe(200);
     });
   });

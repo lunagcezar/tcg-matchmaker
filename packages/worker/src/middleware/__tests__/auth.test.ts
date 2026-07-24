@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Hono } from 'hono';
 import { authMiddleware } from '../auth.js';
-import { env, makeUser } from '../../test-utils/supabase.js';
+import { dbClientMiddleware } from '../db.js';
+import { env, makeUser, makeApp } from '../../test-utils/supabase.js';
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
@@ -20,12 +20,9 @@ const deletedUser = makeUser({
 });
 
 function createTestApp() {
-  const app = new Hono<{
-    Bindings: typeof env;
-    Variables: { user: { id: string; email: string; username: string; role: string } };
-  }>();
-  app.get('/test', authMiddleware, (c) => c.json({ data: c.var.user, error: null, meta: null }));
-  return app;
+  return makeApp()
+    .use('*', dbClientMiddleware)
+    .get('/test', authMiddleware, (c) => c.json({ data: c.var.user, error: null, meta: null }));
 }
 
 describe('authMiddleware', () => {
