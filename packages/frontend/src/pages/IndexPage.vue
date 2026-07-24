@@ -1,37 +1,64 @@
 <template>
-  <q-page class="home-page">
-    <section class="map-section">
-      <EventMap :events="filteredEvents" />
-    </section>
-    <section ref="feedRef" class="feed-section">
+  <MapListLayout
+    ref="layoutRef"
+    :items="eventStore.items"
+    :loading="eventStore.loading"
+    :empty-text="$t('home.noEvents')"
+  >
+    <template #map>
+      <EventMap :events="eventStore.items" />
+    </template>
+    <template #filters>
       <FilterBar
         v-model="selectedTypes"
         @geolocate="geolocate"
         @update:model-value="onFilterChange"
       />
-      <EventFeed
-        :events="filteredEvents"
-        :loading="eventStore.loading"
-        :scroll-target="feedRef"
-        @load-more="loadMore"
-      />
-    </section>
-  </q-page>
+    </template>
+    <template #items>
+      <q-infinite-scroll :offset="250" :scroll-target="layoutRef?.scrollRef" @load="loadMore">
+        <router-link
+          v-for="event in filteredEvents"
+          :key="event.id as string"
+          :to="eventRoute(event)"
+          class="event-row"
+        >
+          <q-badge :color="eventColor(event.type as string)" class="q-mr-sm">
+            {{ event.type }}
+          </q-badge>
+          <q-badge :color="statusColor(event.status as string)" outline class="q-mr-sm">
+            {{ event.status }}
+          </q-badge>
+          <div class="event-row__name">{{ event.name || event.type }}</div>
+          <q-space />
+          <div class="event-row__time">{{ relativeTime(event.scheduled_at as string) }}</div>
+        </router-link>
+        <template #loading>
+          <div class="row justify-center q-my-md">
+            <q-spinner color="primary" size="2rem" />
+          </div>
+        </template>
+      </q-infinite-scroll>
+    </template>
+  </MapListLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { eventColor, statusColor } from '@/lib/colors';
+import { eventRoute } from '@/lib/router';
+import { relativeTime } from '@/lib/format';
+import MapListLayout from '@/layouts/MapListLayout.vue';
 import FilterBar from '@/components/organisms/home/FilterBar.vue';
-import EventFeed from '@/components/organisms/home/EventFeed.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 
 usePageMeta({ titleKey: 'meta.home', descKey: 'meta.homeDesc' });
 
 const eventStore = useEventStore();
 const selectedTypes = ref<string[]>([]);
-const feedRef = ref<HTMLElement | null>(null);
+const layoutRef = ref<InstanceType<typeof MapListLayout> | null>(null);
 
 function filterParams(): Record<string, string> | undefined {
   if (selectedTypes.value.length === 1) {
@@ -62,7 +89,7 @@ function geolocate() {
   }
 }
 
-function loadMore(done: (stop?: boolean) => void) {
+function loadMore(_index: number, done: (stop?: boolean) => void) {
   void eventStore.loadMore(filterParams()).then(() => done(!eventStore.hasMore));
 }
 
@@ -72,27 +99,33 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.home-page {
+.event-row {
   display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  overflow: hidden;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease;
 }
 
-.map-section {
-  flex: 0 0 40vh;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--border);
+.event-row:hover {
+  background-color: var(--muted);
 }
 
-.feed-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  overflow: hidden auto;
-  min-height: 0;
+.event-row:first-child {
+  border-top: 1px solid var(--border);
+}
+
+.event-row__name {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.event-row__time {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
 }
 </style>
