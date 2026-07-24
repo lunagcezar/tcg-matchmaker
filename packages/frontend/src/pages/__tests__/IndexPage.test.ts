@@ -23,6 +23,8 @@ const i18n = createI18n({
   messages: {
     'en-US': {
       home: { noEvents: 'No events nearby', findNearMe: 'Find near me' },
+      event: { all: 'All' },
+      nav: { matches: 'Matches', trading: 'Trading', tournaments: 'Tournaments' },
     },
   },
 });
@@ -33,7 +35,6 @@ function stubs() {
       template: '<div><slot name="map" /><slot name="filters" /><slot name="items" /></div>',
     },
     EventMap: { template: '<div class="event-map-stub" />' },
-    FilterToggle: { template: '<div class="filter-toggle-stub" />' },
     'q-infinite-scroll': { template: '<div><slot /></div>' },
     'q-btn': { template: '<button><slot /></button>' },
     'q-badge': { template: '<span><slot /></span>' },
@@ -64,12 +65,12 @@ describe('IndexPage', () => {
     expect(mockEventStore.list).toHaveBeenCalled();
   });
 
-  it('renders map and filter toggle', async () => {
+  it('renders map and filter tabs', async () => {
     const IndexPage = (await import('../IndexPage.vue')).default;
     const wrapper = shallowMount(IndexPage, {
       global: { plugins: [i18n, createPinia()], stubs: stubs() },
     });
     expect(wrapper.find('.event-map-stub').exists()).toBe(true);
-    expect(wrapper.find('.filter-toggle-stub').exists()).toBe(true);
+    expect(wrapper.find('.filter-tabs').exists()).toBe(true);
   });
 });

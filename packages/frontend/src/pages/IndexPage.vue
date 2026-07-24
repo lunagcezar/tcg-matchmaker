@@ -11,11 +11,22 @@
     <template #filters>
       <q-btn flat dense icon="my_location" :label="$t('home.findNearMe')" @click="geolocate" />
       <q-space />
-      <FilterToggle
-        :model-value="selectedTypes"
-        :options="typeOptions"
-        @update:model-value="onFilterChange"
-      />
+      <div class="filter-tabs">
+        <q-btn
+          v-for="opt in typeOptions"
+          :key="opt.value"
+          :flat="selectedTypes[0] !== opt.value"
+          :outline="selectedTypes[0] === opt.value"
+          rounded
+          dense
+          no-caps
+          :color="selectedTypes[0] === opt.value ? 'primary' : undefined"
+          :text-color="selectedTypes[0] === opt.value ? undefined : 'grey-7'"
+          :label="opt.label"
+          size="sm"
+          @click="onFilterChange([opt.value])"
+        />
+      </div>
     </template>
     <template #items>
       <q-infinite-scroll :offset="250" :scroll-target="scrollTarget" @load="loadMore">
@@ -54,7 +65,6 @@ import { eventColor, statusColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
 import { relativeTime } from '@/lib/format';
 import MapListLayout from '@/layouts/MapListLayout.vue';
-import FilterToggle from '@/components/molecules/FilterToggle.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 
 usePageMeta({ titleKey: 'meta.home', descKey: 'meta.homeDesc' });
@@ -151,5 +161,17 @@ onMounted(() => {
 .event-row__time {
   font-size: 0.75rem;
   color: var(--muted-foreground);
+}
+
+.filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+@media (max-width: 480px) {
+  .filter-tabs {
+    width: 100%;
+  }
 }
 </style>
