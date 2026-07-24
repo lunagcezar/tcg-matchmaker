@@ -9,9 +9,11 @@
       <EventMap :events="filteredEvents" />
     </template>
     <template #filters>
-      <FilterBar
-        v-model="selectedTypes"
-        @geolocate="geolocate"
+      <q-btn flat dense icon="my_location" :label="$t('home.findNearMe')" @click="geolocate" />
+      <q-space />
+      <FilterToggle
+        :model-value="selectedTypes"
+        :options="typeOptions"
         @update:model-value="onFilterChange"
       />
     </template>
@@ -51,16 +53,23 @@ import { eventColor, statusColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
 import { relativeTime } from '@/lib/format';
 import MapListLayout from '@/layouts/MapListLayout.vue';
-import FilterBar from '@/components/organisms/home/FilterBar.vue';
+import FilterToggle from '@/components/molecules/FilterToggle.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 
 usePageMeta({ titleKey: 'meta.home', descKey: 'meta.homeDesc' });
 
 const eventStore = useEventStore();
-const selectedTypes = ref<string[]>([]);
+const selectedTypes = ref<string[]>(['']);
 const layoutRef = ref<InstanceType<typeof MapListLayout> | null>(null);
 
 const scrollTarget = computed(() => layoutRef.value?.scrollRef ?? undefined);
+
+const typeOptions = [
+  { label: 'All', value: '' },
+  { label: 'Matches', value: 'match' },
+  { label: 'Trading', value: 'trading' },
+  { label: 'Tournaments', value: 'tournament' },
+];
 
 function filterParams(): Record<string, string> | undefined {
   const t = selectedTypes.value;
@@ -77,8 +86,18 @@ const filteredEvents = computed(() => {
   return events.filter((e) => t.includes(e.type));
 });
 
-function onFilterChange(value: string[]) {
-  selectedTypes.value = value;
+function onFilterChange(value: string | string[]) {
+  const types = Array.isArray(value) ? value : [value];
+  const added = types.find((x) => !selectedTypes.value.includes(x));
+  if (added === '') {
+    selectedTypes.value = [''];
+  } else if (added) {
+    selectedTypes.value = [added];
+  } else if (types.length === 0) {
+    selectedTypes.value = [''];
+  } else {
+    selectedTypes.value = types;
+  }
   eventStore.reset();
   void eventStore.list(filterParams());
 }

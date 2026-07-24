@@ -30,6 +30,6 @@ const model = computed({
 <style scoped>
 .filter-toggle {
   flex: 1 1 auto;
-  min-width: 240px;
+  min-width: 360px;
 }
 </style>
