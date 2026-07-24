@@ -1,5 +1,5 @@
 <template>
-  <q-infinite-scroll :offset="250" @load="onLoad">
+  <q-infinite-scroll :offset="250" :scroll-target="scrollTarget" @load="onLoad">
     <div class="event-feed">
       <div v-if="events.length === 0 && !loading" class="text-center q-py-xl text-grey">
         {{ $t('home.noEvents') }}
@@ -30,11 +30,16 @@
 </template>
 
 <script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue';
 import { eventColor, statusColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
 import { relativeTime } from '@/lib/format';
 
-defineProps<{ events: Array<Record<string, unknown>>; loading?: boolean }>();
+defineProps<{
+  events: Array<Record<string, unknown>>;
+  loading?: boolean;
+  scrollTarget?: HTMLElement | ComponentPublicInstance | string;
+}>();
 const emit = defineEmits<{ (e: 'loadMore', done: (stop?: boolean) => void): void }>();
 
 function onLoad(_index: number, done: (stop?: boolean) => void) {
