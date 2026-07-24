@@ -6,7 +6,7 @@
     :empty-text="$t('home.noEvents')"
   >
     <template #map>
-      <EventMap :events="store.items" />
+      <EventMap :events="tournaments" />
     </template>
     <template #filters>
       <q-btn

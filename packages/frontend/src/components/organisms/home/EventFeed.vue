@@ -30,7 +30,6 @@
 </template>
 
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue';
 import { eventColor, statusColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
 import { relativeTime } from '@/lib/format';

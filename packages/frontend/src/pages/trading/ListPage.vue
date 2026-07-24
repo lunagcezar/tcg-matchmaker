@@ -6,7 +6,7 @@
     :empty-text="$t('home.noEvents')"
   >
     <template #map>
-      <EventMap :events="store.items" />
+      <EventMap :events="sessions" />
     </template>
     <template #filters>
       <q-btn color="positive" icon="add" :label="$t('nav.newTrading')" to="/trading/new" />

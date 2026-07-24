@@ -6,7 +6,7 @@
     :empty-text="$t('home.noEvents')"
   >
     <template #map>
-      <EventMap :events="store.items" />
+      <EventMap :events="matches" />
     </template>
     <template #filters>
       <q-btn color="primary" icon="add" :label="$t('nav.newMatch')" to="/matches/new" />
