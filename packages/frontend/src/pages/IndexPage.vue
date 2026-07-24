@@ -11,21 +11,16 @@
     <template #filters>
       <q-btn flat dense icon="my_location" :label="$t('home.findNearMe')" @click="geolocate" />
       <q-space />
-      <div class="filter-tabs">
-        <q-btn
+      <div class="filter-segment">
+        <button
           v-for="opt in typeOptions"
           :key="opt.value"
-          :flat="selectedTypes[0] !== opt.value"
-          :outline="selectedTypes[0] === opt.value"
-          rounded
-          dense
-          no-caps
-          :color="selectedTypes[0] === opt.value ? 'primary' : undefined"
-          :text-color="selectedTypes[0] === opt.value ? undefined : 'grey-7'"
-          :label="opt.label"
-          size="sm"
+          class="filter-segment__btn"
+          :class="{ active: selectedTypes[0] === opt.value }"
           @click="onFilterChange([opt.value])"
-        />
+        >
+          {{ opt.label }}
+        </button>
       </div>
     </template>
     <template #items>
@@ -163,14 +158,38 @@ onMounted(() => {
   color: var(--muted-foreground);
 }
 
-.filter-tabs {
-  display: flex;
+.filter-segment {
+  display: inline-flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.filter-segment__btn {
+  all: unset;
+  cursor: pointer;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-right: 1px solid var(--border);
+  color: var(--muted-foreground);
+  transition:
+    color 0.15s,
+    font-weight 0.15s;
+}
+
+.filter-segment__btn:last-child {
+  border-right: none;
+}
+
+.filter-segment__btn.active {
+  color: var(--primary);
+  font-weight: 700;
 }
 
 @media (max-width: 480px) {
-  .filter-tabs {
+  .filter-segment {
     width: 100%;
   }
 }

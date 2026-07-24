@@ -11,7 +11,17 @@
     <template #filters>
       <q-btn color="primary" icon="add" :label="$t('nav.newMatch')" to="/matches/new" />
       <q-space />
-      <FilterToggle v-model="statusFilter" :options="statusOptions" />
+      <div class="filter-segment">
+        <button
+          v-for="opt in statusOptions"
+          :key="opt.value"
+          class="filter-segment__btn"
+          :class="{ active: statusFilter === opt.value }"
+          @click="statusFilter = opt.value"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
     </template>
     <template #items>
       <router-link
@@ -88,5 +98,41 @@ onMounted(() => store.list({ type: 'match' }));
 
 .event-row:first-child {
   border-top: 1px solid var(--border);
+}
+
+.filter-segment {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.filter-segment__btn {
+  all: unset;
+  cursor: pointer;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-right: 1px solid var(--border);
+  color: var(--muted-foreground);
+  transition:
+    color 0.15s,
+    font-weight 0.15s;
+}
+
+.filter-segment__btn:last-child {
+  border-right: none;
+}
+
+.filter-segment__btn.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .filter-segment {
+    width: 100%;
+  }
 }
 </style>

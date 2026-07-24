@@ -1,6 +1,13 @@
 <template>
   <div class="admin-table-wrap">
-    <q-table :rows="rows" :columns="columns" row-key="id" :loading="loading" flat>
+    <q-table
+      :rows="rows"
+      :columns="columns"
+      row-key="id"
+      :loading="loading"
+      flat
+      :card-style="{ background: 'transparent', boxShadow: 'none' }"
+    >
       <template v-for="(_, slot) in $slots" #[slot]="scope" :key="slot">
         <slot :name="slot" v-bind="scope" />
       </template>
@@ -35,10 +42,13 @@ defineProps<{
   letter-spacing: 0.04em;
   color: var(--muted-foreground);
   border-bottom: 1px solid var(--border);
+  background: transparent;
 }
 
 .admin-table-wrap :deep(.q-table tbody tr td) {
+  text-align: left;
   border-bottom: 1px solid var(--border);
+  background: transparent;
 }
 
 .admin-table-wrap :deep(.q-table tbody tr:last-child td) {
