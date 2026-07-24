@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { eventColor, statusColor } from '@/lib/colors';
@@ -58,18 +59,19 @@ import EventMap from '@/components/organisms/home/EventMap.vue';
 
 usePageMeta({ titleKey: 'meta.home', descKey: 'meta.homeDesc' });
 
+const { t } = useI18n();
 const eventStore = useEventStore();
 const selectedTypes = ref<string[]>(['']);
 const layoutRef = ref<InstanceType<typeof MapListLayout> | null>(null);
 
 const scrollTarget = computed(() => layoutRef.value?.scrollRef ?? undefined);
 
-const typeOptions = [
-  { label: 'All', value: '' },
-  { label: 'Matches', value: 'match' },
-  { label: 'Trading', value: 'trading' },
-  { label: 'Tournaments', value: 'tournament' },
-];
+const typeOptions = computed(() => [
+  { label: t('event.all'), value: '' },
+  { label: t('nav.matches'), value: 'match' },
+  { label: t('nav.trading'), value: 'trading' },
+  { label: t('nav.tournaments'), value: 'tournament' },
+]);
 
 function filterParams(): Record<string, string> | undefined {
   const t = selectedTypes.value;
