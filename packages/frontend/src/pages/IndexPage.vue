@@ -1,12 +1,12 @@
 <template>
   <MapListLayout
     ref="layoutRef"
-    :items="eventStore.items"
+    :items="filteredEvents"
     :loading="eventStore.loading"
     :empty-text="$t('home.noEvents')"
   >
     <template #map>
-      <EventMap :events="eventStore.items" />
+      <EventMap :events="filteredEvents" />
     </template>
     <template #filters>
       <FilterBar
@@ -16,7 +16,7 @@
       />
     </template>
     <template #items>
-      <q-infinite-scroll :offset="250" :scroll-target="layoutRef?.scrollRef" @load="loadMore">
+      <q-infinite-scroll :offset="250" :scroll-target="scrollTarget" @load="loadMore">
         <router-link
           v-for="event in filteredEvents"
           :key="event.id as string"
@@ -59,6 +59,8 @@ usePageMeta({ titleKey: 'meta.home', descKey: 'meta.homeDesc' });
 const eventStore = useEventStore();
 const selectedTypes = ref<string[]>([]);
 const layoutRef = ref<InstanceType<typeof MapListLayout> | null>(null);
+
+const scrollTarget = computed(() => layoutRef.value?.scrollRef ?? undefined);
 
 function filterParams(): Record<string, string> | undefined {
   if (selectedTypes.value.length === 1) {

@@ -38,7 +38,7 @@ import { relativeTime } from '@/lib/format';
 defineProps<{
   events: Array<Record<string, unknown>>;
   loading?: boolean;
-  scrollTarget?: HTMLElement | ComponentPublicInstance | string;
+  scrollTarget?: Element | string;
 }>();
 const emit = defineEmits<{ (e: 'loadMore', done: (stop?: boolean) => void): void }>();
 

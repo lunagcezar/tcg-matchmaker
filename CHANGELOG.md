@@ -17,11 +17,15 @@ All notable changes to this project will be documented in this file.
 - Seed data: `supabase/seed.sql` — 5 users, 4 TCGs with formats, 3 Fortaleza stores, 60 events (20 matches, 20 trading, 20 tournaments), bracket rounds and matches for 2 in_progress tournaments, participants, notifications, a report, and audit log. All events are future-dated or in_progress. Tournaments span all 5 bracket types. Two in_progress tournaments have pre-generated brackets (single_elimination + double_elimination) with checked-in players for immediate bracket visualization.
 - Dev setup docs: `docs/dev-setup.md` — includes quick start, seed documentation, troubleshooting guide.
 - Dev setup script: `scripts/setup-dev.sh` — runs `supabase db reset --local`, waits for Auth API, creates auth users with matching UUIDs via admin API.
+- `MapListLayout` component: reusable full-viewport layout with optional map (40vh), sticky filter bar, and scrollable list area.
 - Spec: `spec/plan.md` with technical decisions and refactoring order.
+- Spec: `spec/spec-066-map-list-layout.md`.
 
 ### Changed
 
 - Worker domain files reduced from monolithic 120–506 lines to 1-line re-exports (all logic split into router/service/repository).
+- `IndexPage`, `matches/ListPage`, `trading/ListPage`, `tournaments/ListPage`, `stores/ListPage` all use `MapListLayout` with viewport-filling layout (map + sticky filters + scrollable list).
+- `EventMap` now switches to CartoDB dark tiles when Quasar dark mode is active.
 - Shared schemas: all `z.string().datetime()` replaced with `z.string()` across event, store, notification, tcg, report, and tournament schemas (Supabase timestamp format incompatible with Zod's strict datetime validator).
 - `supabase/seed.sql`: removed `auth.users`/`auth.identities` inserts (auth schema doesn't exist at seed time — handled by setup script instead).
 - README: updated quick start and seed docs with `bash scripts/setup-dev.sh` step and instructions.
@@ -36,6 +40,9 @@ All notable changes to this project will be documented in this file.
 - Added schema validation tests (`src/__tests__/schemas.test.ts`) — 12 tests covering all domain schemas with Supabase-style timestamp format, preventing timestamp format regressions.
 - `IndexPage.vue`: home page filter now re-fetches from server when the filter tab changes; `loadMore` passes the active type filter so infinite scroll loads more of the selected type instead of all events.
 - `EventFeed.vue`: added status badge next to the type badge on each event row.
+- Maps now respect filter tabs and search — only filtered events/stores appear on the map.
+- `vue-tsc` type errors: `scroll-target` prop type narrowed, `null` filtered via computed.
+- `EventMap` height no longer hardcoded — controlled by parent layout (flex).
 
 ## [0.65.0] — 2026-07-16
 

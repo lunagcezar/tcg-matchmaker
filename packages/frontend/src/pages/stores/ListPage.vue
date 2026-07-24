@@ -6,14 +6,14 @@
     :empty-text="$t('home.noEvents')"
   >
     <template #map>
-      <EventMap :events="storeStore.items as unknown as Record<string, unknown>[]" />
+      <EventMap :events="stores as unknown as Record<string, unknown>[]" />
     </template>
     <template #filters>
       <q-input v-model="search" :label="$t('common.search')" outlined dense class="flex-1" />
       <q-btn color="primary" icon="add" :label="$t('store.create')" to="/stores/new" />
     </template>
     <template #items>
-      <q-infinite-scroll :offset="250" :scroll-target="layoutRef?.scrollRef" @load="onLoad">
+      <q-infinite-scroll :offset="250" :scroll-target="scrollTarget" @load="onLoad">
         <div class="row q-col-gutter-md">
           <div v-for="s in stores" :key="s.id as string" class="col-12 col-sm-6 col-md-4">
             <router-link :to="`/stores/${s.id}`" class="store-card">
@@ -47,6 +47,7 @@ usePageMeta({ titleKey: 'meta.stores', descKey: 'meta.storesDesc' });
 const storeStore = useStoreStore();
 const search = ref('');
 const layoutRef = ref<InstanceType<typeof MapListLayout> | null>(null);
+const scrollTarget = computed(() => layoutRef.value?.scrollRef ?? undefined);
 
 const stores = computed(() => {
   const items = storeStore.items;
