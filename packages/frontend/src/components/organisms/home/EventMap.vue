@@ -13,30 +13,20 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 let map: L.Map | null = null;
 let markers: L.Marker[] = [];
 let tileLayer: L.TileLayer | null = null;
-
+let initialFitDone = false;
 const $q = useQuasar();
 const defaultCenter: [number, number] = [-3.7184, -38.5434];
 
-function isDark(): boolean {
-  return $q.dark.isActive;
-}
-
 function tileUrl(): string {
-  return isDark()
+  return $q.dark.isActive
     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
     : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-}
-
-function tileAttribution(): string {
-  return isDark()
-    ? '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
-    : '&copy; OpenStreetMap contributors';
 }
 
 function updateTiles() {
   if (!map) return;
   if (tileLayer) map.removeLayer(tileLayer);
-  tileLayer = L.tileLayer(tileUrl(), { attribution: tileAttribution() }).addTo(map);
+  tileLayer = L.tileLayer(tileUrl()).addTo(map);
 }
 
 function iconForType(type: string) {
@@ -46,7 +36,7 @@ function iconForType(type: string) {
     tournament: '#F2C037',
   };
   const color = colors[type] || 'var(--primary)';
-  const bg = isDark() ? '#1e1e2e' : '#ffffff';
+  const bg = $q.dark.isActive ? '#1e1e2e' : '#ffffff';
   return L.divIcon({
     className: '',
     html: `<div style="width:16px;height:16px;background:${color};border-radius:50%;border:2px solid ${bg}"></div>`,
@@ -69,7 +59,7 @@ function rebuildMarkers() {
   });
   if (markers.length > 0) {
     const group = L.featureGroup(markers);
-    map?.fitBounds(group.getBounds().pad(0.1));
+    map?.fitBounds(group.getBounds().pad(0.1), { animate: false, duration: 0 });
   }
 }
 
@@ -91,8 +81,11 @@ watch(
 
 onMounted(() => {
   if (!mapContainer.value) return;
-  map = L.map(mapContainer.value).setView(defaultCenter, 13);
-  tileLayer = L.tileLayer(tileUrl(), { attribution: tileAttribution() }).addTo(map);
+  map = L.map(mapContainer.value, {
+    attributionControl: false,
+    zoomControl: true,
+  }).setView(defaultCenter, 13);
+  tileLayer = L.tileLayer(tileUrl()).addTo(map);
 });
 
 onUnmounted(() => {
@@ -106,5 +99,9 @@ onUnmounted(() => {
   height: 100%;
   border-radius: var(--radius-lg);
   overflow: hidden;
+}
+
+.map-container :deep(.leaflet-control-zoom) {
+  z-index: 400;
 }
 </style>

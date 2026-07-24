@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - `MapListLayout` component: reusable full-viewport layout with optional map (40vh), sticky filter bar, and scrollable list area.
 - Spec: `spec/plan.md` with technical decisions and refactoring order.
 - Spec: `spec/spec-066-map-list-layout.md`.
+- Spec: `spec/spec-067-leaflet-map-fixes.md`.
 
 ### Changed
 
@@ -43,6 +44,7 @@ All notable changes to this project will be documented in this file.
 - Maps now respect filter tabs and search — only filtered events/stores appear on the map.
 - `vue-tsc` type errors: `scroll-target` prop type narrowed, `null` filtered via computed.
 - `EventMap` height no longer hardcoded — controlled by parent layout (flex).
+- Leaflet map fixes: zoom control z-index lowered to 400 (below navbar), attribution control removed, `fitBounds` animation disabled (`{ animate: false }`).
 
 ## [0.65.0] — 2026-07-16
 
