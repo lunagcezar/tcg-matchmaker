@@ -58,6 +58,12 @@ const j = await apiGet('/api/events');
 items.value = (j.data ?? []) as Record<string, unknown>[];
 ```
 
+### API Client Quality (P0)
+
+- All frontend API calls must use the typed fetch wrappers from `@/composables/useApi` (`apiGet`, `apiPost`, `apiPatch`, `apiDelete`).
+- Do not use raw `fetch()` directly in stores, pages, or composables.
+- Do not use the Hono RPC client (`hono/client`) in the frontend; the monorepo Worker type bindings do not resolve correctly across packages.
+
 ---
 
 ## Usage Patterns

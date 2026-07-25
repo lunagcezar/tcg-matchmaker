@@ -217,6 +217,15 @@ any ──(cancel)──▶ cancelled
 - NFR-28g: Shared Zod schemas and constants live in `@tcg/shared` and are used by both frontend forms and Worker validation
 - NFR-28h: Environment-specific globals (`localStorage`, `navigator`, `window`) are guarded against `undefined` for SSR/test compatibility
 
+### Backend DRY / Worker Quality (P0)
+
+- NFR-29: The secret Supabase client is created exactly once per request by `src/middleware/db.ts` (`dbClientMiddleware`) and attached to `c.var.db`; Worker routers and services read `c.var.db` and do not call `createSecretClient(...)` directly
+- NFR-30: All Zod parsing in Worker services uses the shared `validate(schema, body)` helper from `src/lib/validation.ts`; services must not hand-format `parsed.error.issues` into strings
+- NFR-31: All Worker HTTP responses use helpers from `src/lib/responses.ts` (`ok`, `created`, `badRequest`, `notFound`, `forbidden`, `unauthorized`, `tooManyRequests`, `serverError`); inline `c.json(...)` response construction is not allowed
+- NFR-32: User roles and store-membership roles are referenced through shared `ROLES`/`Role` and `STORE_MEMBERSHIP_ROLES`/`StoreMembershipRole` from `@tcg/shared`; string literals are not allowed for role checks
+- NFR-33: Production code must not use the `any` type; use `unknown`, precise types, or Zod schemas instead
+- NFR-34: Every bug fix must include a regression test that fails before the fix and passes after
+
 ### 3.6 Observability & Error Tracking
 
 - NFR-29: **Sentry** integrated in both frontend (Quasar) and backend (Hono Workers) for error tracking

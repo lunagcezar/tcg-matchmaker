@@ -162,7 +162,17 @@ export async function findEventById(supabase: ReturnType<typeof createSecretClie
 | Response helpers  | `lib/responses.ts` — `ok`, `created`, `badRequest`, `notFound`, etc.              |
 | Validation helper | `lib/validation.ts` — `validate(schema, body)` returns typed `{ data/error }`     |
 | Shared schemas    | `@tcg/shared` — Zod schemas and constants used by both frontend and Worker        |
-| App bootstrap     | `index.ts` — CORS, Sentry, error handler, route mounting                          |
+
+## Quality Guidelines
+
+The following rules were established by the P0 audit remediation (`spec-069`) and must be followed in all Worker code.
+
+- **DB client once per request**: `middleware/db.ts` creates a single secret Supabase client and attaches it to `c.var.db`. Routers and services read `c.var.db`; they must not call `createSecretClient(...)` directly.
+- **Use the validation helper**: All Zod parsing goes through `validate(schema, body)` in `src/lib/validation.ts`. Do not hand-format `parsed.error.issues` into strings in services.
+- **Use response helpers**: Build every `{ data, error, meta }` envelope through helpers in `src/lib/responses.ts`. Do not construct `c.json(...)` response objects inline.
+- **Use shared constants**: Import `ROLES`/`Role` and `STORE_MEMBERSHIP_ROLES`/`StoreMembershipRole` from `@tcg/shared` for all role checks. No role string literals.
+- **No `any` in production**: Production code must not use `any`. Prefer `unknown`, precise types, or Zod schemas. Tests may use `as Type` assertions.
+- **Regression tests**: Every bug fix needs a test that fails before the fix and passes after.
 
 ## Domains
 

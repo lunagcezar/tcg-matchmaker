@@ -7,10 +7,11 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - `AGENTS.md`: added a new "Frontend DRY & Quality Guidelines" section documenting the P1 audit rules: page size ceiling (≤ 200 lines), `BaseList` + `EventRow` reuse, `StatusFilterSegment`/`StatusBadge`/`ConfirmDeleteDialog`/`DateTimePicker` primitives, `useFormatDate` for all dates, i18n completeness, layout provide/inject pattern for shared refs, SSR/test-safe `localStorage`/`navigator` guards, and shared Zod schemas from `@tcg/shared`.
+- `AGENTS.md`: added a new "Worker DRY & Quality Guidelines" section documenting the P0 audit rules: DB client created once per request via `dbClientMiddleware`/`c.var.db`, `validate()` helper for all Zod parsing, response helpers for all envelopes, shared `ROLES`/`STORE_MEMBERSHIP_ROLES` constants, no `any` in production, no raw `fetch()` in the frontend, and regression tests for every bug fix.
 - `docs/pages.md`: updated the component organization diagram with the new atoms/molecules/organisms and added sections for page size/splitting, reusable list pattern, and reusable form/display molecules.
-- `docs/worker-architecture.md`: updated router layer examples to use `dbClientMiddleware` + `c.var.db` and response helpers (`ok`, `notFound`, etc.), and updated the cross-cutting concerns table with DB client, response/validation helpers, and shared schemas.
-- `docs/client-api-architecture.md`: replaced the deprecated `lib/format.ts` entry with `useFormatDate` and added a date-formatting section.
-- `docs/requirements.md`: expanded the Code Quality NFRs (NFR-28a–h) with concrete frontend and backend DRY/SOLID rules from the P1 remediation.
+- `docs/worker-architecture.md`: updated router layer examples to use `dbClientMiddleware` + `c.var.db` and response helpers (`ok`, `notFound`, etc.), updated the cross-cutting concerns table with DB client, response/validation helpers, and shared schemas, and added a "Quality Guidelines" section covering the P0 rules.
+- `docs/client-api-architecture.md`: replaced the deprecated `lib/format.ts` entry with `useFormatDate`, added a date-formatting section, and added an "API Client Quality (P0)" section requiring the use of `apiGet`/`apiPost`/`apiPatch`/`apiDelete` wrappers and forbidding raw `fetch()` / Hono RPC.
+- `docs/requirements.md`: expanded the Code Quality NFRs with P1 frontend rules (NFR-28a–h) and added a new "Backend DRY / Worker Quality (P0)" subsection (NFR-29–34) for DB client reuse, validation helpers, response helpers, shared constants, no `any`, and regression tests.
 
 ## [0.68.0] — 2026-07-24
 

@@ -184,6 +184,18 @@ These rules were introduced by the P1 audit remediation (`spec-070`) and are enf
 - Stateless API logic goes in **composables** or direct `api*` calls from stores
 - Utility functions (formatting, colors, routing, locale detection) go in **`src/lib/`** — pure functions, no Vue reactivity
 
+### Worker DRY & Quality Guidelines
+
+These rules were introduced by the P0 audit remediation (`spec-069`) and are enforced by code review.
+
+- **DB client once per request**: The secret Supabase client is created exactly once per request by `src/middleware/db.ts` (`dbClientMiddleware`) and attached to `c.var.db`. All routers and services read `c.var.db` and never call `createSecretClient(...)` directly.
+- **Validation helper**: Use `validate(schema, body)` from `src/lib/validation.js` for all Zod parsing. Do not hand-format `parsed.error.issues` into strings in services.
+- **Response helpers**: Build every `{ data, error, meta }` envelope through helpers in `src/lib/responses.ts` (`ok`, `created`, `badRequest`, `notFound`, `forbidden`, `unauthorized`, `tooManyRequests`, `serverError`). Do not construct `c.json(...)` response objects inline.
+- **Shared constants**: Use `ROLES`/`Role` and `STORE_MEMBERSHIP_ROLES`/`StoreMembershipRole` from `@tcg/shared` for all role checks in both Worker and frontend. Do not use role string literals.
+- **No `any` types**: Never use `any` in production code. Use `unknown`, proper types, or Zod schemas. Tests may use `as Type` assertions.
+- **Raw fetch**: Frontend code must call the API through `apiGet`/`apiPost`/`apiPatch`/`apiDelete` from `@/composables/useApi`, never raw `fetch()`.
+- **Regression tests**: Every bug fix must be accompanied by a regression test that fails before the fix and passes after.
+
 ## Docs Maintenance
 
 - When implementing a feature, check if existing docs need updating
