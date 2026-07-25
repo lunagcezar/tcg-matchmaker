@@ -203,11 +203,19 @@ any ──(cancel)──▶ cancelled
 ### 3.5 Code Quality
 
 - NFR-23: SOLID and DRY principles
-- NFR-24: Stateful logic extracted to composables (`useMatch`, `useAuth`, `useGeolocation`, etc.)
+- NFR-24: Stateful logic extracted to composables (`useMatch`, `useAuth`, `useGeolocation`, `useFormatDate`, etc.)
 - NFR-25: Components organized with atomic design (atoms / molecules / organisms)
 - NFR-26: ESLint + Prettier for linting and formatting
 - NFR-27: Husky + lint-staged pre-commit hook runs ESLint and Prettier on staged files
 - NFR-28: Tests use **Vitest** for all API endpoints, composables, and utility functions
+- NFR-28a: Page components must stay ≤ 200 lines; larger pages are split into organisms under `src/components/organisms/<feature>/`
+- NFR-28b: Reusable list components — all event feeds use `BaseList` + `EventRow`; no duplicated `.event-row` or `.q-infinite-scroll` wiring
+- NFR-28c: Reusable UI primitives — `StatusFilterSegment` for status filters, `StatusBadge` for status labels, `ConfirmDeleteDialog` for destructive actions, `DateTimePicker` for combined date/time inputs
+- NFR-28d: All dates and times displayed in the UI are formatted via the `useFormatDate` Luxon composable; no direct `new Date().toLocaleDateString()` or `toLocaleTimeString()` calls
+- NFR-28e: All user-facing strings are internationalized via `$t()` or `useI18n()`; keys are added to both `en-US` and `pt-BR` files
+- NFR-28f: Worker routes use `c.var.db` (created by `dbClientMiddleware`), response helpers from `src/lib/responses.ts`, and validation via `validate()` from `src/lib/validation.ts` with shared Zod schemas
+- NFR-28g: Shared Zod schemas and constants live in `@tcg/shared` and are used by both frontend forms and Worker validation
+- NFR-28h: Environment-specific globals (`localStorage`, `navigator`, `window`) are guarded against `undefined` for SSR/test compatibility
 
 ### 3.6 Observability & Error Tracking
 

@@ -49,34 +49,55 @@
 
 ```
 src/
-  pages/                     — Pages layer (HomePage, LoginPage, MatchDetailPage, ...)
+  pages/                     — Pages layer. Keep pages ≤ 200 lines; split larger pages into organisms.
   layouts/                   — Templates layer (MainLayout, AdminLayout)
   components/
     atoms/                   — Smallest building blocks, highly reusable
-      AppButton, AppCard, AppSection, AppAvatar, AppBadge, AppIcon
+      AppButton, AppCard, AppSection, AppAvatar, AppBadge, AppIcon, StatusBadge
     molecules/               — Composed atoms with a single purpose
       fields/
-        TextField, SelectField, LocationAutocomplete
+        TextField, SelectField, LocationAutocomplete, DateTimePicker
       cards/
         EventCard, UserCard, StoreCard
       navigation/
         SiteBranch, MainNavigation, AdminNavigation
+      dialogs/
+        ConfirmDeleteDialog
+      filters/
+        FilterToggle, StatusFilterSegment
+      rows/
+        EventRow
     organisms/               — Feature-specific sections
       home/
-        EventMap, FilterBar, EventFeed, GeolocateButton
+        BaseList, EventMap, FilterBar, EventFeed, GeolocateButton
       match/
         MatchCreateForm, ParticipantConfirmList
       trading/
         TradingCreateForm, AttendeeList, RsvpButton
       tournament/
-        BracketView, ParticipantRegisterList
+        TournamentManageHeader, ParticipantListSection, BracketMatchSection, BracketView, ParticipantRegisterList
+      settings/
+        ProfileSettingsSection, PasswordSettingsSection, DangerZoneSection
       admin/
         TcgForm, FormatList, UserBanDialog
-  composables/               — useAuth, useMatch, useGeolocation, useTournament, useTrading
-  stores/                    — Pinia: useAuthStore, useAppStore
+  composables/               — useAuth, useMatch, useGeolocation, useTournament, useTrading, useFormatDate
+  stores/                    — Pinia: useAuthStore, useAppStore, useEventStore, useStoreStore, useNotificationStore
   i18n/                      — en-US.ts, pt-BR.ts
   router/                    — Vue Router routes (index.ts)
+  lib/                       — Pure utilities (formatting, colors, routing, locale detection, injection keys)
 ```
+
+### Page Size & Splitting
+
+- Page components must stay **≤ 200 lines**.
+- When a page approaches ~150 lines, move the remaining markup into a feature-specific organism under `src/components/organisms/<feature>/`.
+- Examples: `SettingsPage` uses `ProfileSettingsSection`, `PasswordSettingsSection`, and `DangerZoneSection`; `tournaments/ManagePage` uses `TournamentManageHeader`, `ParticipantListSection`, and `BracketMatchSection`.
+
+### Reusable List Pattern
+
+- All event feeds (home, matches, trading, tournaments, stores) use `BaseList` (infinite scroll, empty state, loading skeleton) and `EventRow` (styled link wrapper).
+- Do not duplicate `.event-row` markup or `.q-infinite-scroll` wiring in pages.
+- `BaseList` injects the scroll target from `MapListLayout` via `src/lib/injectionKeys.ts` (`MapListScrollRefKey`).
 
 ## Home Page Layout (Vertical Stack)
 
@@ -149,6 +170,15 @@ The application uses a single responsive shell inspired by `artemisluna.com.br`.
 - On error/denied: shows a toast, keeps current map center
 - Requires HTTPS for Geolocation API to work (Cloudflare Pages provides this)
 
+## Reusable Form & Display Molecules
+
+- **Status filters**: Use `StatusFilterSegment` for any status filter bar; avoid inline segment markup.
+- **Status display**: Use `StatusBadge` for all event, admin, and user status labels.
+- **Date/time inputs**: Use `DateTimePicker` for any combined date/time form input.
+- **Destructive actions**: Use `ConfirmDeleteDialog` for delete, ban, suspend, and walkover confirmations.
+- **Date/time display**: Use `useFormatDate` (Luxon-based) for all displayed dates/times; never call `new Date().toLocaleDateString()` directly.
+- **i18n**: All user-facing strings must be served by `$t()` or `useI18n()`. Add the key to both `en-US` and `pt-BR` files.
+
 ## Auth Guards
 
 - **Onboarding**: `/onboarding` — accessible only while no admin exists; redirects to `/` if any admin exists
@@ -165,6 +195,7 @@ The application uses a single responsive shell inspired by `artemisluna.com.br`.
 - `/admin/*` redirects non-admin users to `/`
 - `/tournaments/:id/manage` redirects non-organizer to `/tournaments/:id`
 - All event types (matches, trading, tournaments) share the unified `events` table but have type-specific pages
+- `localStorage` and `navigator` access is guarded against `undefined` for SSR/test compatibility
 
 ## SEO & Metadata
 

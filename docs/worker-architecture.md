@@ -80,27 +80,30 @@ events/
 ### Router (`router.ts`)
 
 - Defines Hono routes with HTTP methods and path patterns.
-- Attaches middleware (`authMiddleware`, `adminMiddleware`, `rateLimitMiddleware`).
+- Attaches middleware (`authMiddleware`, `adminMiddleware`, `rateLimitMiddleware`, `dbClientMiddleware`).
 - Parses request input: `c.req.param()`, `c.req.query()`, `await c.req.json()`.
-- Creates Supabase client: `createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY)`.
+- Reads the Supabase client from `c.var.db` (created once per request by `dbClientMiddleware`).
 - Delegates to a single service function per route.
-- Maps the service result to HTTP response: `c.json(result, status)`.
-- **Does not** contain business logic, validation, or database queries.
+- Maps the service result to HTTP response using helpers from `src/lib/responses.ts` (`ok`, `notFound`, `badRequest`, etc.).
+- **Does not** create its own Supabase client, contain business logic, validation, or database queries.
 
 ```ts
 // events/router.ts — example route
-eventRouter.get('/:id', async (c) => {
-  const supabase = createSecretClient(c.env.SUPABASE_URL, c.env.SUPABASE_SECRET_KEY);
-  const result = await getEvent(supabase, c.req.param('id')!);
-  if (!result.data) return c.json(result, 404);
-  return c.json(result);
+import { dbClientMiddleware } from '../middleware/db.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { ok, notFound } from '../lib/responses.js';
+
+eventRouter.get('/:id', dbClientMiddleware, authMiddleware, async (c) => {
+  const result = await getEvent(c.var.db, c.req.param('id')!);
+  if (!result.data) return notFound(c, result.error);
+  return ok(c, result.data);
 });
 ```
 
 ### Service (`service.ts`)
 
 - Pure functions that receive dependencies as arguments (supabase client, user ID, params).
-- Validates input with Zod schemas from `@tcg/shared`.
+- Validates input with the `validate(schema, body)` helper from `src/lib/validation.js` and Zod schemas from `@tcg/shared`.
 - Applies business rules: status transitions, ownership checks, duplicate detection.
 - Calls repository functions for data access.
 - Returns a `{ data, error, meta }` object. `error` is a string when something fails.
@@ -108,10 +111,15 @@ eventRouter.get('/:id', async (c) => {
 
 ```ts
 // events/service.ts — example
-export async function getEvent(supabase: ReturnType<typeof createSecretClient>, id: string) {
-  const event = await findEventById(supabase, id);
+import { validate } from '../lib/validation.js';
+import { GetEventParamsSchema } from '@tcg/shared';
+
+export async function getEvent(supabase: ReturnType<typeof createSecretClient>, rawId: string) {
+  const v = validate(GetEventParamsSchema, { id: rawId });
+  if (!v.success) return { data: null, error: v.error, meta: null };
+  const event = await findEventById(supabase, v.data.id);
   if (!event) return { data: null, error: 'Event not found', meta: null };
-  const count = await countEventParticipants(supabase, id);
+  const count = await countEventParticipants(supabase, v.data.id);
   return {
     data: { ...EventSchema.parse(event), participant_count: count },
     error: null,
@@ -143,14 +151,18 @@ export async function findEventById(supabase: ReturnType<typeof createSecretClie
 
 ## Cross-Cutting Concerns
 
-| Concern           | Location                                                      |
-| ----------------- | ------------------------------------------------------------- |
-| Auth middleware   | `middleware/auth.ts` — JWT verification + banned check        |
-| Admin guard       | `middleware/admin.ts` — role check                            |
-| Rate limiting     | `middleware/rate-limit.ts` — KV-backed factory                |
-| Logger            | `middleware/logger.ts` — structured logging + Sentry          |
-| DB client factory | `db/client.ts` — `createSecretClient()`, `createAuthClient()` |
-| App bootstrap     | `index.ts` — CORS, Sentry, error handler, route mounting      |
+| Concern           | Location                                                                          |
+| ----------------- | --------------------------------------------------------------------------------- |
+| Auth middleware   | `middleware/auth.ts` — JWT verification + banned check                            |
+| Admin guard       | `middleware/admin.ts` — role check                                                |
+| Rate limiting     | `middleware/rate-limit.ts` — KV-backed factory                                    |
+| Logger            | `middleware/logger.ts` — structured logging + Sentry                              |
+| DB client         | `middleware/db.ts` — creates one `createSecretClient()` per request at `c.var.db` |
+| DB client factory | `db/client.ts` — `createSecretClient()`, `createAuthClient()`                     |
+| Response helpers  | `lib/responses.ts` — `ok`, `created`, `badRequest`, `notFound`, etc.              |
+| Validation helper | `lib/validation.ts` — `validate(schema, body)` returns typed `{ data/error }`     |
+| Shared schemas    | `@tcg/shared` — Zod schemas and constants used by both frontend and Worker        |
+| App bootstrap     | `index.ts` — CORS, Sentry, error handler, route mounting                          |
 
 ## Domains
 

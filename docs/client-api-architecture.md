@@ -133,18 +133,29 @@ API calls are organized in two layers:
 
 ## Shared Utilities (`src/lib/`)
 
-| File            | Exports                                                                                                                         | Purpose                            |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `lib/api.ts`    | `getApiBase()`                                                                                                                  | Returns API base URL               |
-| `lib/format.ts` | `formatDate()`, `relativeTime()`                                                                                                | Date/time formatting               |
-| `lib/colors.ts` | `badgeColor()`, `statusColor()`, `roleColor()`, `eventColor()`, `memberRoleColor()`, `matchStatusColor()`, `notificationIcon()` | Color mapping for status badges    |
-| `lib/router.ts` | `eventRoute()`                                                                                                                  | Builds route paths for event types |
+| File                   | Exports                                                                                                                         | Purpose                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `lib/api.ts`           | `getApiBase()`                                                                                                                  | Returns API base URL                       |
+| `lib/format.ts`        | (deprecated) Date formatting moved to `useFormatDate`                                                                           | Historical date helpers                    |
+| `lib/colors.ts`        | `badgeColor()`, `statusColor()`, `roleColor()`, `eventColor()`, `memberRoleColor()`, `matchStatusColor()`, `notificationIcon()` | Color mapping for status badges            |
+| `lib/router.ts`        | `eventRoute()`                                                                                                                  | Builds route paths for event types         |
+| `lib/injectionKeys.ts` | `MapListScrollRefKey` and other layout-provided refs                                                                            | Provide/inject keys for shared layout refs |
 
 ```ts
-import { formatDate } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
 import { badgeColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
 ```
+
+### Date formatting
+
+Use the `useFormatDate` composable (Luxon-based) for every displayed date or time:
+
+```ts
+const { formatDate, formatTime, formatDateTime, formatRelative } = useFormatDate();
+```
+
+Do not call `new Date().toLocaleDateString()` or `toLocaleTimeString()` directly.
 
 ---
 

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.68.1] — 2026-07-24
+
+### Changed
+
+- `AGENTS.md`: added a new "Frontend DRY & Quality Guidelines" section documenting the P1 audit rules: page size ceiling (≤ 200 lines), `BaseList` + `EventRow` reuse, `StatusFilterSegment`/`StatusBadge`/`ConfirmDeleteDialog`/`DateTimePicker` primitives, `useFormatDate` for all dates, i18n completeness, layout provide/inject pattern for shared refs, SSR/test-safe `localStorage`/`navigator` guards, and shared Zod schemas from `@tcg/shared`.
+- `docs/pages.md`: updated the component organization diagram with the new atoms/molecules/organisms and added sections for page size/splitting, reusable list pattern, and reusable form/display molecules.
+- `docs/worker-architecture.md`: updated router layer examples to use `dbClientMiddleware` + `c.var.db` and response helpers (`ok`, `notFound`, etc.), and updated the cross-cutting concerns table with DB client, response/validation helpers, and shared schemas.
+- `docs/client-api-architecture.md`: replaced the deprecated `lib/format.ts` entry with `useFormatDate` and added a date-formatting section.
+- `docs/requirements.md`: expanded the Code Quality NFRs (NFR-28a–h) with concrete frontend and backend DRY/SOLID rules from the P1 remediation.
+
 ## [0.68.0] — 2026-07-24
 
 ### Added

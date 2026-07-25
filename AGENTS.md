@@ -145,6 +145,22 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 - **Husky** + **lint-staged** — pre-commit hook runs ESLint + Prettier on staged files only; prevents broken commits
 - **No `any` types** — never use `any` in production code. Use `unknown`, proper types, or Zod schemas instead. In tests, prefer `as Type` assertions over `as any`. Configure TypeScript with `strict: true` to enforce this.
 
+### Frontend DRY & Quality Guidelines
+
+These rules were introduced by the P1 audit remediation (`spec-070`) and are enforced by code review.
+
+- **Page size ceiling**: Pages must stay ≤ 200 lines. If a page grows past ~150 lines, split the remaining markup into organisms under `src/components/organisms/<feature>/`.
+- **Reusable list components**: All event feeds must use `BaseList` + `EventRow`. Do not re-create `.event-row` markup or `.q-infinite-scroll` wiring in individual pages.
+- **Reusable filter components**: Use `StatusFilterSegment` for any status filter bar; do not duplicate inline filter segments.
+- **Status display**: Use the `StatusBadge` atom for all status labels (events, admin tables, users). Keep the atom's color/status map up to date when adding a new status.
+- **Destructive actions**: Use `ConfirmDeleteDialog` (or a generic confirmation dialog) for delete, ban, suspend, and walkover confirmations.
+- **Date and time inputs**: Use the `DateTimePicker` molecule for any combined date/time input; do not wire separate Quasar date + time inputs directly in pages.
+- **Date formatting**: Use `useFormatDate` (Luxon-based) for all displayed dates/times. Do not call `new Date().toLocaleDateString()` or `toLocaleTimeString()` directly.
+- **i18n completeness**: Every user-facing string must be served by `$t()` or `useI18n()`. Add the key to both `en-US` and `pt-BR` files. Missing keys in tests are a warning to be fixed, not ignored.
+- **Shared layout refs**: When a component needs access to a DOM ref owned by a layout (e.g., an infinite-scroll scroll target), the layout provides it via `provide(...)` and the component injects it via `inject(...)` from `src/lib/injectionKeys.ts`.
+- **SSR/test-safe environment access**: Any code that reads `localStorage`, `navigator`, or `window` must guard against `undefined` so it works in Vitest/jsdom and any future SSR context.
+- **Shared schemas**: Prefer Zod schemas from `@tcg/shared` for both frontend forms and Worker validation. Do not duplicate validation logic between frontend and backend.
+
 ## API Conventions
 
 - All routes go through Hono Workers
