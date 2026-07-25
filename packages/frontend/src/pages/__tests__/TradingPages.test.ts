@@ -34,6 +34,8 @@ const mockEventStore = vi.hoisted(() => ({
   join: vi.fn(),
   confirm: vi.fn(),
   decline: vi.fn(),
+  loadMore: vi.fn(),
+  hasMore: false,
 }));
 
 vi.mock('@/stores/useEventStore', () => ({ useEventStore: vi.fn(() => mockEventStore) }));
@@ -43,6 +45,7 @@ vi.mock('@/composables/useApi', () => ({ apiGet: vi.fn().mockResolvedValue({ dat
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
+  fallbackLocale: 'en-US',
   messages: {
     'en-US': {
       nav: { trading: 'Trading', newTrading: 'New Session' },
@@ -55,10 +58,29 @@ const i18n = createI18n({
         tradingDetails: 'Details',
         participants: 'Participants',
       },
+      home: { noEvents: 'No events' },
       common: { noResults: 'No results' },
     },
   },
 });
+
+function stubs() {
+  return {
+    MapListLayout: {
+      template: '<div><slot name="map" /><slot name="filters" /><slot name="items" /></div>',
+    },
+    EventMap: { template: '<div class="event-map-stub" />' },
+    BaseList: { template: '<div><slot /><slot name="item" :item="{}" /></div>' },
+    EventRow: { template: '<a class="event-row"><slot /></a>' },
+    StatusBadge: { template: '<span class="status-badge"><slot /></span>' },
+    'q-page': { template: '<div><slot /></div>' },
+    'q-card': { template: '<div><slot /></div>' },
+    'q-card-section': { template: '<div><slot /></div>' },
+    'q-badge': { template: '<span><slot /></span>' },
+    'q-btn': { template: '<button><slot /></button>' },
+    'q-space': { template: '<div />' },
+  };
+}
 
 describe('TradingListPage', () => {
   beforeEach(() => {
@@ -70,15 +92,7 @@ describe('TradingListPage', () => {
     const wrapper = shallowMount(TradingListPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-badge': { template: '<span><slot /></span>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-space': { template: '<div />' },
-          'q-spinner': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);

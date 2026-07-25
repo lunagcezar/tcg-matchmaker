@@ -6,5 +6,6 @@ export * from './schemas/event.js';
 export * from './schemas/tournament.js';
 export * from './schemas/notification.js';
 export * from './schemas/report.js';
+export * from './schemas/geocoding.js';
 export * from './types/index.js';
 export * from './constants.js';

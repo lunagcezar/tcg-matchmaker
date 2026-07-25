@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import { createRouter, createWebHistory } from 'vue-router';
+import { createPinia } from 'pinia';
 import EventFeed from '../organisms/home/EventFeed.vue';
 
 const i18n = createI18n({
@@ -26,7 +27,7 @@ describe('EventFeed', () => {
         events: [{ id: '1', type: 'match', name: 'Test', scheduled_at: '2026-07-20T10:00:00Z' }],
       },
       global: {
-        plugins: [i18n, router],
+        plugins: [i18n, router, createPinia()],
         stubs: ['q-infinite-scroll', 'q-badge', 'q-space', 'q-spinner'],
       },
     });

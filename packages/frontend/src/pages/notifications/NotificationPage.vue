@@ -59,11 +59,12 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useNotificationStore } from '@/stores/useNotificationStore';
-import { formatDate } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
 import { notificationIcon } from '@/lib/colors';
 import AppListLayout from '@/layouts/AppListLayout.vue';
 
 const router = useRouter();
+const { formatDate } = useFormatDate();
 const notificationStore = useNotificationStore();
 const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead } =
   notificationStore;

@@ -1,44 +1,24 @@
 <template>
-  <MapListLayout
-    ref="layoutRef"
-    :items="matches"
-    :loading="loading"
-    :empty-text="$t('home.noEvents')"
-  >
+  <MapListLayout :items="matches" :loading="loading" :empty-text="$t('home.noEvents')">
     <template #map>
       <EventMap :events="matches" />
     </template>
     <template #filters>
       <q-btn color="primary" icon="add" :label="$t('nav.newMatch')" to="/matches/new" />
       <q-space />
-      <div class="filter-segment">
-        <button
-          v-for="opt in statusOptions"
-          :key="opt.value"
-          class="filter-segment__btn"
-          :class="{ active: statusFilter === opt.value }"
-          @click="statusFilter = opt.value"
-        >
-          {{ opt.label }}
-        </button>
-      </div>
+      <StatusFilterSegment v-model="statusFilter" :options="statusOptions" />
     </template>
     <template #items>
-      <router-link
-        v-for="m in matches"
-        :key="m.id as string"
-        :to="`/matches/${m.id}`"
-        class="event-row"
-      >
-        <q-badge color="primary" class="q-mr-sm">{{ m.status }}</q-badge>
-        <div class="text-body2">
-          {{ (m as unknown as MatchListItem).tcg_name || $t('event.anyTcg') }}
-        </div>
-        <q-space />
-        <div class="text-caption text-grey">
-          {{ formatDate((m as unknown as MatchListItem).scheduled_at) }}
-        </div>
-      </router-link>
+      <BaseList :items="matches" :loading="loading" @load-more="loadMore">
+        <template #item="{ item }">
+          <EventRow :to="eventRoute(item)">
+            <StatusBadge :status="item.status" class="q-mr-sm" />
+            <div class="text-body2">{{ item.tcg_name || $t('event.anyTcg') }}</div>
+            <q-space />
+            <div class="text-caption text-grey">{{ formatDate(item.scheduled_at) }}</div>
+          </EventRow>
+        </template>
+      </BaseList>
     </template>
   </MapListLayout>
 </template>
@@ -48,18 +28,21 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
-import { formatDate } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
+import { eventRoute } from '@/lib/router';
 import MapListLayout from '@/layouts/MapListLayout.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
+import BaseList from '@/components/organisms/BaseList.vue';
+import EventRow from '@/components/molecules/EventRow.vue';
+import StatusFilterSegment from '@/components/molecules/StatusFilterSegment.vue';
+import StatusBadge from '@/components/atoms/StatusBadge.vue';
 
 usePageMeta({ titleKey: 'meta.matches', descKey: 'meta.matchesDesc' });
 
-type MatchListItem = Record<string, string | undefined>;
-
+const { formatDate } = useFormatDate();
+const { t } = useI18n();
 const store = useEventStore();
 const statusFilter = ref<string>('');
-const { t } = useI18n();
-const layoutRef = ref<InstanceType<typeof MapListLayout> | null>(null);
 
 const statusOptions = [
   { label: t('event.all'), value: '' },
@@ -75,63 +58,9 @@ const matches = computed(() => {
 });
 const loading = computed(() => store.loading);
 
+function loadMore(_index: number, done: (stop?: boolean) => void) {
+  void store.loadMore({ type: 'match' }).then(() => done(!store.hasMore));
+}
+
 onMounted(() => store.list({ type: 'match' }));
 </script>
-
-<style scoped>
-.event-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.5rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--foreground);
-  text-decoration: none;
-  border-radius: var(--radius-md);
-  transition: background-color 0.2s ease;
-}
-
-.event-row:hover {
-  background-color: var(--muted);
-}
-
-.event-row:first-child {
-  border-top: 1px solid var(--border);
-}
-
-.filter-segment {
-  display: inline-flex;
-  flex-wrap: wrap;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.filter-segment__btn {
-  all: unset;
-  cursor: pointer;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  border-right: 1px solid var(--border);
-  color: var(--muted-foreground);
-  transition:
-    color 0.15s,
-    font-weight 0.15s;
-}
-
-.filter-segment__btn:last-child {
-  border-right: none;
-}
-
-.filter-segment__btn.active {
-  color: var(--primary);
-  font-weight: 700;
-}
-
-@media (max-width: 480px) {
-  .filter-segment {
-    width: 100%;
-  }
-}
-</style>

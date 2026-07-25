@@ -69,11 +69,12 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { apiGet } from '@/composables/useApi';
-import { formatDate } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
 import { badgeColor, statusColor } from '@/lib/colors';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 const route = useRoute();
+const { formatDate } = useFormatDate();
 const store = useEventStore();
 const authStore = useAuthStore();
 const participants = ref<Array<Record<string, unknown>>>([]);

@@ -21,7 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, provide } from 'vue';
+import { MapListScrollRefKey } from '@/lib/injectionKeys';
 
 defineProps<{
   items: unknown[];
@@ -30,6 +31,8 @@ defineProps<{
 }>();
 
 const scrollRef = ref<HTMLElement | null>(null);
+
+provide(MapListScrollRefKey, scrollRef);
 
 defineExpose({ scrollRef });
 </script>

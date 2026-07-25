@@ -9,18 +9,7 @@
   >
     <q-input v-model="form.name" :label="$t('event.type')" outlined />
     <q-input v-model="form.details" :label="$t('event.details')" outlined type="textarea" />
-    <q-input v-model="form.scheduled_at" :label="$t('event.scheduledAt')" outlined>
-      <template #append>
-        <q-icon name="event" class="cursor-pointer">
-          <q-popup-proxy>
-            <div class="row items-start no-wrap">
-              <q-date v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" />
-              <q-time v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" now-button />
-            </div>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
+    <DateTimePicker v-model="form.scheduled_at" :label="$t('event.scheduledAt')" />
     <LocationAutocomplete
       :label="$t('event.location')"
       @select="
@@ -52,6 +41,7 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import AppCard from '@/components/molecules/AppCard.vue';
+import DateTimePicker from '@/components/molecules/DateTimePicker.vue';
 import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
 
 const store = useEventStore();
@@ -75,7 +65,6 @@ async function save() {
     await store.create({
       type: 'trading',
       ...form,
-      scheduled_at: new Date(form.scheduled_at).toISOString(),
       max_participants: Number(form.max_participants),
     });
     void router.push('/trading');

@@ -7,19 +7,8 @@
     title-class="q-my-none"
     :error="error"
   >
-    <q-input v-model="form.name" :label="$t('common.save') + ' name'" outlined />
-    <q-input v-model="form.scheduled_at" :label="$t('event.scheduledAt')" outlined>
-      <template #append>
-        <q-icon name="event" class="cursor-pointer">
-          <q-popup-proxy>
-            <div class="row items-start no-wrap">
-              <q-date v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" />
-              <q-time v-model="form.scheduled_at" mask="YYYY-MM-DD HH:mm" now-button />
-            </div>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
+    <q-input v-model="form.name" :label="$t('tournament.name')" outlined />
+    <DateTimePicker v-model="form.scheduled_at" :label="$t('event.scheduledAt')" />
     <LocationAutocomplete
       :label="$t('event.location')"
       @select="
@@ -38,16 +27,16 @@
     />
     <q-select
       v-model="form.bracket_type"
-      :options="BRACKET_OPTIONS"
-      label="Bracket Type"
+      :options="bracketOptions"
+      :label="$t('tournament.bracketType')"
       outlined
       emit-value
       map-options
     />
     <q-select
       v-model="form.best_of"
-      :options="BEST_OF_OPTIONS"
-      label="Best Of"
+      :options="bestOfOptions"
+      :label="$t('tournament.bestOf')"
       outlined
       emit-value
       map-options
@@ -63,16 +52,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import AppCard from '@/components/molecules/AppCard.vue';
+import DateTimePicker from '@/components/molecules/DateTimePicker.vue';
 import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
 import { BRACKET_OPTIONS, BEST_OF_OPTIONS } from '@/constants/tournament';
 
 usePageMeta({ titleKey: 'tournament.create' });
 
+const { t } = useI18n();
 const store = useEventStore();
 const router = useRouter();
 const saving = ref(false);
@@ -88,6 +80,20 @@ const form = reactive({
   best_of: 1,
 });
 
+const bracketOptions = computed(() =>
+  BRACKET_OPTIONS.map((o) => ({
+    ...o,
+    label: t(`tournament.bracketOptions.${o.value}`),
+  })),
+);
+
+const bestOfOptions = computed(() =>
+  BEST_OF_OPTIONS.map((o) => ({
+    ...o,
+    label: t(`tournament.bestOfOptions.${o.value}`),
+  })),
+);
+
 async function save() {
   saving.value = true;
   error.value = '';
@@ -95,7 +101,6 @@ async function save() {
     await store.create({
       type: 'tournament',
       ...form,
-      scheduled_at: new Date(form.scheduled_at).toISOString(),
       max_participants: Number(form.max_participants),
     });
     void router.push('/tournaments');

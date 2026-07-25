@@ -17,6 +17,8 @@ const mockEventStore = vi.hoisted(() => ({
   loading: false,
   list: vi.fn(),
   get: vi.fn(),
+  loadMore: vi.fn(),
+  hasMore: false,
 }));
 
 const mockStoreStore = vi.hoisted(() => ({
@@ -24,6 +26,8 @@ const mockStoreStore = vi.hoisted(() => ({
   loading: false,
   list: vi.fn(),
   get: vi.fn(),
+  loadMore: vi.fn(),
+  hasMore: false,
 }));
 
 vi.mock('@/stores/useEventStore', () => ({ useEventStore: vi.fn(() => mockEventStore) }));
@@ -33,6 +37,7 @@ vi.mock('@/composables/usePageMeta', () => ({ usePageMeta: vi.fn() }));
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
+  fallbackLocale: 'en-US',
   messages: {
     'en-US': {
       nav: {
@@ -41,12 +46,32 @@ const i18n = createI18n({
         stores: 'Stores',
         newStore: 'Add Store',
       },
-      tournament: { details: 'Details', bracket: 'Bracket' },
-      store: { name: 'Name', details: 'Details' },
-      common: { noResults: 'No results' },
+      home: { noEvents: 'No events nearby' },
+      tournament: { details: 'Details', bracket: 'Bracket', createLabel: 'New Tournament' },
+      store: { name: 'Name', details: 'Details', create: 'Add Store', verified: 'Verified' },
+      common: { noResults: 'No results', search: 'Search' },
     },
   },
 });
+
+function stubs() {
+  return {
+    MapListLayout: {
+      template: '<div><slot name="map" /><slot name="filters" /><slot name="items" /></div>',
+    },
+    EventMap: { template: '<div class="event-map-stub" />' },
+    BaseList: { template: '<div><slot /><slot name="item" :item="{}" /></div>' },
+    EventRow: { template: '<a class="event-row"><slot /></a>' },
+    StatusBadge: { template: '<span class="status-badge"><slot /></span>' },
+    'q-page': { template: '<div><slot /></div>' },
+    'q-card': { template: '<div><slot /></div>' },
+    'q-card-section': { template: '<div><slot /></div>' },
+    'q-badge': { template: '<span><slot /></span>' },
+    'q-btn': { template: '<button><slot /></button>' },
+    'q-input': { template: '<input />' },
+    'q-space': { template: '<div />' },
+  };
+}
 
 describe('TournamentListPage', () => {
   beforeEach(() => {
@@ -58,15 +83,7 @@ describe('TournamentListPage', () => {
     const wrapper = shallowMount(TournamentListPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-badge': { template: '<span><slot /></span>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-space': { template: '<div />' },
-          'q-spinner': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -84,16 +101,7 @@ describe('StoresListPage', () => {
     const wrapper = shallowMount(StoresListPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-badge': { template: '<span><slot /></span>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-input': { template: '<input />' },
-          'q-space': { template: '<div />' },
-          'q-spinner': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);

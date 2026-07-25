@@ -18,7 +18,7 @@
         </q-badge>
         <div class="event-feed__name">{{ event.name || event.type }}</div>
         <q-space />
-        <div class="event-feed__time">{{ relativeTime(event.scheduled_at as string) }}</div>
+        <div class="event-feed__time">{{ formatRelative(event.scheduled_at as string) }}</div>
       </router-link>
     </div>
     <template #loading>
@@ -32,7 +32,9 @@
 <script setup lang="ts">
 import { eventColor, statusColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
-import { relativeTime } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
+
+const { formatRelative } = useFormatDate();
 
 defineProps<{
   events: Array<Record<string, unknown>>;

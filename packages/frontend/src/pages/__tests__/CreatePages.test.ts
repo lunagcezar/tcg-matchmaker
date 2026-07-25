@@ -32,6 +32,7 @@ vi.mock('vue-router', () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }));
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
+  fallbackLocale: 'en-US',
   messages: {
     'en-US': {
       event: {
@@ -40,6 +41,28 @@ const i18n = createI18n({
         createTournament: 'Create Tournament',
         scheduledAt: 'Date & Time',
         maxParticipants: 'Max Participants',
+        location: 'Location',
+        details: 'Details',
+        type: 'Type',
+        defaultParticipantHint: 'Default: {default}',
+      },
+      tournament: {
+        create: 'Create Tournament',
+        name: 'Tournament Name',
+        bracketType: 'Bracket Type',
+        bestOf: 'Best Of',
+        bracketOptions: {
+          single_elimination: 'Single Elimination',
+          double_elimination: 'Double Elimination',
+          round_robin: 'Round Robin',
+          swiss: 'Swiss',
+          pool_play: 'Pool Play',
+        },
+        bestOfOptions: {
+          1: 'BO1',
+          3: 'BO3',
+          5: 'BO5',
+        },
       },
       store: {
         create: 'Add Store',
@@ -47,11 +70,30 @@ const i18n = createI18n({
         address: 'Address',
         latitude: 'Latitude',
         longitude: 'Longitude',
+        searchLocation: 'Search location',
+        city: 'City',
+        state: 'State',
+        phone: 'Phone',
       },
       common: { save: 'Save', loading: 'Loading...' },
     },
   },
 });
+
+function commonStubs() {
+  return {
+    'q-page': { template: '<div><slot /></div>' },
+    'q-card': { template: '<div><slot /></div>' },
+    'q-card-section': { template: '<div><slot /></div>' },
+    'q-input': { template: '<input />' },
+    'q-btn': { template: '<button><slot /></button>' },
+    'q-select': { template: '<div class="q-select" />', props: ['options', 'modelValue'] },
+    'q-option-group': { template: '<div />' },
+    DateTimePicker: { template: '<div class="date-time-picker" />' },
+    LocationAutocomplete: { template: '<div />' },
+    AppCard: { template: '<div><slot /></div>' },
+  };
+}
 
 describe('CreatePages', () => {
   beforeEach(() => {
@@ -63,13 +105,7 @@ describe('CreatePages', () => {
     const wrapper = shallowMount(Page, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-input': { template: '<input />' },
-          'q-btn': { template: '<button><slot /></button>' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -80,14 +116,7 @@ describe('CreatePages', () => {
     const wrapper = shallowMount(Page, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-input': { template: '<input />' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-select': { template: '<select />' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -98,15 +127,7 @@ describe('CreatePages', () => {
     const wrapper = shallowMount(Page, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-input': { template: '<input />' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-select': { template: '<select />' },
-          'q-option-group': { template: '<div />' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -117,13 +138,7 @@ describe('CreatePages', () => {
     const wrapper = shallowMount(Page, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-input': { template: '<input />' },
-          'q-btn': { template: '<button><slot /></button>' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);

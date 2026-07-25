@@ -101,16 +101,20 @@ A community TCG (Trading Card Game) matchmaker platform. Users find and schedule
 
 ```
 src/components/
-  atoms/           — Smallest building blocks (AppButton, AppCard, AppSection, AppAvatar, AppBadge, AppIcon)
+  atoms/           — Smallest building blocks (AppButton, AppCard, AppSection, AppAvatar, AppBadge, AppIcon, StatusBadge)
   molecules/       — Composed atoms with a single purpose
-    fields/        — Form inputs (TextField, SelectField, LocationAutocomplete)
+    fields/        — Form inputs (TextField, SelectField, LocationAutocomplete, DateTimePicker)
     cards/         — Entity cards (EventCard, UserCard, StoreCard)
     navigation/    — Nav components (MainNavigation, AdminNavigation)
+    dialogs/       — Reusable dialogs (ConfirmDeleteDialog)
+    filters/       — Filter controls (FilterToggle, StatusFilterSegment)
+    rows/          — Reusable row wrappers (EventRow)
   organisms/       — Feature-specific sections composed of molecules + atoms
-      home/          — EventMap, EventFeed, FilterBar, GeolocateButton
+      home/          — BaseList, EventMap, EventFeed, FilterBar, GeolocateButton
     match/         — MatchCreateForm, ParticipantConfirmList
     trading/       — TradingCreateForm, AttendeeList, RsvpButton
-    tournament/    — BracketView, ParticipantRegisterList
+    tournament/    — TournamentManageHeader, ParticipantListSection, BracketMatchSection, BracketView, ParticipantRegisterList
+    settings/      — ProfileSettingsSection, PasswordSettingsSection, DangerZoneSection
     admin/         — TcgForm, FormatList, UserBanDialog
 ```
 

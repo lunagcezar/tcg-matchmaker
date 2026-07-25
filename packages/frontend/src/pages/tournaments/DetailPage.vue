@@ -56,11 +56,12 @@ import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
 import { apiGet } from '@/composables/useApi';
-import { formatDate } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
 import { badgeColor } from '@/lib/colors';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 const route = useRoute();
+const { formatDate } = useFormatDate();
 const store = useEventStore();
 const tournamentId = route.params.id as string;
 type Participant = Record<string, string>;

@@ -15,22 +15,29 @@
             color="primary"
             :to="`/admin/tcgs/${row.id as string}/formats`"
           />
-          <q-btn flat dense icon="delete" color="negative" @click="confirmDelete(row)" />
+          <q-btn flat dense icon="delete" color="negative" @click="openDelete(row)" />
         </q-td>
       </template>
     </AdminTable>
+    <ConfirmDeleteDialog
+      v-model="showDialog"
+      :title="$t('common.delete')"
+      :message="deleteMessage"
+      :confirm-label="$t('common.delete')"
+      confirm-color="negative"
+      @confirm="deleteSelected"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
+import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog.vue';
 import { apiGet, apiDelete } from '@/composables/useApi';
 
-const $q = useQuasar();
 const { t } = useI18n({ useScope: 'global' });
 
 interface TcgRow {
@@ -41,11 +48,14 @@ interface TcgRow {
 
 const tcgs = ref<TcgRow[]>([]);
 const loading = ref(false);
+const showDialog = ref(false);
+const deleteMessage = ref('');
+const selectedId = ref<string | null>(null);
 
 const columns = [
-  { name: 'name', label: 'Name', field: 'name' as const, sortable: true },
-  { name: 'slug', label: 'Slug', field: 'slug' as const },
-  { name: 'actions', label: 'Actions', field: 'actions' as const },
+  { name: 'name', label: t('admin.columns.name'), field: 'name' as const, sortable: true },
+  { name: 'slug', label: t('admin.columns.slug'), field: 'slug' as const },
+  { name: 'actions', label: t('admin.columns.actions'), field: 'actions' as const },
 ];
 
 async function fetchTcgs() {
@@ -58,20 +68,17 @@ async function fetchTcgs() {
   }
 }
 
-function confirmDelete(row: TcgRow) {
-  $q.dialog({
-    title: t('common.delete'),
-    message: `Delete "${row.name}"? This action cannot be undone.`,
-    cancel: t('common.cancel'),
-    ok: { label: t('common.delete'), color: 'negative', flat: true },
-    persistent: true,
-  }).onOk(() => {
-    void deleteTcg(row.id);
-  });
+function openDelete(row: TcgRow) {
+  deleteMessage.value = t('admin.deleteConfirm', { name: row.name });
+  selectedId.value = row.id;
+  showDialog.value = true;
 }
 
-async function deleteTcg(id: string) {
-  await apiDelete(`/api/tcgs/${id}`);
+async function deleteSelected() {
+  if (!selectedId.value) return;
+  await apiDelete(`/api/tcgs/${selectedId.value}`);
+  showDialog.value = false;
+  selectedId.value = null;
   await fetchTcgs();
 }
 

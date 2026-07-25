@@ -46,6 +46,15 @@ export const UserResponseSchema = z.object({
   created_at: z.string(),
 });
 
+export const ProfileSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  username: z.string(),
+  role: z.enum(['player', 'organizer', 'admin']),
+  avatar_path: z.string().nullable(),
+  created_at: z.string(),
+});
+
 export const AccountActionResponseSchema = z.object({
   success: z.boolean(),
 });
@@ -54,6 +63,7 @@ export type SignupInput = z.input<typeof SignupSchema>;
 export type LoginInput = z.input<typeof LoginSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type ProfileUpdate = z.input<typeof ProfileUpdateSchema>;
+export type Profile = z.infer<typeof ProfileSchema>;
 export type OnboardingStatus = z.infer<typeof OnboardingStatusSchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type AccountActionResponse = z.infer<typeof AccountActionResponseSchema>;

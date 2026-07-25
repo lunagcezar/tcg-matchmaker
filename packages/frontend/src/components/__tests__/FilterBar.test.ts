@@ -6,7 +6,13 @@ import FilterBar from '../organisms/home/FilterBar.vue';
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
-  messages: { 'en-US': { home: { findNearMe: 'Find near me' } } },
+  messages: {
+    'en-US': {
+      home: { findNearMe: 'Find near me' },
+      filter: { all: 'All', nearMe: 'Near Me' },
+      nav: { matches: 'Matches', trading: 'Trading', tournaments: 'Tournaments' },
+    },
+  },
 });
 
 describe('FilterBar', () => {

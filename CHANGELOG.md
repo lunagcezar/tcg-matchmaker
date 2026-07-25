@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.68.0] — 2026-07-24
+
+### Added
+
+- Spec: `spec/spec-070-audit-remediation-p1.md` and `spec/plan-spec-070-audit-remediation-p1.md`.
+- Reusable list component: `packages/frontend/src/components/organisms/BaseList.vue` (generic, infinite-scroll wrapper with empty state and loading skeleton; used by event list pages and the store list page).
+- Reusable event row component: `packages/frontend/src/components/molecules/EventRow.vue` (styled `router-link` wrapper).
+- Injection key for `MapListLayout` scroll target: `packages/frontend/src/lib/injectionKeys.ts` so `BaseList` can inject the scroll target without page-level refs.
+- Settings organisms: `ProfileSettingsSection`, `PasswordSettingsSection`, `DangerZoneSection` under `src/components/organisms/settings/`.
+- Tournament management organisms: `TournamentManageHeader`, `ParticipantListSection`, `BracketMatchSection` under `src/components/organisms/tournament/`.
+- i18n keys: `common.status.*` for all event/user statuses, `admin.columns.*`, `admin.deleteConfirm`, `admin.banConfirm`, `admin.unbanConfirm`, `admin.promoteConfirm`, `settings.fields.*`, `filter.*`, `event.defaultParticipantHint`, `tournament.name`, `tournament.bracketType`, `tournament.bestOf`, `tournament.bracketOptions.*`, `tournament.bestOfOptions.*`.
+- `fallbackLocale: 'en-US'` in `boot/i18n.ts` so partial locale fallback resolves to the available translation set.
+
+### Changed
+
+- `IndexPage`, `matches/ListPage`, `trading/ListPage`, `tournaments/ListPage`, and `stores/ListPage` now all delegate infinite scroll, empty state, and loading skeleton to `BaseList`; event rows use `EventRow` and `StatusFilterSegment` replaces duplicated custom segmented controls.
+- `SettingsPage.vue` is now under 200 lines and delegates the three tab panels to the new settings organisms; it uses `AppCard` for the panel shell and the `ConfirmDeleteDialog` molecule for delete/suspend confirmations.
+- `tournaments/ManagePage.vue` is now under 200 lines and delegates rendering to the new tournament organisms; it uses `StatusBadge` for tournament status.
+- Admin list pages (`TcgListPage`, `UserListPage`, `StoreManageListPage`, `ReportListPage`, `AuditLogPage`, `FormatListPage`) now use i18n column labels and `StatusBadge` for status cells; `TcgListPage` and `UserListPage` use `ConfirmDeleteDialog` for destructive/modifying actions.
+- `matches/CreatePage`, `trading/CreatePage`, and `tournaments/CreatePage` now use the shared `DateTimePicker` molecule for date/time input, removing duplicated QDate/QTime popup wiring.
+- `StatusBadge` color map extended to cover `in_progress`, `planned`, `challenged`, `draft`, `checked_in`, `declined`, and `walkover`.
+- `useAppStore` and `lib/i18n.ts` now guard access to `localStorage` and `navigator` so they do not throw in SSR/test environments.
+
+### Fixed
+
+- `useFormatDate` test no longer fails because `localStorage` is undefined in the test environment.
+- `ConfirmDeleteDialog` and `StatusFilterSegment` component tests now correctly stub named Quasar components.
+- `TcgListPage` and `UserListPage` no longer inline `$q.dialog` confirmation wiring; all confirmations flow through `ConfirmDeleteDialog`.
+
 ## [0.67.0] — 2026-07-24
 
 ### Added

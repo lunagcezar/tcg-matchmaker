@@ -23,13 +23,14 @@
 import { ref, onMounted } from 'vue';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { apiGet } from '@/composables/useApi';
-import { formatDate } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
 import { roleColor } from '@/lib/colors';
 import type { UserProfile } from '@/stores/useAuthStore';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 usePageMeta({ titleKey: 'profile.title', descKey: 'profile.title' });
 
+const { formatDate } = useFormatDate();
 const loading = ref(true);
 const profile = ref<UserProfile | null>(null);
 

@@ -1,9 +1,9 @@
 <template>
   <q-page class="flex flex-center q-pa-md">
-    <div class="app-panel" style="max-width: 550px; width: 100%">
-      <div class="app-panel__header">
+    <AppCard width="550px" body-class="q-pa-none">
+      <template #title>
         <h5 class="text-center q-my-none">{{ $t('nav.settings') }}</h5>
-      </div>
+      </template>
       <q-tabs
         v-model="tab"
         dense
@@ -22,107 +22,42 @@
 
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="profile">
-          <div class="q-gutter-sm">
-            <q-input v-model="username" :label="$t('auth.username')" outlined />
-            <q-btn
-              color="primary"
-              :label="$t('common.save')"
-              class="full-width"
-              :loading="saving"
-              @click="saveProfile"
-            />
-            <p
-              v-if="profileMessage"
-              class="text-center text-caption"
-              :class="profileError ? 'text-negative' : 'text-positive'"
-            >
-              {{ profileMessage }}
-            </p>
-          </div>
+          <ProfileSettingsSection
+            v-model="username"
+            :saving="saving"
+            :message="profileMessage"
+            :error="profileError"
+            @save="saveProfile"
+          />
         </q-tab-panel>
 
         <q-tab-panel name="password">
-          <div class="q-gutter-sm">
-            <q-input
-              v-model="currentPassword"
-              :label="$t('auth.currentPassword')"
-              type="password"
-              outlined
-            />
-            <q-input
-              v-model="newPassword"
-              :label="$t('auth.newPassword')"
-              type="password"
-              outlined
-              :rules="[
-                (val: string) => !val || val.length >= 8 || $t('auth.minLength', { min: 8 }),
-              ]"
-            />
-            <q-input
-              v-model="confirmNewPassword"
-              :label="$t('auth.confirmPassword')"
-              type="password"
-              outlined
-              :rules="[
-                (val: string) => !val || val === newPassword || $t('auth.passwordsDontMatch'),
-              ]"
-            />
-            <q-btn
-              color="primary"
-              :label="$t('common.save')"
-              class="full-width"
-              :loading="passwordSaving"
-              @click="changePassword"
-            />
-            <p
-              v-if="passwordMessage"
-              class="text-center text-caption"
-              :class="passwordError ? 'text-negative' : 'text-positive'"
-            >
-              {{ passwordMessage }}
-            </p>
-          </div>
+          <PasswordSettingsSection
+            :saving="passwordSaving"
+            :message="passwordMessage"
+            :error="passwordError"
+            @save="changePassword"
+          />
         </q-tab-panel>
 
         <q-tab-panel name="account">
-          <div class="q-gutter-sm">
-            <q-btn
-              color="secondary"
-              :label="$t('settings.downloadData')"
-              class="full-width"
-              :loading="exportLoading"
-              @click="handleExport"
-            />
-            <q-btn
-              color="warning"
-              :label="$t('settings.suspendAccount')"
-              class="full-width"
-              :loading="suspendLoading"
-              @click="handleSuspend"
-            />
-            <q-btn
-              color="negative"
-              :label="$t('settings.deleteAccount')"
-              class="full-width"
-              :loading="deleteLoading"
-              @click="handleDelete"
-            />
-            <q-separator class="full-width" />
-            <q-btn
-              color="negative"
-              :label="$t('auth.signOut')"
-              class="full-width"
-              @click="logout"
-            />
-          </div>
+          <DangerZoneSection
+            :delete-loading="deleteLoading"
+            :suspend-loading="suspendLoading"
+            :export-loading="exportLoading"
+            @delete="handleDeleteConfirmed"
+            @suspend="handleSuspendConfirmed"
+            @export="handleExport"
+            @logout="void authStore.signOut().then(() => router.push('/login'))"
+          />
         </q-tab-panel>
       </q-tab-panels>
-    </div>
+    </AppCard>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
@@ -130,6 +65,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { deleteAccount, suspendAccount, exportData } from '@/composables/useAccountManagement';
 import { apiGet, apiPatch } from '@/composables/useApi';
+import AppCard from '@/components/molecules/AppCard.vue';
+import ProfileSettingsSection from '@/components/organisms/settings/ProfileSettingsSection.vue';
+import PasswordSettingsSection from '@/components/organisms/settings/PasswordSettingsSection.vue';
+import DangerZoneSection from '@/components/organisms/settings/DangerZoneSection.vue';
 
 usePageMeta({ titleKey: 'meta.settings', descKey: 'meta.settingsDesc' });
 
@@ -144,9 +83,6 @@ const saving = ref(false);
 const profileMessage = ref('');
 const profileError = ref(false);
 
-const currentPassword = ref('');
-const newPassword = ref('');
-const confirmNewPassword = ref('');
 const passwordSaving = ref(false);
 const passwordMessage = ref('');
 const passwordError = ref(false);
@@ -179,31 +115,18 @@ async function saveProfile() {
   }
 }
 
-async function changePassword() {
+async function changePassword(newPassword: string) {
   passwordMessage.value = '';
   passwordError.value = false;
-  if (!newPassword.value) {
-    passwordMessage.value = 'New password is required';
-    passwordError.value = true;
-    return;
-  }
-  if (newPassword.value !== confirmNewPassword.value) {
-    passwordMessage.value = 'Passwords do not match';
-    passwordError.value = true;
-    return;
-  }
   passwordSaving.value = true;
   try {
-    const { error } = await authStore.updatePassword(newPassword.value);
+    const { error } = await authStore.updatePassword(newPassword);
     if (error) {
       passwordMessage.value = error;
       passwordError.value = true;
     } else {
       passwordMessage.value = 'Password updated successfully';
       passwordError.value = false;
-      currentPassword.value = '';
-      newPassword.value = '';
-      confirmNewPassword.value = '';
     }
   } catch {
     passwordMessage.value = 'Failed to update password';
@@ -213,54 +136,29 @@ async function changePassword() {
   }
 }
 
-function handleDelete() {
-  $q.dialog({
-    title: t('settings.deleteAccount'),
-    message: t('settings.deleteAccountConfirm'),
-    cancel: t('settings.cancel'),
-    ok: { label: t('settings.confirmDelete'), color: 'negative', flat: true },
-    persistent: true,
-  }).onOk(() => {
-    void handleDeleteConfirmed();
-  });
+async function runAccountAction(
+  loading: Ref<boolean>,
+  action: () => Promise<{ error?: string }>,
+  successMessage: string,
+) {
+  loading.value = true;
+  const result = await action();
+  loading.value = false;
+  if (result.error) {
+    $q.notify({ type: 'negative', message: result.error });
+    return;
+  }
+  $q.notify({ type: 'positive', message: successMessage });
+  await authStore.signOut();
+  void router.push('/');
 }
 
 async function handleDeleteConfirmed() {
-  deleteLoading.value = true;
-  const result = await deleteAccount();
-  deleteLoading.value = false;
-  if (result.error) {
-    $q.notify({ type: 'negative', message: result.error });
-  } else {
-    $q.notify({ type: 'positive', message: t('settings.accountDeleted') });
-    await authStore.signOut();
-    void router.push('/');
-  }
-}
-
-function handleSuspend() {
-  $q.dialog({
-    title: t('settings.suspendAccount'),
-    message: t('settings.suspendAccountConfirm'),
-    cancel: t('settings.cancel'),
-    ok: { label: t('settings.suspendAccount'), color: 'warning', flat: true },
-    persistent: true,
-  }).onOk(() => {
-    void handleSuspendConfirmed();
-  });
+  await runAccountAction(deleteLoading, deleteAccount, t('settings.accountDeleted'));
 }
 
 async function handleSuspendConfirmed() {
-  suspendLoading.value = true;
-  const result = await suspendAccount();
-  suspendLoading.value = false;
-  if (result.error) {
-    $q.notify({ type: 'negative', message: result.error });
-  } else {
-    $q.notify({ type: 'positive', message: t('settings.accountSuspended') });
-    await authStore.signOut();
-    void router.push('/');
-  }
+  await runAccountAction(suspendLoading, suspendAccount, t('settings.accountSuspended'));
 }
 
 async function handleExport() {
@@ -281,11 +179,6 @@ async function handleExport() {
   $q.notify({ type: 'positive', message: t('settings.dataExported') });
 }
 
-async function logout() {
-  await authStore.signOut();
-  void router.push('/login');
-}
-
 onMounted(async () => {
   username.value = authStore.profile?.username || '';
   if (!username.value) {
@@ -301,16 +194,4 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.app-panel {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background-color: var(--card);
-  color: var(--card-foreground);
-  overflow: hidden;
-}
-
-.app-panel__header {
-  padding: 1rem 1rem 0;
-}
-</style>
+<style scoped></style>

@@ -41,6 +41,7 @@ vi.mock('@/composables/useApi', () => ({
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
+  fallbackLocale: 'en-US',
   messages: {
     'en-US': {
       nav: { settings: 'Settings' },
@@ -62,10 +63,50 @@ const i18n = createI18n({
         deleteAccount: 'Delete Account',
         suspendAccount: 'Suspend Account',
         downloadData: 'Download My Data',
+        deleteAccountConfirm: 'Confirm delete',
+        suspendAccountConfirm: 'Confirm suspend',
+        confirmDelete: 'Confirm Delete',
       },
     },
   },
 });
+
+function stubs() {
+  return {
+    'q-page': { template: '<div><slot /></div>' },
+    AppCard: {
+      template: '<div class="app-card"><slot name="title" /><slot /></div>',
+    },
+    QTabs: { template: '<div class="q-tabs"><slot /></div>' },
+    QTab: {
+      template: '<div class="q-tab">{{ label }}<slot /></div>',
+      props: ['label', 'name', 'icon'],
+    },
+    QTabPanels: { template: '<div class="q-tab-panels"><slot /></div>' },
+    QTabPanel: { template: '<div class="q-tab-panel"><slot /></div>' },
+    QSeparator: { template: '<hr />' },
+    QInput: {
+      template: '<input class="q-input" :value="modelValue" />',
+      props: ['modelValue', 'label'],
+    },
+    QBtn: {
+      template: '<button class="q-btn"><slot />{{ label }}</button>',
+      props: ['label', 'to', 'icon'],
+    },
+    ProfileSettingsSection: {
+      template: '<div class="profile-section"><slot /></div>',
+      props: ['modelValue', 'saving', 'message', 'error'],
+    },
+    PasswordSettingsSection: {
+      template: '<div class="password-section"><slot /></div>',
+      props: ['saving', 'message', 'error'],
+    },
+    DangerZoneSection: {
+      template: '<div class="danger-section"><slot /></div>',
+      props: ['deleteLoading', 'suspendLoading', 'exportLoading'],
+    },
+  };
+}
 
 describe('SettingsPage', () => {
   beforeEach(() => {
@@ -77,23 +118,7 @@ describe('SettingsPage', () => {
     const wrapper = mount(SettingsPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          QCard: { template: '<div><slot /></div>' },
-          QTabs: { template: '<div class="q-tabs"><slot /></div>' },
-          QTab: {
-            template: '<div class="q-tab">{{ label }}<slot /></div>',
-            props: ['label', 'name', 'icon'],
-          },
-          QTabPanels: { template: '<div class="q-tab-panels"><slot /></div>' },
-          QTabPanel: { template: '<div class="q-tab-panel"><slot /></div>' },
-          QSeparator: { template: '<hr />' },
-          QInput: { template: '<input />' },
-          QBtn: {
-            template: '<button class="q-btn"><slot />{{ label }}</button>',
-            props: ['label', 'to', 'icon'],
-          },
-        },
+        stubs: stubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -104,22 +129,7 @@ describe('SettingsPage', () => {
     const wrapper = mount(SettingsPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          QTabs: { template: '<div class="q-tabs"><slot /></div>' },
-          QTab: {
-            template: '<div class="q-tab">{{ label }}<slot /></div>',
-            props: ['label', 'name', 'icon'],
-          },
-          QTabPanels: { template: '<div class="q-tab-panels"><slot /></div>' },
-          QTabPanel: { template: '<div class="q-tab-panel"><slot /></div>' },
-          QSeparator: { template: '<hr />' },
-          QInput: { template: '<input />' },
-          QBtn: {
-            template: '<button class="q-btn"><slot />{{ label }}</button>',
-            props: ['label', 'to', 'icon'],
-          },
-        },
+        stubs: stubs(),
       },
     });
 
@@ -135,22 +145,7 @@ describe('SettingsPage', () => {
     const wrapper = mount(SettingsPage, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          QTabs: { template: '<div class="q-tabs"><slot /></div>' },
-          QTab: { template: '<div class="q-tab"><slot /></div>', props: ['label', 'name', 'icon'] },
-          QTabPanels: { template: '<div class="q-tab-panels"><slot /></div>' },
-          QTabPanel: { template: '<div class="q-tab-panel"><slot /></div>' },
-          QSeparator: { template: '<hr />' },
-          QInput: {
-            template: '<input class="q-input" :value="modelValue" />',
-            props: ['modelValue', 'label'],
-          },
-          QBtn: {
-            template: '<button class="q-btn"><slot />{{ label }}</button>',
-            props: ['label', 'to', 'icon'],
-          },
-        },
+        stubs: stubs(),
       },
     });
 

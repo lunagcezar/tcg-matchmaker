@@ -1,19 +1,16 @@
 <template>
   <div class="filter-bar">
     <FilterToggle v-model="selectedTypes" :options="typeOptions" />
-    <q-btn
-      flat
-      dense
-      icon="my_location"
-      :label="$t('home.findNearMe')"
-      @click="$emit('geolocate')"
-    />
+    <q-btn flat dense icon="my_location" :label="$t('filter.nearMe')" @click="$emit('geolocate')" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import FilterToggle from '@/components/molecules/FilterToggle.vue';
+
+const { t } = useI18n();
 
 const props = defineProps<{ modelValue: string[] }>();
 const emit = defineEmits<{ (e: 'update:modelValue', v: string[]): void; (e: 'geolocate'): void }>();
@@ -34,12 +31,12 @@ const selectedTypes = computed({
   },
 });
 
-const typeOptions = [
-  { label: 'All', value: '' },
-  { label: 'Matches', value: 'match' },
-  { label: 'Trading', value: 'trading' },
-  { label: 'Tournaments', value: 'tournament' },
-];
+const typeOptions = computed(() => [
+  { label: t('filter.all'), value: '' },
+  { label: t('nav.matches'), value: 'match' },
+  { label: t('nav.trading'), value: 'trading' },
+  { label: t('nav.tournaments'), value: 'tournament' },
+]);
 </script>
 
 <style scoped>

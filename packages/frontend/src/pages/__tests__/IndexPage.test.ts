@@ -20,6 +20,7 @@ vi.mock('@/composables/usePageMeta', () => ({ usePageMeta: vi.fn() }));
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
+  fallbackLocale: 'en-US',
   messages: {
     'en-US': {
       home: { noEvents: 'No events nearby', findNearMe: 'Find near me' },
@@ -35,12 +36,15 @@ function stubs() {
       template: '<div><slot name="map" /><slot name="filters" /><slot name="items" /></div>',
     },
     EventMap: { template: '<div class="event-map-stub" />' },
-    'q-infinite-scroll': { template: '<div><slot /></div>' },
+    BaseList: {
+      template: '<div><slot /><slot name="item" :item="{}" /></div>',
+    },
+    EventRow: { template: '<a class="event-row"><slot /></a>' },
+    StatusFilterSegment: { template: '<div class="filter-segment"><slot /></div>' },
+    StatusBadge: { template: '<span class="status-badge"><slot /></span>' },
     'q-btn': { template: '<button><slot /></button>' },
     'q-badge': { template: '<span><slot /></span>' },
-    'q-spinner': { template: '<span>loading</span>' },
     'q-space': { template: '<span />' },
-    'router-link': { template: '<a><slot /></a>' },
   };
 }
 

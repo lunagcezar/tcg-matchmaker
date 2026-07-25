@@ -18,6 +18,7 @@ vi.mock('vue-router', () => ({
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
+  fallbackLocale: 'en-US',
   messages: {
     'en-US': {
       admin: {
@@ -27,12 +28,49 @@ const i18n = createI18n({
         reports: 'Reports',
         auditLog: 'Audit Log',
         dashboard: 'Dashboard',
+        newFormat: 'New Format',
+        ban: 'Ban',
+        unban: 'Unban',
+        promote: 'Promote',
+        columns: {
+          name: 'Name',
+          status: 'Status',
+          city: 'City',
+          type: 'Type',
+          reason: 'Reason',
+          date: 'Date',
+          actions: 'Actions',
+          target: 'Target',
+          slug: 'Slug',
+        },
+        deleteConfirm: 'Delete?',
+        banConfirm: 'Ban?',
+        unbanConfirm: 'Unban?',
+        promoteConfirm: 'Promote?',
       },
-      common: { noResults: 'No results' },
+      auth: { username: 'Username', email: 'Email' },
+      common: { noResults: 'No results', cancel: 'Cancel', delete: 'Delete', status: 'Status' },
       store: { name: 'Name', details: 'Details' },
+      event: { status: 'Status' },
+      profile: { role: 'Role' },
     },
   },
 });
+
+function commonStubs() {
+  return {
+    'q-page': { template: '<div><slot /></div>' },
+    AdminPageHeader: { template: '<div />' },
+    AdminTable: { template: '<div />' },
+    AdminFormDialog: { template: '<div />' },
+    ConfirmDeleteDialog: { template: '<div />' },
+    StatusBadge: { template: '<span class="status-badge"><slot /></span>' },
+    'q-btn': { template: '<button><slot /></button>' },
+    'q-badge': { template: '<span><slot /></span>' },
+    'q-dialog': { template: '<div><slot /></div>' },
+    'q-input': { template: '<input />' },
+  };
+}
 
 describe('AdminPages', () => {
   beforeEach(() => {
@@ -55,14 +93,7 @@ describe('AdminPages', () => {
     const wrapper = shallowMount(TcgList, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          AdminPageHeader: { template: '<div />' },
-          AdminTable: { template: '<div />' },
-          AdminFormDialog: { template: '<div />' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-dialog': { template: '<div><slot /></div>' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -73,13 +104,7 @@ describe('AdminPages', () => {
     const wrapper = shallowMount(UserList, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          AdminPageHeader: { template: '<div />' },
-          AdminTable: { template: '<div />' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-badge': { template: '<span><slot /></span>' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -90,12 +115,7 @@ describe('AdminPages', () => {
     const wrapper = shallowMount(StoreList, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          AdminPageHeader: { template: '<div />' },
-          AdminTable: { template: '<div />' },
-          'q-badge': { template: '<span><slot /></span>' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -106,11 +126,7 @@ describe('AdminPages', () => {
     const wrapper = shallowMount(AuditLog, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          AdminPageHeader: { template: '<div />' },
-          AdminTable: { template: '<div />' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -121,12 +137,7 @@ describe('AdminPages', () => {
     const wrapper = shallowMount(Reports, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          AdminPageHeader: { template: '<div />' },
-          AdminTable: { template: '<div />' },
-          'q-btn': { template: '<button><slot /></button>' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);
@@ -137,13 +148,7 @@ describe('AdminPages', () => {
     const wrapper = shallowMount(FormatList, {
       global: {
         plugins: [i18n, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          AdminPageHeader: { template: '<div />' },
-          AdminTable: { template: '<div />' },
-          AdminFormDialog: { template: '<div />' },
-          'q-btn': { template: '<button><slot /></button>' },
-        },
+        stubs: commonStubs(),
       },
     });
     expect(wrapper.exists()).toBe(true);

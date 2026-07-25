@@ -96,7 +96,16 @@ export const ReportMatchSchema = z
     { message: 'Scores must sum to at least 1' },
   );
 
+export const MatchSchema = EventSchema;
+export const TradingSessionSchema = EventSchema;
+export const TournamentSchema = EventSchema;
+export const TournamentParticipantSchema = EventParticipantSchema;
+
 export type CreateEventInput = z.input<typeof CreateEventSchema>;
 export type Event = z.infer<typeof EventSchema>;
+export type Match = z.infer<typeof MatchSchema>;
+export type TradingSession = z.infer<typeof TradingSessionSchema>;
+export type Tournament = z.infer<typeof TournamentSchema>;
 export type EventParticipant = z.infer<typeof EventParticipantSchema>;
+export type TournamentParticipant = z.infer<typeof TournamentParticipantSchema>;
 export type ReportMatchInput = z.input<typeof ReportMatchSchema>;

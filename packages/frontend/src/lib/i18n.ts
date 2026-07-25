@@ -4,9 +4,12 @@ export type MessageLanguages = keyof typeof messages;
 export type MessageSchema = (typeof messages)['en-US'];
 
 export function detectLocale(): MessageLanguages {
-  const storedLocale = localStorage.getItem('locale');
+  const storedLocale = typeof localStorage !== 'undefined' ? localStorage.getItem('locale') : null;
   if (storedLocale === 'en-US' || storedLocale === 'pt-BR') {
     return storedLocale;
   }
-  return navigator.language.startsWith('pt') ? 'pt-BR' : 'en-US';
+  if (typeof navigator !== 'undefined' && navigator.language?.startsWith('pt')) {
+    return 'pt-BR';
+  }
+  return 'en-US';
 }

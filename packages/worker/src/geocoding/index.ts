@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
-
-type Bindings = {
-  NOMINATIM_USER_AGENT: string;
-  GEOCODING_KV: KVNamespace;
-};
+import { GeocodeQuerySchema, GeocodeResponseSchema, GeocodeResultSchema } from '@tcg/shared';
+import type { GeocodeResponse, GeocodeResult } from '@tcg/shared';
+import type { Bindings } from '../types/hono.js';
+import { validate } from '../lib/validation.js';
+import { ok, badRequest, serverError } from '../lib/responses.js';
 
 const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
 const CACHE_TTL = 86400; // 24 hours
@@ -11,16 +11,18 @@ const CACHE_TTL = 86400; // 24 hours
 const geocodeRouter = new Hono<{ Bindings: Bindings }>();
 
 geocodeRouter.get('/search', async (c) => {
-  const q = c.req.query('q');
-  if (!q || !q.trim()) {
-    return c.json({ data: null, error: "Query parameter 'q' is required", meta: null }, 400);
+  const query = { q: c.req.query('q') };
+  const validation = validate(GeocodeQuerySchema, query);
+  if (!validation.success) {
+    return badRequest(c, validation.error);
   }
 
+  const q = validation.data.q;
   const cacheKey = `geocode:search:${q.trim().toLowerCase()}`;
 
   const cached = await c.env.GEOCODING_KV.get(cacheKey);
   if (cached) {
-    return c.json({ data: JSON.parse(cached), error: null, meta: { cached: true } });
+    return ok(c, JSON.parse(cached), { cached: true });
   }
 
   const url = `${NOMINATIM_BASE}/search?format=json&limit=5&addressdetails=1&q=${encodeURIComponent(q.trim())}`;
@@ -29,13 +31,20 @@ geocodeRouter.get('/search', async (c) => {
   });
 
   if (!res.ok) {
-    return c.json({ data: null, error: 'Geocoding service unavailable', meta: null }, 502);
+    return serverError(c, 'Geocoding service unavailable');
   }
 
-  const data = await res.json();
+  const rawData = await res.json();
+  let data: GeocodeResponse;
+  try {
+    data = GeocodeResponseSchema.parse(rawData);
+  } catch {
+    return serverError(c, 'Invalid geocoding response');
+  }
+
   await c.env.GEOCODING_KV.put(cacheKey, JSON.stringify(data), { expirationTtl: CACHE_TTL });
 
-  return c.json({ data, error: null, meta: null });
+  return ok(c, data);
 });
 
 geocodeRouter.get('/reverse', async (c) => {
@@ -43,17 +52,14 @@ geocodeRouter.get('/reverse', async (c) => {
   const lng = c.req.query('lng');
 
   if (!lat || !lng) {
-    return c.json(
-      { data: null, error: "Parameters 'lat' and 'lng' are required", meta: null },
-      400,
-    );
+    return badRequest(c, "Parameters 'lat' and 'lng' are required");
   }
 
   const cacheKey = `geocode:reverse:${lat},${lng}`;
 
   const cached = await c.env.GEOCODING_KV.get(cacheKey);
   if (cached) {
-    return c.json({ data: JSON.parse(cached), error: null, meta: { cached: true } });
+    return ok(c, JSON.parse(cached), { cached: true });
   }
 
   const url = `${NOMINATIM_BASE}/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`;
@@ -62,13 +68,20 @@ geocodeRouter.get('/reverse', async (c) => {
   });
 
   if (!res.ok) {
-    return c.json({ data: null, error: 'Geocoding service unavailable', meta: null }, 502);
+    return serverError(c, 'Geocoding service unavailable');
   }
 
-  const data = await res.json();
+  const rawData = await res.json();
+  let data: GeocodeResult;
+  try {
+    data = GeocodeResultSchema.parse(rawData);
+  } catch {
+    return serverError(c, 'Invalid geocoding response');
+  }
+
   await c.env.GEOCODING_KV.put(cacheKey, JSON.stringify(data), { expirationTtl: CACHE_TTL });
 
-  return c.json({ data, error: null, meta: null });
+  return ok(c, data);
 });
 
 export { geocodeRouter };

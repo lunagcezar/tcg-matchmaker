@@ -4,15 +4,12 @@
     <AdminTable :rows="users" :columns="columns" :loading="loading">
       <template #body-cell-role="{ row }">
         <q-td>
-          <q-badge :color="(row.role as string) === 'admin' ? 'red' : 'primary'">{{
-            row.role
-          }}</q-badge>
+          <q-badge :color="roleColor(row.role)">{{ row.role }}</q-badge>
         </q-td>
       </template>
       <template #body-cell-status="{ row }">
         <q-td>
-          <q-badge v-if="row.banned_at" color="negative">Banned</q-badge>
-          <q-badge v-else color="positive">Active</q-badge>
+          <StatusBadge :status="row.banned_at ? 'banned' : 'active'" />
         </q-td>
       </template>
       <template #body-cell-actions="{ row }">
@@ -23,7 +20,7 @@
             dense
             icon="block"
             color="negative"
-            @click="confirmBan(row)"
+            @click="openDialog('ban', row)"
           />
           <q-btn
             v-else
@@ -31,31 +28,40 @@
             dense
             icon="check_circle"
             color="positive"
-            @click="confirmUnban(row)"
+            @click="openDialog('unban', row)"
           />
           <q-btn
-            v-if="(row.role as string) !== 'admin'"
+            v-if="row.role !== 'admin'"
             flat
             dense
             icon="admin_panel_settings"
             color="warning"
-            @click="confirmPromote(row)"
+            @click="openDialog('promote', row)"
           />
         </q-td>
       </template>
     </AdminTable>
+    <ConfirmDeleteDialog
+      v-model="showDialog"
+      :title="dialogTitle"
+      :message="dialogMessage"
+      :confirm-label="dialogLabel"
+      :confirm-color="dialogColor"
+      @confirm="runAction"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
+import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog.vue';
+import StatusBadge from '@/components/atoms/StatusBadge.vue';
+import { roleColor } from '@/lib/colors';
 import { apiGet, apiPost } from '@/composables/useApi';
 
-const $q = useQuasar();
 const { t } = useI18n({ useScope: 'global' });
 
 interface UserRow {
@@ -68,12 +74,20 @@ interface UserRow {
 
 const users = ref<UserRow[]>([]);
 const loading = ref(false);
+const showDialog = ref(false);
+const dialogTitle = ref('');
+const dialogMessage = ref('');
+const dialogLabel = ref('');
+const dialogColor = ref('');
+const selectedId = ref<string | null>(null);
+const selectedAction = ref<'ban' | 'unban' | 'promote' | null>(null);
+
 const columns = [
-  { name: 'username', label: 'Username', field: 'username' as const, sortable: true },
-  { name: 'email', label: 'Email', field: 'email' as const },
-  { name: 'role', label: 'Role', field: 'role' as const },
-  { name: 'status', label: 'Status', field: 'banned_at' as const },
-  { name: 'actions', label: 'Actions', field: 'actions' as const },
+  { name: 'username', label: t('auth.username'), field: 'username' as const, sortable: true },
+  { name: 'email', label: t('auth.email'), field: 'email' as const },
+  { name: 'role', label: t('profile.role'), field: 'role' as const },
+  { name: 'status', label: t('event.status'), field: 'banned_at' as const },
+  { name: 'actions', label: t('admin.columns.actions'), field: 'actions' as const },
 ];
 
 async function fetchUsers() {
@@ -86,54 +100,34 @@ async function fetchUsers() {
   }
 }
 
-function confirmBan(row: UserRow) {
-  $q.dialog({
-    title: t('admin.ban'),
-    message: `Ban "${row.username}"? They will be unable to log in or participate in events.`,
-    cancel: t('common.cancel'),
-    ok: { label: t('admin.ban'), color: 'negative', flat: true },
-    persistent: true,
-  }).onOk(() => {
-    void banUser(row.id);
-  });
+function openDialog(action: 'ban' | 'unban' | 'promote', row: UserRow) {
+  selectedAction.value = action;
+  selectedId.value = row.id;
+  if (action === 'ban') {
+    dialogTitle.value = t('admin.ban');
+    dialogMessage.value = t('admin.banConfirm', { name: row.username });
+    dialogLabel.value = t('admin.ban');
+    dialogColor.value = 'negative';
+  } else if (action === 'unban') {
+    dialogTitle.value = t('admin.unban');
+    dialogMessage.value = t('admin.unbanConfirm', { name: row.username });
+    dialogLabel.value = t('admin.unban');
+    dialogColor.value = 'positive';
+  } else {
+    dialogTitle.value = t('admin.promote');
+    dialogMessage.value = t('admin.promoteConfirm', { name: row.username });
+    dialogLabel.value = t('admin.promote');
+    dialogColor.value = 'warning';
+  }
+  showDialog.value = true;
 }
 
-function confirmUnban(row: UserRow) {
-  $q.dialog({
-    title: t('admin.unban'),
-    message: `Unban "${row.username}"? They will regain access to their account.`,
-    cancel: t('common.cancel'),
-    ok: { label: t('admin.unban'), color: 'positive', flat: true },
-    persistent: true,
-  }).onOk(() => {
-    void unbanUser(row.id);
-  });
-}
-
-function confirmPromote(row: UserRow) {
-  $q.dialog({
-    title: t('admin.promote'),
-    message: `Promote "${row.username}" to admin? They will gain full administrative access.`,
-    cancel: t('common.cancel'),
-    ok: { label: t('admin.promote'), color: 'warning', flat: true },
-    persistent: true,
-  }).onOk(() => {
-    void promoteUser(row.id);
-  });
-}
-
-async function banUser(id: string) {
-  await apiPost(`/api/admin/users/${id}/ban`);
-  await fetchUsers();
-}
-
-async function unbanUser(id: string) {
-  await apiPost(`/api/admin/users/${id}/unban`);
-  await fetchUsers();
-}
-
-async function promoteUser(id: string) {
-  await apiPost(`/api/admin/users/${id}/promote`);
+async function runAction() {
+  if (!selectedId.value || !selectedAction.value) return;
+  await apiPost(`/api/admin/users/${selectedId.value}/${selectedAction.value}`);
+  showDialog.value = false;
+  selectedId.value = null;
+  selectedAction.value = null;
   await fetchUsers();
 }
 

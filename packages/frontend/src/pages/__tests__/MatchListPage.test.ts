@@ -31,6 +31,8 @@ const mockEventStore = vi.hoisted(() => ({
   join: vi.fn(),
   confirm: vi.fn(),
   decline: vi.fn(),
+  loadMore: vi.fn(),
+  hasMore: false,
 }));
 
 vi.mock('@/stores/useEventStore', () => ({
@@ -42,6 +44,7 @@ vi.mock('@/composables/usePageMeta', () => ({ usePageMeta: vi.fn() }));
 const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
+  fallbackLocale: 'en-US',
   messages: {
     'en-US': {
       nav: { matches: 'Matches', newMatch: 'New Match' },
@@ -52,6 +55,7 @@ const i18n = createI18n({
         confirmed: 'Confirmed',
         completed: 'Completed',
       },
+      home: { noEvents: 'No events' },
       common: { noResults: 'No results' },
     },
   },
@@ -61,6 +65,23 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [{ path: '/matches', name: 'matches', component: {} as never }],
 });
+
+function stubs() {
+  return {
+    MapListLayout: {
+      template: '<div><slot name="map" /><slot name="filters" /><slot name="items" /></div>',
+    },
+    EventMap: { template: '<div class="event-map-stub" />' },
+    BaseList: { template: '<div><slot /><slot name="item" :item="{}" /></div>' },
+    EventRow: { template: '<a class="event-row"><slot /></a>' },
+    StatusFilterSegment: { template: '<div class="filter-segment"><slot /></div>' },
+    StatusBadge: { template: '<span class="status-badge"><slot /></span>' },
+    'q-page': { template: '<div><slot /></div>' },
+    'q-btn': { template: '<button><slot /></button>' },
+    'q-badge': { template: '<span><slot /></span>' },
+    'q-space': { template: '<div />' },
+  };
+}
 
 describe('MatchListPage', () => {
   beforeEach(() => {
@@ -72,15 +93,7 @@ describe('MatchListPage', () => {
     const wrapper = shallowMount(MatchListPage, {
       global: {
         plugins: [i18n, router, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-badge': { template: '<span><slot /></span>' },
-          'q-space': { template: '<div />' },
-          'q-spinner': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
 
@@ -93,15 +106,7 @@ describe('MatchListPage', () => {
     const wrapper = shallowMount(MatchListPage, {
       global: {
         plugins: [i18n, router, createPinia()],
-        stubs: {
-          'q-page': { template: '<div><slot /></div>' },
-          'q-card': { template: '<div><slot /></div>' },
-          'q-card-section': { template: '<div><slot /></div>' },
-          'q-btn': { template: '<button><slot /></button>' },
-          'q-badge': { template: '<span><slot /></span>' },
-          'q-space': { template: '<div />' },
-          'q-spinner': { template: '<div />' },
-        },
+        stubs: stubs(),
       },
     });
 

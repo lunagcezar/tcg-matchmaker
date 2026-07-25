@@ -64,11 +64,12 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { apiGet } from '@/composables/useApi';
-import { formatDate } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
 import { badgeColor, statusColor } from '@/lib/colors';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 const route = useRoute();
+const { formatDate } = useFormatDate();
 type Participant = Record<string, string>;
 
 const store = useEventStore();

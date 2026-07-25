@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <AdminPageHeader
-      title="Formats"
+      :title="$t('admin.newFormat')"
       back-to="/admin/tcgs"
       action-label="New Format"
       @action="showDialog = true"
@@ -9,13 +9,13 @@
     <AdminTable :rows="formats" :columns="columns" :loading="loading" />
     <AdminFormDialog
       v-model="showDialog"
-      title="New Format"
+      :title="$t('admin.newFormat')"
       submit-label="Create"
       :saving="saving"
       @submit="createFormat"
     >
-      <q-input v-model="form.name" label="Name" outlined required />
-      <q-input v-model="form.slug" label="Slug" outlined required />
+      <q-input v-model="form.name" :label="$t('admin.columns.name')" outlined required />
+      <q-input v-model="form.slug" :label="$t('admin.columns.slug')" outlined required />
     </AdminFormDialog>
   </q-page>
 </template>
@@ -23,10 +23,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import AdminFormDialog from '@/components/molecules/AdminFormDialog.vue';
 import { apiGet, apiPost } from '@/composables/useApi';
+
+const { t } = useI18n({ useScope: 'global' });
 
 const route = useRoute();
 const tcgId = route.params.id as string;
@@ -36,8 +39,8 @@ const saving = ref(false);
 const showDialog = ref(false);
 const form = ref({ name: '', slug: '' });
 const columns = [
-  { name: 'name', label: 'Name', field: 'name' as const, sortable: true },
-  { name: 'slug', label: 'Slug', field: 'slug' as const },
+  { name: 'name', label: t('admin.columns.name'), field: 'name' as const, sortable: true },
+  { name: 'slug', label: t('admin.columns.slug'), field: 'slug' as const },
 ];
 
 async function fetchFormats() {
@@ -49,6 +52,7 @@ async function fetchFormats() {
     loading.value = false;
   }
 }
+
 async function createFormat() {
   saving.value = true;
   try {
@@ -60,5 +64,6 @@ async function createFormat() {
     saving.value = false;
   }
 }
+
 onMounted(fetchFormats);
 </script>

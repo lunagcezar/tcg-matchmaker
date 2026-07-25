@@ -21,7 +21,7 @@
           <q-item-label :class="{ 'text-weight-bold': !n.read_at }">{{ n.title }}</q-item-label>
           <q-item-label caption>{{ n.body }}</q-item-label>
           <q-item-label caption class="text-caption text-grey">{{
-            relativeTime(n.created_at)
+            formatRelative(n.created_at)
           }}</q-item-label>
         </q-item-section>
         <q-item-section v-if="!n.read_at" side>
@@ -47,10 +47,11 @@
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useNotificationStore } from '@/stores/useNotificationStore';
-import { relativeTime } from '@/lib/format';
+import { useFormatDate } from '@/composables/useFormatDate';
 import { notificationIcon } from '@/lib/colors';
 
 const router = useRouter();
+const { formatRelative } = useFormatDate();
 const notificationStore = useNotificationStore();
 const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead } =
   notificationStore;

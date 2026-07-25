@@ -1,115 +1,13 @@
 <template>
   <AppDetailLayout :item="tournament" width="800px">
-    <q-card>
-      <q-card-section>
-        <h5 class="q-my-none">{{ $t('tournament.manage') }}: {{ tournament!.name }}</h5>
-        <q-badge :color="badgeColor(tournament!.status)" class="q-mt-sm">{{
-          tournament!.status
-        }}</q-badge>
-      </q-card-section>
-      <q-card-actions class="q-pa-md q-gutter-sm">
-        <q-btn
-          v-if="tournament!.status === 'draft'"
-          color="primary"
-          :label="$t('tournament.publish')"
-          :loading="busy"
-          @click="publish"
-        />
-        <q-btn
-          v-if="tournament!.status === 'open'"
-          color="warning"
-          :label="$t('tournament.start')"
-          :loading="busy"
-          @click="startTournament"
-        />
-      </q-card-actions>
-    </q-card>
-
-    <q-card class="q-mt-md">
-      <q-card-section
-        ><h6>{{ $t('tournament.checkIn') }}</h6></q-card-section
-      >
-      <q-card-section class="row q-col-gutter-sm">
-        <q-input v-model="checkInUserId" label="User ID" outlined dense class="col" />
-        <q-btn
-          color="positive"
-          :label="$t('tournament.checkIn')"
-          class="col-auto"
-          @click="checkIn"
-        />
-      </q-card-section>
-      <q-list>
-        <q-item v-for="p in participants" :key="p.id as string">
-          <q-item-section>{{ (p as Participant).user_id?.slice(0, 8) }}</q-item-section>
-          <q-item-section side
-            ><q-badge>{{ (p as Participant).status }}</q-badge></q-item-section
-          >
-        </q-item>
-      </q-list>
-    </q-card>
-
-    <q-card v-if="bracketMatches.length > 0" class="q-mt-md">
-      <q-card-section
-        ><h6>{{ $t('tournament.bracket') }}</h6></q-card-section
-      >
-      <q-list>
-        <q-item
-          v-for="(m, idx) in bracketMatches"
-          :key="(m.id as string) || idx"
-          class="column items-start q-py-sm"
-        >
-          <div class="row items-center q-gutter-sm full-width">
-            <span
-              :class="(m.winner as string) === (m.player1 as string) ? 'text-weight-bold' : ''"
-              class="col-4"
-              >{{ (m.player1 as string) || 'TBD' }}</span
-            >
-            <span class="col-1 text-center">vs</span>
-            <span
-              :class="(m.winner as string) === (m.player2 as string) ? 'text-weight-bold' : ''"
-              class="col-4"
-              >{{ (m.player2 as string) || 'TBD' }}</span
-            >
-            <q-badge :color="matchStatusColor((m.status as string) || 'pending')" class="col-2">{{
-              (m.status as string) || 'pending'
-            }}</q-badge>
-          </div>
-          <div
-            v-if="(m.status as string) === 'pending'"
-            class="row q-gutter-xs q-mt-xs items-center"
-          >
-            <q-input
-              :model-value="m.score1"
-              type="number"
-              label="P1 Score"
-              dense
-              outlined
-              style="width: 80px"
-              min="0"
-              @update:model-value="m.score1 = Number($event)"
-            />
-            <q-input
-              :model-value="m.score2"
-              type="number"
-              label="P2 Score"
-              dense
-              outlined
-              style="width: 80px"
-              min="0"
-              @update:model-value="m.score2 = Number($event)"
-            />
-            <q-btn dense size="sm" color="primary" label="Submit" @click="reportMatch(m)" />
-            <q-btn
-              dense
-              size="sm"
-              color="negative"
-              label="W.O."
-              @click="walkover(m.id, m.player1 || m.player2 || '')"
-            />
-          </div>
-        </q-item>
-      </q-list>
-    </q-card>
+    <TournamentManageHeader
+      :tournament="tournament"
+      :loading="busy"
+      @publish="publish"
+      @start="startTournament"
+    />
+    <ParticipantListSection :participants="participants" @check-in="checkIn" />
+    <BracketMatchSection :matches="bracketMatches" @report="reportMatch" @walkover="walkover" />
   </AppDetailLayout>
 </template>
 
@@ -119,27 +17,21 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { apiGet, apiPost } from '@/composables/useApi';
-import { badgeColor, matchStatusColor } from '@/lib/colors';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
+import TournamentManageHeader from '@/components/organisms/tournament/TournamentManageHeader.vue';
+import ParticipantListSection, {
+  type Participant,
+} from '@/components/organisms/tournament/ParticipantListSection.vue';
+import BracketMatchSection, {
+  type BracketRow,
+} from '@/components/organisms/tournament/BracketMatchSection.vue';
 
 const route = useRoute();
 const store = useEventStore();
 const tournamentId = route.params.id as string;
-type Participant = Record<string, string>;
 
 const busy = ref(false);
-const checkInUserId = ref('');
-const participants = ref<Array<Record<string, unknown>>>([]);
-interface BracketRow {
-  id: string;
-  player1?: string;
-  player2?: string;
-  winner?: string;
-  status?: string;
-  score1?: number;
-  score2?: number;
-  round_id?: string;
-}
+const participants = ref<Participant[]>([]);
 const bracketMatches = ref<BracketRow[]>([]);
 
 const tournament = computed(() => store.current as Record<string, string> | null);
@@ -154,6 +46,7 @@ async function publish() {
     busy.value = false;
   }
 }
+
 async function startTournament() {
   busy.value = true;
   try {
@@ -164,12 +57,12 @@ async function startTournament() {
     busy.value = false;
   }
 }
-async function checkIn() {
-  if (!checkInUserId.value) return;
-  await apiPost(`/api/tournaments/${tournamentId}/check-in`, { user_id: checkInUserId.value });
-  checkInUserId.value = '';
+
+async function checkIn(userId: string) {
+  await apiPost(`/api/tournaments/${tournamentId}/check-in`, { user_id: userId });
   await loadParticipants();
 }
+
 async function reportMatch(m: BracketRow) {
   const winnerId = (m.score1 ?? 0) > (m.score2 ?? 0) ? m.player1 : m.player2;
   if (!winnerId) return;
@@ -180,7 +73,8 @@ async function reportMatch(m: BracketRow) {
   });
   await loadBracket();
 }
-async function walkover(matchId: string, winnerId: string | null) {
+
+async function walkover(matchId: string, winnerId: string) {
   if (!winnerId) return;
   await apiPost(`/api/bracket-matches/${matchId}/walkover`, { winner_id: winnerId });
   await loadBracket();
@@ -189,11 +83,12 @@ async function walkover(matchId: string, winnerId: string | null) {
 async function loadParticipants() {
   try {
     const j = await apiGet(`/api/events/${tournamentId}/participants`);
-    participants.value = (j.data ?? []) as Record<string, unknown>[];
+    participants.value = (j.data ?? []) as Participant[];
   } catch {
     console.warn('failed to load participants');
   }
 }
+
 async function loadBracket() {
   try {
     const j = await apiGet(`/api/tournaments/${tournamentId}/bracket`);
