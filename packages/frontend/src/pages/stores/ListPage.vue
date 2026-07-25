@@ -11,19 +11,18 @@
       <BaseList :items="stores" :loading="loading" @load-more="onLoad">
         <template #item="{ item }">
           <div class="col-12 col-sm-6 col-md-4">
-            <router-link
-              :to="`/stores/${item.id}`"
-              class="store-card row items-center justify-between"
-            >
-              <div>
-                <span class="text-h6">{{ item.name }}</span>
-                <q-icon
-                  v-if="item.is_verified"
-                  name="check_circle"
-                  color="positive"
-                  size="sm"
-                  class="q-ml-xs"
-                />
+            <router-link :to="`/stores/${item.id}`" class="store-card row items-center">
+              <div class="row items-center full-width justify-between">
+                <div class="row items-center">
+                  <span class="text-h6">{{ item.name }}</span>
+                  <q-icon
+                    v-if="item.is_verified"
+                    name="check_circle"
+                    color="positive"
+                    size="sm"
+                    class="q-ml-sm"
+                  />
+                </div>
                 <div class="text-caption text-grey">{{ item.city }}, {{ item.state }}</div>
               </div>
             </router-link>

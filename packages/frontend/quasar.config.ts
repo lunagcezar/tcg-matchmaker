@@ -115,6 +115,7 @@ export default defineConfig((ctx) => {
 
       // Quasar plugins
       plugins: ['Dark', 'Dialog'],
+      cssAddon: true,
     },
 
     // animations: 'all', // --- includes all animations

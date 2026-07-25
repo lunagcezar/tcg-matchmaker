@@ -1,13 +1,12 @@
 <template>
-  <div class="date-time-picker row q-col-gutter-sm">
+  <div class="row">
     <div class="col-6">
       <q-input
         v-model="date"
         type="date"
-        :label="label ? `${label} ${$t('event.date')}` : $t('event.date')"
+        :label="$t('event.date')"
         :rules="rules"
         outlined
-        dense
         class="date-time-picker__date"
       />
     </div>
@@ -15,10 +14,9 @@
       <q-input
         v-model="time"
         type="time"
-        :label="label ? `${label} ${$t('event.time')}` : $t('event.time')"
+        :label="$t('event.time')"
         :rules="rules"
         outlined
-        dense
         class="date-time-picker__time"
       />
     </div>
@@ -77,10 +75,3 @@ watch(() => props.modelValue, parseModelValue, { immediate: true });
 watch(date, updateModelValue);
 watch(time, updateModelValue);
 </script>
-
-<style scoped>
-.date-time-picker__date,
-.date-time-picker__time {
-  width: 100%;
-}
-</style>

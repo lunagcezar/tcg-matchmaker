@@ -1,5 +1,5 @@
 <template>
-  <AppDetailLayout :item="tournament" :loading="loading" width="800px">
+  <AppDetailLayout :item="tournament" :loading="loading">
     <q-card>
       <q-card-section>
         <div class="row items-center">

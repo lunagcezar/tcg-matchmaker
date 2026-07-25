@@ -1,5 +1,5 @@
 <template>
-  <AppDetailLayout :item="session" :loading="loading" width="600px">
+  <AppDetailLayout :item="session" :loading="loading">
     <q-card>
       <q-card-section>
         <h5 class="q-my-none">{{ session!.name || $t('event.tradingDetails') }}</h5>

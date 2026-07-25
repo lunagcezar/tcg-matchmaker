@@ -7,7 +7,7 @@
     title-class="q-my-none"
     :error="error"
   >
-    <q-form ref="formRef" class="q-gutter-md" @submit.prevent="save">
+    <q-form ref="formRef" class="q-gutter-sm" @submit.prevent="save">
       <q-input
         v-model="form.name"
         :label="$t('event.type')"

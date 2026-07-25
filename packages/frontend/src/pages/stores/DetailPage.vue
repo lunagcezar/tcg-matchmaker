@@ -1,6 +1,6 @@
 <template>
-  <q-page class="q-py-md">
-    <div v-if="store" class="store-detail">
+  <q-page>
+    <div v-if="store">
       <div class="map-container" style="height: 200px">
         <EventMap :events="[store as unknown as Record<string, unknown>]" />
       </div>
@@ -68,10 +68,3 @@ onMounted(async () => {
   }
 });
 </script>
-
-<style scoped>
-.store-detail {
-  max-width: 600px;
-  margin: 0 auto;
-}
-</style>
