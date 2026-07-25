@@ -4,7 +4,9 @@
       <EventMap :events="sessions" />
     </template>
     <template #filters>
-      <q-btn color="positive" icon="add" :label="$t('nav.newTrading')" to="/trading/new" />
+      <q-btn color="primary" icon="add" :label="$t('nav.newTrading')" to="/trading/new" />
+      <q-space />
+      <StatusFilterSegment v-model="statusFilter" :options="statusOptions" />
     </template>
     <template #items>
       <BaseList :items="sessions" :loading="loading" @load-more="loadMore">
@@ -22,7 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { useFormatDate } from '@/composables/useFormatDate';
@@ -31,13 +34,28 @@ import MapListLayout from '@/layouts/MapListLayout.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 import BaseList from '@/components/organisms/BaseList.vue';
 import EventRow from '@/components/molecules/EventRow.vue';
+import StatusFilterSegment from '@/components/molecules/StatusFilterSegment.vue';
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
 
 usePageMeta({ titleKey: 'meta.trading', descKey: 'meta.tradingDesc' });
 
+const { t } = useI18n();
 const { formatDate } = useFormatDate();
 const store = useEventStore();
-const sessions = computed(() => store.items);
+const statusFilter = ref<string>('');
+
+const statusOptions = [
+  { label: t('event.all'), value: '' },
+  { label: t('common.status.planned'), value: 'planned' },
+  { label: t('common.status.active'), value: 'active' },
+  { label: t('common.status.completed'), value: 'completed' },
+];
+
+const sessions = computed(() => {
+  const all = store.items;
+  if (!statusFilter.value) return all;
+  return all.filter((s) => s.status === statusFilter.value);
+});
 const loading = computed(() => store.loading);
 
 function loadMore(_index: number, done: (stop?: boolean) => void) {

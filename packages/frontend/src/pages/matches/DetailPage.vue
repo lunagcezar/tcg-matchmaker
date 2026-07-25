@@ -51,7 +51,9 @@
       >
       <q-list>
         <q-item v-for="p in participants" :key="p.id as string">
-          <q-item-section>{{ (p as Participant).user_id?.slice(0, 8) }}</q-item-section>
+          <q-item-section>{{
+            (p as Participant).username || (p as Participant).user_id?.slice(0, 8)
+          }}</q-item-section>
           <q-item-section side>
             <q-badge :color="badgeColor((p as Participant).status)">{{
               (p as Participant).status

@@ -2,10 +2,15 @@ import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import DateTimePicker from '../DateTimePicker.vue';
 
-const createWrapper = (props: { modelValue: string; label?: string }) =>
+const createWrapper = (props: {
+  modelValue: string;
+  label?: string;
+  rules?: ((v: string) => true | string)[];
+}) =>
   mount(DateTimePicker, {
     props,
     global: {
+      mocks: { $t: (key: string) => key },
       stubs: {
         'q-input': {
           template:

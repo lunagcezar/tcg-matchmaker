@@ -9,7 +9,7 @@
     </q-card-section>
     <q-list>
       <q-item v-for="p in participants" :key="p.id">
-        <q-item-section>{{ p.user_id?.slice(0, 8) }}</q-item-section>
+        <q-item-section>{{ p.username || p.user_id?.slice(0, 8) }}</q-item-section>
         <q-item-section side><StatusBadge :status="p.status" /></q-item-section>
       </q-item>
     </q-list>
@@ -23,6 +23,7 @@ import StatusBadge from '@/components/atoms/StatusBadge.vue';
 export interface Participant {
   id: string;
   user_id?: string;
+  username?: string;
   status: string;
 }
 

@@ -4,6 +4,7 @@
     :options="results"
     :loading="loading"
     :label="label"
+    :rules="rules"
     outlined
     use-input
     fill-input
@@ -23,16 +24,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useGeocode, type GeocodeResult } from '@/composables/useGeocode';
 
 interface Props {
   label: string;
+  rules?: ((v: string) => true | string)[];
+  modelValue?: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
+  'update:modelValue': [value: string];
   select: [
     lat: number,
     lng: number,
@@ -44,7 +48,14 @@ const emit = defineEmits<{
 }>();
 
 const { results, loading, search } = useGeocode();
-const selected = ref<string>('');
+const selected = ref<string>(props.modelValue ?? '');
+
+watch(
+  () => props.modelValue,
+  (v) => {
+    selected.value = v ?? '';
+  },
+);
 
 let filterTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -61,8 +72,12 @@ function handleFilter(val: string, update: (fn: () => void) => void) {
 }
 
 function handleSelect(val: GeocodeResult | string | null) {
-  if (!val || typeof val === 'string') return;
+  if (!val || typeof val === 'string') {
+    emit('update:modelValue', selected.value);
+    return;
+  }
   selected.value = val.display_name;
+  emit('update:modelValue', val.display_name);
   const addr = val.address || {};
   const city = addr.city || addr.town || addr.village || addr.municipality || '';
   emit(
@@ -78,6 +93,7 @@ function handleSelect(val: GeocodeResult | string | null) {
 
 function clear() {
   selected.value = '';
+  emit('update:modelValue', '');
   search('');
 }
 

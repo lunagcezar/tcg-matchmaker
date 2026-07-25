@@ -13,11 +13,11 @@ export const CreateEventSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   details: z.string().optional(),
-  scheduled_at: z.string(),
+  scheduled_at: z.string().min(1, 'Scheduled date is required'),
   end_at: z.string().optional(),
   tcg_id: z.string().uuid().optional(),
   format_id: z.string().uuid().optional(),
-  max_participants: z.number().int().positive().optional(),
+  max_participants: z.number().int().min(2).optional(),
   bracket_type: z
     .enum(['single_elimination', 'double_elimination', 'round_robin', 'swiss', 'pool_play'])
     .optional(),

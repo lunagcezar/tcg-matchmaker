@@ -51,6 +51,7 @@ export const useEventStore = defineStore('events', () => {
 
   async function create(input: Record<string, unknown>) {
     const j = await apiPost('/api/events', input);
+    if (j.error) throw new Error(j.error as string);
     return j.data;
   }
 

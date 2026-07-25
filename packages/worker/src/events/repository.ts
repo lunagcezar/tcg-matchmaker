@@ -89,10 +89,14 @@ export async function findEventParticipants(
 ) {
   const { data } = await supabase
     .from('event_participants')
-    .select('*')
+    .select('*, users(username)')
     .eq('event_id', eventId)
     .order('created_at');
-  return data ?? [];
+  return (data ?? []).map((p: Record<string, unknown>) => ({
+    ...p,
+    username: (p.users as Record<string, unknown> | undefined)?.username ?? null,
+    users: undefined,
+  }));
 }
 
 export async function findEventForJoin(

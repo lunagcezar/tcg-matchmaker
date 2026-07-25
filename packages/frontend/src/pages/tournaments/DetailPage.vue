@@ -39,7 +39,9 @@
       }}</q-card-section>
       <q-list v-else>
         <q-item v-for="p in participants" :key="p.id as string">
-          <q-item-section>{{ (p as Participant).user_id?.slice(0, 8) }}</q-item-section>
+          <q-item-section>{{
+            (p as Participant).username || (p as Participant).user_id?.slice(0, 8)
+          }}</q-item-section>
           <q-item-section side
             ><q-badge>{{ (p as Participant).status }}</q-badge></q-item-section
           >
@@ -55,7 +57,7 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/stores/useEventStore';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
-import { apiGet } from '@/composables/useApi';
+import { apiGet, apiPost } from '@/composables/useApi';
 import { useFormatDate } from '@/composables/useFormatDate';
 import { badgeColor } from '@/lib/colors';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
@@ -80,7 +82,7 @@ useBracketD3(bracketRef, bracketMatches);
 async function register() {
   registering.value = true;
   try {
-    await store.join(tournamentId);
+    await apiPost(`/api/tournaments/${tournamentId}/register`);
     await store.get(tournamentId);
   } finally {
     registering.value = false;

@@ -88,10 +88,14 @@ export async function findStoreMembers(
 ) {
   const { data } = await supabase
     .from('store_memberships')
-    .select('*')
+    .select('*, users(username)')
     .eq('store_id', storeId)
     .order('created_at');
-  return data ?? [];
+  return (data ?? []).map((m: Record<string, unknown>) => ({
+    ...m,
+    username: (m.users as Record<string, unknown> | undefined)?.username ?? null,
+    users: undefined,
+  }));
 }
 
 export async function insertStoreMembership(

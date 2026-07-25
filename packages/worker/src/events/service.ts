@@ -186,7 +186,10 @@ export async function joinEvent(
       meta: null,
     };
   }
-  if (event.status !== 'open') {
+  if (event.type === 'trading' && !['planned', 'active'].includes(event.status ?? '')) {
+    return { data: null, error: 'Trading session is not open for joining', meta: null };
+  }
+  if (event.type === 'match' && event.status !== 'open') {
     return { data: null, error: 'Event is not open for joining', meta: null };
   }
   if (event.created_by_user_id === userId) {

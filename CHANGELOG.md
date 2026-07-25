@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.68.2] — 2026-07-24
+
+### Added
+
+- Spec: `spec/spec-071-create-form-ux-fixes.md` documenting native date inputs, form validation, and error styling.
+- `DateTimePicker` now supports `rules` prop for `q-form` validation.
+- `LocationAutocomplete` now supports `v-model` and `rules` prop for `q-form` validation.
+- Status filter segment added to `trading/ListPage` and `tournaments/ListPage`.
+
+### Changed
+
+- `DateTimePicker`: reverted from QDate+QTime popup to native `date` + `time` `q-input` fields to resolve runtime crashes and `vue-tsc` errors.
+- All create forms (`matches/CreatePage`, `trading/CreatePage`, `tournaments/CreatePage`, `stores/CreatePage`) are now wrapped in `<q-form>` and call `validate()` before submitting.
+- Required fields across all create forms now have `:rules` that show red inline errors.
+- Match create form: removed the `max_participants` hint to eliminate extra vertical spacing.
+- `CreateEventSchema`: `scheduled_at` now requires a non-empty string; `max_participants` minimum changed from 1 to 2.
+- Store detail page: map now renders via `EventMap`, layout uses 600px centered container, removed nested cards.
+- Store list page: rows use flex layout, verified stores show a checkmark icon instead of a badge.
+- Event participant lists and store member lists now display `username` (falling back to UUID prefix) instead of raw UUIDs.
+- Index page action buttons are now consistently `color="primary"` (purple).
+- Dark mode: destructive/error text and button colors now use high-contrast overrides via `--destructive` and OKLCH.
+
+### Fixed
+
+- Tournament registration button now calls the correct `/api/tournaments/:id/register` endpoint instead of the generic event join endpoint.
+- Trading join action now accepts `planned` and `active` trading-session statuses.
+- Store creation no longer swallows worker errors; the form now shows the API error message inline.
+- Worker event and store queries now join the `users` table to fetch participant/member usernames.
+- `DateTimePicker.spec.ts` updated to match the new native input implementation.
+
 ## [0.68.1] — 2026-07-24
 
 ### Changed

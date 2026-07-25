@@ -48,6 +48,7 @@ export const useStoreStore = defineStore('stores', () => {
 
   async function create(input: Record<string, unknown>) {
     const j = await apiPost('/api/stores', input);
+    if (j.error) throw new Error(j.error as string);
     return j.data;
   }
 

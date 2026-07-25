@@ -11,12 +11,21 @@
       <BaseList :items="stores" :loading="loading" @load-more="onLoad">
         <template #item="{ item }">
           <div class="col-12 col-sm-6 col-md-4">
-            <router-link :to="`/stores/${item.id}`" class="store-card">
-              <div class="text-h6">{{ item.name }}</div>
-              <div class="text-caption text-grey">{{ item.city }}, {{ item.state }}</div>
-              <q-badge v-if="item.is_verified" color="positive" class="q-mt-sm">{{
-                $t('store.verified')
-              }}</q-badge>
+            <router-link
+              :to="`/stores/${item.id}`"
+              class="store-card row items-center justify-between"
+            >
+              <div>
+                <span class="text-h6">{{ item.name }}</span>
+                <q-icon
+                  v-if="item.is_verified"
+                  name="check_circle"
+                  color="positive"
+                  size="sm"
+                  class="q-ml-xs"
+                />
+                <div class="text-caption text-grey">{{ item.city }}, {{ item.state }}</div>
+              </div>
             </router-link>
           </div>
         </template>
@@ -59,8 +68,7 @@ onMounted(() => storeStore.list());
 
 <style scoped>
 .store-card {
-  display: block;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   color: var(--foreground);

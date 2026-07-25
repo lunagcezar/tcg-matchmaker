@@ -8,7 +8,14 @@
       <EventMap :events="filteredEvents" />
     </template>
     <template #filters>
-      <q-btn flat dense icon="my_location" :label="$t('home.findNearMe')" @click="geolocate" />
+      <q-btn
+        flat
+        dense
+        color="primary"
+        icon="my_location"
+        :label="$t('home.findNearMe')"
+        @click="geolocate"
+      />
       <q-space />
       <StatusFilterSegment v-model="selectedType" :options="typeOptions" />
     </template>

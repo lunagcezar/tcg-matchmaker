@@ -4,7 +4,8 @@
       <q-input
         v-model="date"
         type="date"
-        :label="label ? `${label} date` : 'Date'"
+        :label="label ? `${label} ${$t('event.date')}` : $t('event.date')"
+        :rules="rules"
         outlined
         dense
         class="date-time-picker__date"
@@ -14,7 +15,8 @@
       <q-input
         v-model="time"
         type="time"
-        :label="label ? `${label} time` : 'Time'"
+        :label="label ? `${label} ${$t('event.time')}` : $t('event.time')"
+        :rules="rules"
         outlined
         dense
         class="date-time-picker__time"
@@ -29,6 +31,7 @@ import { ref, watch } from 'vue';
 export interface DateTimePickerProps {
   modelValue: string;
   label?: string;
+  rules?: ((v: string) => true | string)[];
 }
 
 const props = defineProps<DateTimePickerProps>();
@@ -74,3 +77,10 @@ watch(() => props.modelValue, parseModelValue, { immediate: true });
 watch(date, updateModelValue);
 watch(time, updateModelValue);
 </script>
+
+<style scoped>
+.date-time-picker__date,
+.date-time-picker__time {
+  width: 100%;
+}
+</style>

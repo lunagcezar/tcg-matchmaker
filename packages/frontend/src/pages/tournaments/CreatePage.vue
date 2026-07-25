@@ -3,51 +3,66 @@
     :title="$t('tournament.create')"
     width="600px"
     page-class="q-pa-md flex flex-center"
-    body-class="q-gutter-md"
+    body-class=""
     title-class="q-my-none"
     :error="error"
   >
-    <q-input v-model="form.name" :label="$t('tournament.name')" outlined />
-    <DateTimePicker v-model="form.scheduled_at" :label="$t('event.scheduledAt')" />
-    <LocationAutocomplete
-      :label="$t('event.location')"
-      @select="
-        (lat: number, lng: number, displayName: string) => {
-          form.lat = lat;
-          form.lng = lng;
-          form.custom_location_name = displayName;
-        }
-      "
-    />
-    <q-input
-      v-model="form.max_participants"
-      :label="$t('event.maxParticipants')"
-      type="number"
-      outlined
-    />
-    <q-select
-      v-model="form.bracket_type"
-      :options="bracketOptions"
-      :label="$t('tournament.bracketType')"
-      outlined
-      emit-value
-      map-options
-    />
-    <q-select
-      v-model="form.best_of"
-      :options="bestOfOptions"
-      :label="$t('tournament.bestOf')"
-      outlined
-      emit-value
-      map-options
-    />
-    <q-btn
-      color="warning"
-      :label="$t('tournament.create')"
-      class="full-width"
-      :loading="saving"
-      @click="save"
-    />
+    <q-form ref="formRef" class="q-gutter-md" @submit.prevent="save">
+      <q-input
+        v-model="form.name"
+        :label="$t('tournament.name')"
+        outlined
+        :rules="[(v) => !!v || 'Name is required']"
+      />
+      <DateTimePicker
+        v-model="form.scheduled_at"
+        :label="$t('event.scheduledAt')"
+        :rules="[(v) => !!v || 'Date and time are required']"
+      />
+      <LocationAutocomplete
+        v-model="form.custom_location_name"
+        :label="$t('event.location')"
+        :rules="[(v) => !!v || 'Location is required']"
+        @select="
+          (lat: number, lng: number, displayName: string) => {
+            form.lat = lat;
+            form.lng = lng;
+            form.custom_location_name = displayName;
+          }
+        "
+      />
+      <q-input
+        v-model="form.max_participants"
+        :label="$t('event.maxParticipants')"
+        type="number"
+        outlined
+        min="2"
+        :rules="[(v: number) => v >= 2 || 'Minimum is 2']"
+      />
+      <q-select
+        v-model="form.bracket_type"
+        :options="bracketOptions"
+        :label="$t('tournament.bracketType')"
+        outlined
+        emit-value
+        map-options
+      />
+      <q-select
+        v-model="form.best_of"
+        :options="bestOfOptions"
+        :label="$t('tournament.bestOf')"
+        outlined
+        emit-value
+        map-options
+      />
+      <q-btn
+        type="submit"
+        color="primary"
+        :label="$t('tournament.create')"
+        class="full-width"
+        :loading="saving"
+      />
+    </q-form>
   </AppCard>
 </template>
 
@@ -67,6 +82,7 @@ usePageMeta({ titleKey: 'tournament.create' });
 const { t } = useI18n();
 const store = useEventStore();
 const router = useRouter();
+const formRef = ref<{ validate: () => Promise<boolean> } | null>(null);
 const saving = ref(false);
 const error = ref('');
 const form = reactive({
@@ -95,6 +111,8 @@ const bestOfOptions = computed(() =>
 );
 
 async function save() {
+  const valid = formRef.value ? await formRef.value.validate() : true;
+  if (!valid) return;
   saving.value = true;
   error.value = '';
   try {
@@ -104,8 +122,8 @@ async function save() {
       max_participants: Number(form.max_participants),
     });
     void router.push('/tournaments');
-  } catch {
-    error.value = 'Failed to create tournament';
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Failed to create tournament';
   } finally {
     saving.value = false;
   }
