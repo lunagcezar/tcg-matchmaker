@@ -4,6 +4,7 @@
   "description": "A Quasar Project",
   "productName": "TCG Matchmaker",
   "author": "Luna Gondim Cezar <lunagondimcezar@gmail.com>",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "private": true,
   "scripts": {

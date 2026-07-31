@@ -384,4 +384,4 @@ See `AGENTS.md` for the full workflow and coding conventions.
 
 ## License
 
-[MIT](LICENSE)
+[GNU AGPL v3.0](LICENSE) — if you run a modified version of this software as a network service, you must offer its source code to the users of that service (AGPL §13). The source is available at https://codeberg.org/lunagcezar/tcg-matchmaker.

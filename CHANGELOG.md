@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- License: relicensed from MIT to GNU AGPL v3.0. Added `LICENSE` file with the full AGPL-3.0 text, updated the README License section (including the AGPL §13 source offer), and set `"license": "AGPL-3.0-or-later"` in all `package.json` files.
+
 ## [0.68.2] — 2026-07-24
 
 ### Added

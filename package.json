@@ -1,6 +1,7 @@
 {
   "name": "tcg-matchmaker",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "packageManager": "pnpm@11.13.0",
   "scripts": {
     "dev": "concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
