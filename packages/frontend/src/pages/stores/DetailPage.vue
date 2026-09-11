@@ -4,23 +4,7 @@
       <div class="map-container" style="height: 200px">
         <EventMap :events="[store as unknown as Record<string, unknown>]" />
       </div>
-      <q-card class="q-mt-md">
-        <q-card-section>
-          <div class="row items-center">
-            <h5 class="q-my-none">{{ store!.name }}</h5>
-            <q-icon
-              v-if="store!.is_verified"
-              name="check_circle"
-              color="positive"
-              size="sm"
-              class="q-ml-sm"
-            />
-          </div>
-          <div class="text-caption text-grey q-mt-sm">
-            {{ store!.address }}, {{ store!.city }}, {{ store!.state }}
-          </div>
-        </q-card-section>
-      </q-card>
+      <StoreCard :store="store" />
       <ParticipantListCard
         :title="$t('store.members')"
         :participants="members"
@@ -41,6 +25,7 @@ import { useRoute } from 'vue-router';
 import ParticipantListCard, {
   type Participant,
 } from '@/components/molecules/cards/ParticipantListCard.vue';
+import StoreCard from '@/components/molecules/cards/StoreCard.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 import { useStoreStore } from '@/stores/useStoreStore';
 
