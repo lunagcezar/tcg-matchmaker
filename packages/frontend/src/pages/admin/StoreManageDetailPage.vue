@@ -8,8 +8,8 @@
 
     <div v-else class="row q-col-gutter-md">
       <div class="col-12 col-md-7">
-        <q-card>
-          <q-card-section>
+        <AppPanelCard>
+          <template #title>
             <div class="row items-center">
               <h6 class="q-my-none">{{ $t('store.details') }}</h6>
               <q-space />
@@ -20,7 +20,7 @@
                 $t('store.verified')
               }}</q-badge>
             </div>
-          </q-card-section>
+          </template>
           <q-card-section class="q-gutter-sm">
             <q-input v-model="editForm.name" :label="$t('store.name')" outlined dense />
             <q-input
@@ -52,14 +52,11 @@
               @click="handleUpdate"
             />
           </q-card-section>
-        </q-card>
+        </AppPanelCard>
       </div>
 
       <div class="col-12 col-md-5">
-        <q-card>
-          <q-card-section
-            ><h6 class="q-my-none">{{ $t('admin.manageStores') }}</h6></q-card-section
-          >
+        <AppPanelCard :title="$t('admin.manageStores')">
           <q-card-section class="q-gutter-sm">
             <q-btn
               v-if="!store.is_verified"
@@ -96,12 +93,9 @@
               @click="handleDelete"
             />
           </q-card-section>
-        </q-card>
+        </AppPanelCard>
 
-        <q-card class="q-mt-md">
-          <q-card-section
-            ><h6 class="q-my-none">{{ $t('store.members') }}</h6></q-card-section
-          >
+        <AppPanelCard :title="$t('store.members')" card-class="q-mt-md">
           <q-card-section v-if="members.length === 0" class="text-grey">{{
             $t('store.noMembers')
           }}</q-card-section>
@@ -115,7 +109,7 @@
               </q-item-section>
             </q-item>
           </q-list>
-        </q-card>
+        </AppPanelCard>
       </div>
     </div>
   </q-page>
@@ -127,6 +121,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
+import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
 import {
   fetchStore,
   verifyStore,

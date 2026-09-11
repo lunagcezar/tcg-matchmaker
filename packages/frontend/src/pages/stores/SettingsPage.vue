@@ -24,7 +24,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
-import AppCard from '@/components/molecules/AppCard.vue';
+import AppCard from '@/layouts/AppCardLayout.vue';
 import { useStoreStore } from '@/stores/useStoreStore';
 
 const route = useRoute();

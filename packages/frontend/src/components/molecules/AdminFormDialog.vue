@@ -1,21 +1,20 @@
 <template>
   <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)">
-    <q-card style="min-width: 400px">
-      <q-card-section
-        ><h6 class="q-my-none">{{ title }}</h6></q-card-section
-      >
+    <AppPanelCard :title="title" actions-align="right">
       <q-card-section class="q-gutter-md">
         <slot />
       </q-card-section>
-      <q-card-actions align="right">
+      <template #actions>
         <q-btn flat :label="cancelLabel" @click="$emit('update:modelValue', false)" />
         <q-btn color="primary" :label="submitLabel" :loading="saving" @click="$emit('submit')" />
-      </q-card-actions>
-    </q-card>
+      </template>
+    </AppPanelCard>
   </q-dialog>
 </template>
 
 <script setup lang="ts">
+import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
+
 defineProps<{
   modelValue: boolean;
   title: string;

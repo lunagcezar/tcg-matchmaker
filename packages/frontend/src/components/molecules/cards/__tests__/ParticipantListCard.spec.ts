@@ -5,12 +5,16 @@ import StatusBadge from '@/components/atoms/StatusBadge.vue';
 
 import ParticipantListCard from '../ParticipantListCard.vue';
 
+const appPanelCardStub = {
+  name: 'AppPanelCard',
+  props: ['title', 'titleTag'],
+  template:
+    '<div class="app-panel-card-stub"><div class="title-section"><slot name="title"><h6 class="q-my-none">{{ title }}</h6></slot></div><div class="body"><slot /></div><div class="actions"><slot name="actions" /></div></div>',
+};
+
 const stubs = {
-  'q-card': { template: '<div><slot /></div>' },
-  'q-card-section': { template: '<div><slot /></div>' },
-  'q-list': { template: '<div><slot /></div>' },
+  AppPanelCard: appPanelCardStub,
   'q-item': { template: '<div class="q-item"><slot /></div>' },
-  'q-item-section': { template: '<div><slot /></div>' },
   'q-badge': { template: '<span class="q-badge"><slot /></span>' },
 };
 
@@ -29,7 +33,7 @@ describe('ParticipantListCard', () => {
   it('renders the title heading', () => {
     const wrapper = createWrapper({ title: 'Participants', participants: [] });
 
-    expect(wrapper.find('h6').text()).toBe('Participants');
+    expect(wrapper.find('.title-section').find('h6').text()).toBe('Participants');
   });
 
   it('renders a row per participant using username or a truncated user_id', () => {
@@ -41,7 +45,7 @@ describe('ParticipantListCard', () => {
       ],
     });
 
-    const items = wrapper.findAll('.q-item');
+    const items = wrapper.find('.body').findAll('.q-item');
     expect(items).toHaveLength(2);
     expect(items[0].text()).toContain('alice');
     expect(items[1].text()).toContain('01234567');
@@ -81,6 +85,6 @@ describe('ParticipantListCard', () => {
     const wrapper = createWrapper({ title: 'Participants', participants: [] });
 
     expect(wrapper.text()).not.toContain('No participants');
-    expect(wrapper.findAll('.q-item')).toHaveLength(0);
+    expect(wrapper.find('.body').findAll('.q-item')).toHaveLength(0);
   });
 });

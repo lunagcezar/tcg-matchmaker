@@ -1,10 +1,10 @@
 <template>
-  <q-card>
-    <q-card-section>
+  <AppPanelCard actions-class="q-pa-md q-gutter-sm">
+    <template #title>
       <h5 class="q-my-none">{{ $t('tournament.manage') }}: {{ tournament?.name }}</h5>
       <StatusBadge v-if="tournament" :status="tournament.status || ''" class="q-mt-sm" />
-    </q-card-section>
-    <q-card-actions class="q-pa-md q-gutter-sm">
+    </template>
+    <template #actions>
       <q-btn
         v-if="tournament?.status === 'draft'"
         color="primary"
@@ -19,12 +19,13 @@
         :loading="loading"
         @click="$emit('start')"
       />
-    </q-card-actions>
-  </q-card>
+    </template>
+  </AppPanelCard>
 </template>
 
 <script setup lang="ts">
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
+import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
 
 interface Props {
   tournament: Record<string, string> | null;

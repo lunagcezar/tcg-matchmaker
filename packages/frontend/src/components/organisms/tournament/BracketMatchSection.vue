@@ -1,8 +1,5 @@
 <template>
-  <q-card v-if="matches.length > 0" class="q-mt-md">
-    <q-card-section>
-      <h6 class="q-my-none">{{ $t('tournament.bracket') }}</h6>
-    </q-card-section>
+  <AppPanelCard v-if="matches.length > 0" :title="$t('tournament.bracket')" card-class="q-mt-md">
     <q-list>
       <q-item v-for="(m, idx) in matches" :key="m.id || idx" class="column items-start q-py-sm">
         <div class="row items-center q-gutter-sm full-width">
@@ -45,11 +42,12 @@
         </div>
       </q-item>
     </q-list>
-  </q-card>
+  </AppPanelCard>
 </template>
 
 <script setup lang="ts">
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
+import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
 
 export interface BracketRow {
   id: string;

@@ -1,13 +1,13 @@
 <template>
-  <q-card>
-    <q-card-section>
+  <AppPanelCard actions-class="q-pa-md q-gutter-sm">
+    <template #title>
       <h5 class="q-my-none">{{ title }}</h5>
       <StatusBadge :status="status" class="q-mt-sm" />
-    </q-card-section>
+    </template>
     <q-card-section v-if="$slots.default">
       <slot />
     </q-card-section>
-    <q-card-actions class="q-pa-md q-gutter-sm">
+    <template #actions>
       <q-btn
         v-if="participation?.status === 'pending'"
         color="positive"
@@ -27,12 +27,14 @@
         $t('event.confirmed')
       }}</q-badge>
       <slot name="actions" />
-    </q-card-actions>
-  </q-card>
+    </template>
+  </AppPanelCard>
 </template>
 
 <script setup lang="ts">
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
+
+import AppPanelCard from './AppPanelCard.vue';
 
 export interface Participation {
   user_id?: string;

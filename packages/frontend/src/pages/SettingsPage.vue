@@ -62,13 +62,13 @@ import { ref, onMounted, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import AppCard from '@/components/molecules/AppCard.vue';
 import DangerZoneSection from '@/components/organisms/settings/DangerZoneSection.vue';
 import PasswordSettingsSection from '@/components/organisms/settings/PasswordSettingsSection.vue';
 import ProfileSettingsSection from '@/components/organisms/settings/ProfileSettingsSection.vue';
 import { deleteAccount, suspendAccount, exportData } from '@/composables/useAccountManagement';
 import { apiGet, apiPatch } from '@/composables/useApi';
 import { usePageMeta } from '@/composables/usePageMeta';
+import AppCard from '@/layouts/AppCardLayout.vue';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 usePageMeta({ titleKey: 'meta.settings', descKey: 'meta.settingsDesc' });

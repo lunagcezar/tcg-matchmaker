@@ -1,8 +1,5 @@
 <template>
-  <q-card class="q-mt-md">
-    <q-card-section>
-      <h6 class="q-my-none">{{ title }}</h6>
-    </q-card-section>
+  <AppPanelCard :title="title" card-class="q-mt-md">
     <q-card-section v-if="participants.length === 0 && emptyText" class="text-grey">
       {{ emptyText }}
     </q-card-section>
@@ -15,11 +12,13 @@
         </q-item-section>
       </q-item>
     </q-list>
-  </q-card>
+  </AppPanelCard>
 </template>
 
 <script setup lang="ts">
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
+
+import AppPanelCard from './AppPanelCard.vue';
 
 export interface Participant {
   id: string;

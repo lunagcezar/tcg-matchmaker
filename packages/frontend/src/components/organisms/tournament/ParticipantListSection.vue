@@ -1,8 +1,5 @@
 <template>
-  <q-card class="q-mt-md">
-    <q-card-section>
-      <h6 class="q-my-none">{{ $t('tournament.checkIn') }}</h6>
-    </q-card-section>
+  <AppPanelCard :title="$t('tournament.checkIn')" card-class="q-mt-md">
     <q-card-section class="row q-col-gutter-sm">
       <q-input v-model="userId" label="User ID" outlined dense class="col" />
       <q-btn color="positive" :label="$t('tournament.checkIn')" class="col-auto" @click="checkIn" />
@@ -13,13 +10,14 @@
         <q-item-section side><StatusBadge :status="p.status" /></q-item-section>
       </q-item>
     </q-list>
-  </q-card>
+  </AppPanelCard>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
+import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
 
 export interface Participant {
   id: string;

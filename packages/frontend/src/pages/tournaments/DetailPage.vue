@@ -18,15 +18,13 @@
         />
       </template>
     </EventHeaderCard>
-    <q-card
+    <AppPanelCard
       v-if="tournament!.status === 'in_progress' || tournament!.status === 'completed'"
-      class="q-mt-md"
+      :title="$t('tournament.bracket')"
+      card-class="q-mt-md"
     >
-      <q-card-section
-        ><h6 class="q-my-none">{{ $t('tournament.bracket') }}</h6></q-card-section
-      >
       <div ref="bracketRef" class="bracket-container"></div>
-    </q-card>
+    </AppPanelCard>
     <ParticipantListCard
       :title="$t('tournament.participants')"
       :participants="participants"
@@ -39,6 +37,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
+import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
 import EventHeaderCard from '@/components/molecules/cards/EventHeaderCard.vue';
 import ParticipantListCard, {
   type Participant,

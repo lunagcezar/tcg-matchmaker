@@ -29,8 +29,8 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
-import AppCard from '@/components/molecules/AppCard.vue';
 import { apiPost } from '@/composables/useApi';
+import AppCard from '@/layouts/AppCardLayout.vue';
 
 const router = useRouter();
 const saving = ref(false);

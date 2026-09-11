@@ -53,8 +53,8 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
-import AppCard from '@/components/molecules/AppCard.vue';
 import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
+import AppCard from '@/layouts/AppCardLayout.vue';
 import { useStoreStore } from '@/stores/useStoreStore';
 
 const storeStore = useStoreStore();

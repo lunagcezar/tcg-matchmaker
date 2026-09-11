@@ -22,9 +22,9 @@ import { usePageMeta } from '@/composables/usePageMeta';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 usePageMeta({ titleKey: 'meta.onboarding', descKey: 'meta.onboardingDesc' });
-import AppCard from '@/components/molecules/AppCard.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
 import { apiPost } from '@/composables/useApi';
+import AppCard from '@/layouts/AppCardLayout.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();

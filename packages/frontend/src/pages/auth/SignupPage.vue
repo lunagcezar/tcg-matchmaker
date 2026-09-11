@@ -26,10 +26,10 @@ import { useQuasar } from 'quasar';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import AppCard from '@/components/molecules/AppCard.vue';
 import AuthFooter from '@/components/molecules/AuthFooter.vue';
 import AuthForm from '@/components/molecules/AuthForm.vue';
 import { usePageMeta } from '@/composables/usePageMeta';
+import AppCard from '@/layouts/AppCardLayout.vue';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 usePageMeta({ titleKey: 'meta.signup', descKey: 'meta.signupDesc' });

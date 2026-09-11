@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import { describe, it, expect } from 'vitest';
 
-describe('AppCard', () => {
+describe('AppCardLayout', () => {
   it('renders title in the header', async () => {
-    const AppCard = (await import('../molecules/AppCard.vue')).default;
+    const AppCard = (await import('../AppCardLayout.vue')).default;
     const wrapper = shallowMount(AppCard, {
       props: { title: 'Test Title' },
       global: {
@@ -17,7 +17,7 @@ describe('AppCard', () => {
   });
 
   it('renders error message as q-chip', async () => {
-    const AppCard = (await import('../molecules/AppCard.vue')).default;
+    const AppCard = (await import('../AppCardLayout.vue')).default;
     const wrapper = shallowMount(AppCard, {
       props: { error: 'Something went wrong' },
       global: {
@@ -32,7 +32,7 @@ describe('AppCard', () => {
   });
 
   it('renders success message as q-chip', async () => {
-    const AppCard = (await import('../molecules/AppCard.vue')).default;
+    const AppCard = (await import('../AppCardLayout.vue')).default;
     const wrapper = shallowMount(AppCard, {
       props: { success: 'Operation completed' },
       global: {
@@ -47,7 +47,7 @@ describe('AppCard', () => {
   });
 
   it('renders notifications between header and body', async () => {
-    const AppCard = (await import('../molecules/AppCard.vue')).default;
+    const AppCard = (await import('../AppCardLayout.vue')).default;
     const wrapper = shallowMount(AppCard, {
       props: { error: 'Error message', title: 'Test' },
       global: {

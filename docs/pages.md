@@ -50,15 +50,15 @@
 ```
 src/
   pages/                     — Pages layer. Keep pages ≤ 200 lines; split larger pages into organisms.
-  layouts/                   — Templates layer (MainLayout, AdminLayout)
+  layouts/                   — Templates layer (MainLayout, AdminLayout, AppCardLayout)
   components/
     atoms/                   — Smallest building blocks, highly reusable
-      AppButton, AppCard, AppSection, AppAvatar, AppBadge, AppIcon, StatusBadge
+      AppButton, AppSection, AppAvatar, AppBadge, AppIcon, StatusBadge
     molecules/               — Composed atoms with a single purpose
       fields/
         TextField, SelectField, LocationAutocomplete, DateTimePicker
       cards/
-        EventCard, UserCard, StoreCard, ParticipantListCard, EventHeaderCard
+        EventCard, UserCard, StoreCard, AppPanelCard, ParticipantListCard, EventHeaderCard
       navigation/
         SiteBranch, MainNavigation, AdminNavigation
       dialogs/
