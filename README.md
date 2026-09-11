@@ -4,6 +4,10 @@ A community platform for Trading Card Game (TCG) players to find and schedule ma
 
 Initially focused on **Fortaleza, Ceará, Brasil**.
 
+<p align="center">
+  <img src="docs/assets/app.png" alt="TCG Matchmaker — find matches, play tournaments, trade cards" width="100%" />
+</p>
+
 ## What it does
 
 - **Matches**: create or join TCG matches (1v1, Commander pods, etc.) near you.
