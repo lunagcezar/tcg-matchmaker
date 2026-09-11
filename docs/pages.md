@@ -58,7 +58,7 @@ src/
       fields/
         TextField, SelectField, LocationAutocomplete, DateTimePicker
       cards/
-        EventCard, UserCard, StoreCard
+        EventCard, UserCard, StoreCard, ParticipantListCard, EventHeaderCard
       navigation/
         SiteBranch, MainNavigation, AdminNavigation
       dialogs/

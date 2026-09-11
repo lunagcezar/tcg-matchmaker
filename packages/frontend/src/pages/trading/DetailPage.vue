@@ -1,17 +1,17 @@
 <template>
   <AppDetailLayout :item="session" :loading="loading">
-    <q-card>
-      <q-card-section>
-        <h5 class="q-my-none">{{ session!.name || $t('event.tradingDetails') }}</h5>
-        <q-badge :color="statusColor(session!.status)" class="q-mt-sm">{{
-          session!.status
-        }}</q-badge>
-      </q-card-section>
-      <q-card-section>
-        <p v-if="session!.details">{{ session!.details }}</p>
-        <div class="text-caption text-grey">{{ formatDate(session!.scheduled_at) }}</div>
-      </q-card-section>
-      <q-card-actions class="q-pa-md q-gutter-sm">
+    <EventHeaderCard
+      :title="session!.name || $t('event.tradingDetails')"
+      :status="session!.status"
+      :participation="myParticipation"
+      :confirming="confirming"
+      :declining="declining"
+      @confirm="confirmAttendance"
+      @decline="declineAttendance"
+    >
+      <p v-if="session!.details">{{ session!.details }}</p>
+      <div class="text-caption text-grey">{{ formatDate(session!.scheduled_at) }}</div>
+      <template #actions>
         <q-btn
           v-if="session!.status === 'planned' || session!.status === 'active'"
           color="primary"
@@ -20,43 +20,9 @@
           :disable="!!myParticipation"
           @click="rsvp"
         />
-        <q-btn
-          v-if="myParticipation?.status === 'pending'"
-          color="positive"
-          :label="$t('event.confirm')"
-          :loading="confirming"
-          @click="confirmAttendance"
-        />
-        <q-btn
-          v-if="myParticipation?.status === 'pending'"
-          color="negative"
-          flat
-          :label="$t('event.decline')"
-          :loading="declining"
-          @click="declineAttendance"
-        />
-        <q-badge v-if="myParticipation?.status === 'confirmed'" color="positive">{{
-          $t('event.confirmed')
-        }}</q-badge>
-      </q-card-actions>
-    </q-card>
-    <q-card class="q-mt-md">
-      <q-card-section
-        ><h6>{{ $t('event.participants') }}</h6></q-card-section
-      >
-      <q-list>
-        <q-item v-for="p in participants" :key="p.id as string">
-          <q-item-section>{{
-            (p as Participant).username || (p as Participant).user_id?.slice(0, 8)
-          }}</q-item-section>
-          <q-item-section side>
-            <q-badge :color="badgeColor((p as Participant).status)">{{
-              (p as Participant).status
-            }}</q-badge>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card>
+      </template>
+    </EventHeaderCard>
+    <ParticipantListCard :title="$t('event.participants')" :participants="participants" />
   </AppDetailLayout>
 </template>
 
@@ -64,20 +30,24 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
+import EventHeaderCard, {
+  type Participation,
+} from '@/components/molecules/cards/EventHeaderCard.vue';
+import ParticipantListCard, {
+  type Participant,
+} from '@/components/molecules/cards/ParticipantListCard.vue';
 import { apiGet } from '@/composables/useApi';
 import { useFormatDate } from '@/composables/useFormatDate';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
-import { badgeColor, statusColor } from '@/lib/colors';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useEventStore } from '@/stores/useEventStore';
 
 const route = useRoute();
 const { formatDate } = useFormatDate();
-type Participant = Record<string, string>;
 
 const store = useEventStore();
 const authStore = useAuthStore();
-const participants = ref<Array<Record<string, unknown>>>([]);
+const participants = ref<Participant[]>([]);
 const rsvping = ref(false);
 const confirming = ref(false);
 const declining = ref(false);
@@ -86,12 +56,11 @@ const sessionId = route.params.id as string;
 const session = computed(() => store.current);
 const loading = computed(() => store.loading);
 
-const myParticipation = computed(() => {
+const myParticipation = computed<Participation | null>(() => {
   if (!authStore.user) return null;
   return (
-    (participants.value.find(
-      (p) => (p as Participant).user_id === authStore.user?.id,
-    ) as Participant | null) ?? null
+    (participants.value.find((p) => p.user_id === authStore.user?.id) as Participation | null) ??
+    null
   );
 });
 
@@ -129,7 +98,7 @@ async function loadData() {
   await store.get(sessionId);
   try {
     const j = await apiGet(`/api/events/${sessionId}/participants`);
-    participants.value = (j.data ?? []) as Record<string, unknown>[];
+    participants.value = (j.data ?? []) as Participant[];
   } catch {
     /* ignore */
   }

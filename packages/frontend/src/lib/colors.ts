@@ -1,10 +1,3 @@
-export function badgeColor(status: string | undefined): string {
-  if (status === 'confirmed') return 'positive';
-  if (status === 'declined') return 'negative';
-  if (status === 'checked_in') return 'info';
-  return 'warning';
-}
-
 export function statusColor(status: string | undefined): string {
   if (status === 'open' || status === 'active' || status === 'planned') return 'primary';
   if (status === 'confirmed' || status === 'completed') return 'positive';

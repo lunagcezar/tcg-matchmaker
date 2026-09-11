@@ -1,26 +1,23 @@
 <template>
   <AppDetailLayout :item="tournament" :loading="loading">
-    <q-card>
-      <q-card-section>
-        <div class="row items-center">
-          <h5 class="q-my-none">{{ tournament!.name || $t('tournament.details') }}</h5>
-          <q-badge :color="badgeColor(tournament!.status)" class="q-ml-sm">{{
-            tournament!.status
-          }}</q-badge>
-        </div>
-        <div class="text-caption text-grey q-mt-sm">
-          {{ $t('event.date') }}: {{ formatDate(tournament!.scheduled_at) }}
-        </div>
-      </q-card-section>
-      <q-card-actions v-if="tournament!.status === 'open'" class="q-pa-md">
+    <EventHeaderCard
+      :title="tournament!.name || $t('tournament.details')"
+      :status="tournament!.status"
+      :participation="null"
+    >
+      <div class="text-caption text-grey q-mt-sm">
+        {{ $t('event.date') }}: {{ formatDate(tournament!.scheduled_at) }}
+      </div>
+      <template #actions>
         <q-btn
+          v-if="tournament!.status === 'open'"
           color="warning"
           :label="$t('tournament.register')"
           :loading="registering"
           @click="register"
         />
-      </q-card-actions>
-    </q-card>
+      </template>
+    </EventHeaderCard>
     <q-card
       v-if="tournament!.status === 'in_progress' || tournament!.status === 'completed'"
       class="q-mt-md"
@@ -30,24 +27,11 @@
       >
       <div ref="bracketRef" class="bracket-container"></div>
     </q-card>
-    <q-card class="q-mt-md">
-      <q-card-section
-        ><h6>{{ $t('tournament.participants') }}</h6></q-card-section
-      >
-      <q-card-section v-if="participants.length === 0" class="text-grey">{{
-        $t('tournament.noParticipants')
-      }}</q-card-section>
-      <q-list v-else>
-        <q-item v-for="p in participants" :key="p.id as string">
-          <q-item-section>{{
-            (p as Participant).username || (p as Participant).user_id?.slice(0, 8)
-          }}</q-item-section>
-          <q-item-section side
-            ><q-badge>{{ (p as Participant).status }}</q-badge></q-item-section
-          >
-        </q-item>
-      </q-list>
-    </q-card>
+    <ParticipantListCard
+      :title="$t('tournament.participants')"
+      :participants="participants"
+      :empty-text="$t('tournament.noParticipants')"
+    />
   </AppDetailLayout>
 </template>
 
@@ -55,21 +39,23 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
+import EventHeaderCard from '@/components/molecules/cards/EventHeaderCard.vue';
+import ParticipantListCard, {
+  type Participant,
+} from '@/components/molecules/cards/ParticipantListCard.vue';
 import { apiGet, apiPost } from '@/composables/useApi';
 import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
 import { useFormatDate } from '@/composables/useFormatDate';
 import { usePageMeta } from '@/composables/usePageMeta';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
-import { badgeColor } from '@/lib/colors';
 import { useEventStore } from '@/stores/useEventStore';
 
 const route = useRoute();
 const { formatDate } = useFormatDate();
 const store = useEventStore();
 const tournamentId = route.params.id as string;
-type Participant = Record<string, string>;
 
-const participants = ref<Array<Record<string, unknown>>>([]);
+const participants = ref<Participant[]>([]);
 const registering = ref(false);
 const bracketRef = ref<HTMLElement | null>(null);
 const bracketMatches = ref<BracketMatch[]>([]);
@@ -114,7 +100,7 @@ onMounted(async () => {
   await store.get(tournamentId);
   try {
     const j = await apiGet(`/api/events/${tournamentId}/participants`);
-    participants.value = (j.data ?? []) as Record<string, unknown>[];
+    participants.value = (j.data ?? []) as Participant[];
   } catch {
     console.warn('failed to load participants');
   }
