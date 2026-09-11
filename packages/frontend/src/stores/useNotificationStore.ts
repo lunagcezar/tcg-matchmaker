@@ -1,14 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 import { apiGet, apiPost, apiPatch } from '@/composables/useApi';
+import { supabase } from '@/lib/supabase';
 import type { Notification } from '@/types/domain';
-
-const supabaseUrl = import.meta.env.QCLI_SUPABASE_URL;
-const supabaseKey = import.meta.env.QCLI_SUPABASE_PUBLISHABLE_KEY;
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export const useNotificationStore = defineStore('notifications', () => {
   const notifications = ref<Notification[]>([]);

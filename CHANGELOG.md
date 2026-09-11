@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-075-browser-warnings-cleanup.md`; removed browser console warnings.
+  - Rewrote the Vue Router navigation guard (`src/router/guards.ts`, wired from `src/router/index.ts`) to return redirect values instead of the deprecated `next()` callback, eliminating the two `[Vue Router warn]: The next() callback in navigation guards is deprecated` messages.
+  - Made `useNotificationStore` reuse the shared Supabase client from `src/lib/supabase.ts` instead of calling `createClient` again, eliminating the "Multiple GoTrueClient instances detected" warning. A source-invariant regression test now guarantees `createClient(` appears in exactly one frontend source file.
+
 - Spec: `spec/spec-073-inline-card-molecule.md`; extracted a shared inline card molecule `AppPanelCard` (`src/components/molecules/cards/AppPanelCard.vue`) and refactored `EventHeaderCard`, `ParticipantListCard`, `TournamentManageHeader`, `BracketMatchSection`, `ParticipantListSection`, `AdminFormDialog`, the `tournaments/DetailPage` bracket card, and the `admin/StoreManageDetailPage` inline cards onto it, removing duplicated `q-card`/`q-card-section`/`q-card-actions` boilerplate.
 - Spec: `spec/spec-074-appcard-to-layouts.md`; moved the page-shell panel from `src/components/molecules/AppCard.vue` to `src/layouts/AppCardLayout.vue` and updated all importing pages/tests, clarifying the layout vs. molecule boundary now that `AppPanelCard` covers inline content cards.
 - Tooling: migrated linting and formatting from ESLint + Prettier to Oxlint + Oxfmt.
