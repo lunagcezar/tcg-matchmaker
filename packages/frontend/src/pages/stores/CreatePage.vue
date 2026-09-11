@@ -52,9 +52,10 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { useStoreStore } from '@/stores/useStoreStore';
+
 import AppCard from '@/components/molecules/AppCard.vue';
 import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
+import { useStoreStore } from '@/stores/useStoreStore';
 
 const storeStore = useStoreStore();
 const router = useRouter();

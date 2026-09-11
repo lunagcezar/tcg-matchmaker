@@ -1,8 +1,9 @@
-import { Hono } from 'hono';
 import { CreatePushSubscriptionSchema } from '@tcg/shared';
-import { authMiddleware } from '../middleware/auth.js';
+import { Hono } from 'hono';
+
 import { result, badRequest, notFound } from '../lib/responses.js';
 import { validate } from '../lib/validation.js';
+import { authMiddleware } from '../middleware/auth.js';
 import type { Bindings, Variables } from '../types/hono.js';
 import {
   listNotifications,

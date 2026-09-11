@@ -4,7 +4,6 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { storeRouter } from '../index.js';
 import {
   env,
   testUserId,
@@ -14,6 +13,7 @@ import {
   userChain,
   authMock,
 } from '../../test-utils/supabase.js';
+import { storeRouter } from '../index.js';
 
 const storeId = '00000000-0000-0000-0000-000000000100';
 

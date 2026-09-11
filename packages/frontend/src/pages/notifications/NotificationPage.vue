@@ -58,10 +58,11 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useNotificationStore } from '@/stores/useNotificationStore';
+
 import { useFormatDate } from '@/composables/useFormatDate';
-import { notificationIcon } from '@/lib/colors';
 import AppListLayout from '@/layouts/AppListLayout.vue';
+import { notificationIcon } from '@/lib/colors';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 
 const router = useRouter();
 const { formatDate } = useFormatDate();

@@ -68,14 +68,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useEventStore } from '@/stores/useEventStore';
-import { usePageMeta } from '@/composables/usePageMeta';
+import { useRouter } from 'vue-router';
+
 import AppCard from '@/components/molecules/AppCard.vue';
 import DateTimePicker from '@/components/molecules/DateTimePicker.vue';
 import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
+import { usePageMeta } from '@/composables/usePageMeta';
 import { BRACKET_OPTIONS, BEST_OF_OPTIONS } from '@/constants/tournament';
+import { useEventStore } from '@/stores/useEventStore';
 
 usePageMeta({ titleKey: 'tournament.create' });
 

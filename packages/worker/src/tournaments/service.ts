@@ -5,8 +5,16 @@ import {
   BracketMatchSchema,
   ReportMatchSchema,
 } from '@tcg/shared';
+
 import type { createSecretClient } from '../db/client.js';
 import { validate } from '../lib/validation.js';
+import {
+  generateSingleElimination,
+  generateDoubleElimination,
+  generateRoundRobin,
+  generateSwiss,
+  generatePoolPlay,
+} from './bracket-generators.js';
 import {
   insertEvent,
   findTournaments,
@@ -23,13 +31,6 @@ import {
   updateMatch,
   findRoundById,
 } from './repository.js';
-import {
-  generateSingleElimination,
-  generateDoubleElimination,
-  generateRoundRobin,
-  generateSwiss,
-  generatePoolPlay,
-} from './bracket-generators.js';
 
 function orgGuard(uid: string, creatorId: string) {
   return uid === creatorId;

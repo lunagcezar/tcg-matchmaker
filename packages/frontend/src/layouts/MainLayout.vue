@@ -76,16 +76,17 @@
 </template>
 
 <script setup lang="ts">
+import { useQuasar } from 'quasar';
 import { watch, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useQuasar } from 'quasar';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useAppStore } from '@/stores/useAppStore';
+
+import SiteBranch from '@/components/molecules/navigation/SiteBranch.vue';
+import NotificationBell from '@/components/molecules/NotificationBell.vue';
 import ThemeLangSwitcher from '@/components/molecules/ThemeLangSwitcher.vue';
 import UserMenu from '@/components/molecules/UserMenu.vue';
-import NotificationBell from '@/components/molecules/NotificationBell.vue';
-import SiteBranch from '@/components/molecules/navigation/SiteBranch.vue';
 import { useNavTree } from '@/composables/useNavTree';
+import { useAppStore } from '@/stores/useAppStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const route = useRoute();
 const $q = useQuasar();

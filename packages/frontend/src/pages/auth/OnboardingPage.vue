@@ -17,8 +17,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/useAuthStore';
+
 import { usePageMeta } from '@/composables/usePageMeta';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 usePageMeta({ titleKey: 'meta.onboarding', descKey: 'meta.onboardingDesc' });
 import AppCard from '@/components/molecules/AppCard.vue';

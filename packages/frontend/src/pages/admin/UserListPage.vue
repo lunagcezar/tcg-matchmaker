@@ -55,12 +55,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import StatusBadge from '@/components/atoms/StatusBadge.vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog.vue';
-import StatusBadge from '@/components/atoms/StatusBadge.vue';
-import { roleColor } from '@/lib/colors';
 import { apiGet, apiPost } from '@/composables/useApi';
+import { roleColor } from '@/lib/colors';
 
 const { t } = useI18n({ useScope: 'global' });
 

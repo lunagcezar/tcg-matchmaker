@@ -1,4 +1,5 @@
 import { captureException, captureMessage } from '@sentry/hono/cloudflare';
+
 import type { SentryTransport } from './logger.js';
 
 export function createSentryTransport(): SentryTransport {

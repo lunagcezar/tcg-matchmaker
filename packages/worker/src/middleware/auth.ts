@@ -1,7 +1,8 @@
+import type { Role } from '@tcg/shared';
 import type { Context, Next } from 'hono';
+
 import { createAuthClient } from '../db/client.js';
 import { unauthorized, notFound, forbidden } from '../lib/responses.js';
-import type { Role } from '@tcg/shared';
 
 export type AuthUser = {
   id: string;

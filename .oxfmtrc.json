@@ -5,7 +5,8 @@
   "printWidth": 100,
   "semi": true,
   "arrowParens": "always",
-  "sortPackageJson": false,
+  "sortImports": true,
+  "sortPackageJson": true,
   "ignorePatterns": [
     ".agents/",
     "dist/",

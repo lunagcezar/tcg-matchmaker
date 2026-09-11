@@ -2,7 +2,6 @@
   "name": "tcg-matchmaker",
   "private": true,
   "license": "AGPL-3.0-or-later",
-  "packageManager": "pnpm@11.24.0",
   "scripts": {
     "dev": "concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
     "dev:restart": "lsof -ti :8787 | xargs -r kill -9 2>/dev/null; lsof -ti :9000 | xargs -r kill -9 2>/dev/null; sleep 1; concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
@@ -17,6 +16,14 @@
     "prepare": "husky",
     "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts"
   },
+  "devDependencies": {
+    "concurrently": "^9.2.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
+    "typescript": "^6.0.0"
+  },
   "lint-staged": {
     "*.{js,mjs,cjs,ts,tsx,vue}": [
       "oxlint --fix",
@@ -26,12 +33,5 @@
       "oxfmt --write"
     ]
   },
-  "devDependencies": {
-    "concurrently": "^9.2.4",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.5.1",
-    "oxfmt": "^0.64.0",
-    "oxlint": "^1.79.0",
-    "typescript": "^5.9.3"
-  }
+  "packageManager": "pnpm@11.24.0"
 }

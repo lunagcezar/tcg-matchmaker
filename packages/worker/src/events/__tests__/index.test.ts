@@ -4,7 +4,6 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { eventRouter } from '../index.js';
 import {
   env,
   testUserId,
@@ -14,6 +13,7 @@ import {
   userChain,
   authMock,
 } from '../../test-utils/supabase.js';
+import { eventRouter } from '../index.js';
 
 const eventId = '00000000-0000-0000-0000-000000000100';
 

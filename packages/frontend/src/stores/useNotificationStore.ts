@@ -1,7 +1,8 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+
 import { apiGet, apiPost, apiPatch } from '@/composables/useApi';
 import type { Notification } from '@/types/domain';
 

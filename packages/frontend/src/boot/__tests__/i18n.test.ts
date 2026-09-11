@@ -1,4 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
+
 import { detectLocale } from '@/lib/i18n';
 
 function createStorage() {

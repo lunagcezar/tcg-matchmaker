@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const authStore = useAuthStore();

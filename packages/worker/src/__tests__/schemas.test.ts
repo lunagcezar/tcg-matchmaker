@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import {
   EventSchema,
   EventParticipantSchema,
@@ -13,6 +12,7 @@ import {
   BracketRoundSchema,
   BracketMatchSchema,
 } from '@tcg/shared';
+import { describe, it, expect } from 'vitest';
 
 const supabaseTimestamp = '2026-07-23T16:35:29.203528+00:00';
 

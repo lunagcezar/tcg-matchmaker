@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog.vue';
 
 interface Props {

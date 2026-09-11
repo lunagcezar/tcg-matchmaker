@@ -24,11 +24,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { usePageMeta } from '@/composables/usePageMeta';
+
 import AppCard from '@/components/molecules/AppCard.vue';
-import AuthForm from '@/components/molecules/AuthForm.vue';
 import AuthFooter from '@/components/molecules/AuthFooter.vue';
+import AuthForm from '@/components/molecules/AuthForm.vue';
+import { usePageMeta } from '@/composables/usePageMeta';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 usePageMeta({ titleKey: 'meta.login', descKey: 'meta.loginDesc' });
 

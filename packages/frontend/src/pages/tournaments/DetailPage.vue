@@ -54,13 +54,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useEventStore } from '@/stores/useEventStore';
-import { usePageMeta } from '@/composables/usePageMeta';
-import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
+
 import { apiGet, apiPost } from '@/composables/useApi';
+import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
 import { useFormatDate } from '@/composables/useFormatDate';
-import { badgeColor } from '@/lib/colors';
+import { usePageMeta } from '@/composables/usePageMeta';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
+import { badgeColor } from '@/lib/colors';
+import { useEventStore } from '@/stores/useEventStore';
 
 const route = useRoute();
 const { formatDate } = useFormatDate();

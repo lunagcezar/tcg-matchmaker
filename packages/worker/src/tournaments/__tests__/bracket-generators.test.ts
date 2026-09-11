@@ -4,8 +4,8 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { generateRoundRobin } from '../bracket-generators.js';
 import { chain } from '../../test-utils/supabase.js';
+import { generateRoundRobin } from '../bracket-generators.js';
 
 describe('Round Robin generator', () => {
   it('generates matches for 4 players', async () => {

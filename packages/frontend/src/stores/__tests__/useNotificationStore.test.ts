@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { useNotificationStore } from '../useNotificationStore';
 
 vi.stubGlobal('fetch', vi.fn());

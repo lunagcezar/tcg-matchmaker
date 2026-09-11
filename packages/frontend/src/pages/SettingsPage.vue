@@ -57,18 +57,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { ref, onMounted, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { usePageMeta } from '@/composables/usePageMeta';
+import { useRouter } from 'vue-router';
+
+import AppCard from '@/components/molecules/AppCard.vue';
+import DangerZoneSection from '@/components/organisms/settings/DangerZoneSection.vue';
+import PasswordSettingsSection from '@/components/organisms/settings/PasswordSettingsSection.vue';
+import ProfileSettingsSection from '@/components/organisms/settings/ProfileSettingsSection.vue';
 import { deleteAccount, suspendAccount, exportData } from '@/composables/useAccountManagement';
 import { apiGet, apiPatch } from '@/composables/useApi';
-import AppCard from '@/components/molecules/AppCard.vue';
-import ProfileSettingsSection from '@/components/organisms/settings/ProfileSettingsSection.vue';
-import PasswordSettingsSection from '@/components/organisms/settings/PasswordSettingsSection.vue';
-import DangerZoneSection from '@/components/organisms/settings/DangerZoneSection.vue';
+import { usePageMeta } from '@/composables/usePageMeta';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 usePageMeta({ titleKey: 'meta.settings', descKey: 'meta.settingsDesc' });
 

@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { ref, provide } from 'vue';
+
 import { MapListScrollRefKey } from '@/lib/injectionKeys';
 
 defineProps<{

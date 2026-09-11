@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useNavTree } from '@/composables/useNavTree';
 import { setActivePinia, createPinia } from 'pinia';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ref } from 'vue';
+
+import { useNavTree } from '@/composables/useNavTree';
 
 const mockRoutePath = ref('/');
 const mockProfile = ref<Record<string, unknown> | null>(null);

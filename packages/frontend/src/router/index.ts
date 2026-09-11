@@ -1,4 +1,4 @@
-import { defineRouter } from '#q-app';
+import { ROLES } from '@tcg/shared';
 import {
   createMemoryHistory,
   createRouter,
@@ -6,7 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 
-import { ROLES } from '@tcg/shared';
+import { defineRouter } from '#q-app';
 
 import routes from './routes';
 

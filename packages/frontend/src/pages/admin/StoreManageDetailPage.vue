@@ -122,10 +122,10 @@
 </template>
 
 <script setup lang="ts">
+import { useQuasar } from 'quasar';
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-import { apiGet } from '@/composables/useApi';
+
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import {
   fetchStore,
@@ -134,6 +134,7 @@ import {
   deleteStore,
   updateStore,
 } from '@/composables/useAdminStore';
+import { apiGet } from '@/composables/useApi';
 
 const $q = useQuasar();
 const route = useRoute();

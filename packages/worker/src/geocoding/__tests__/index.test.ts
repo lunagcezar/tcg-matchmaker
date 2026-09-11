@@ -1,6 +1,6 @@
+import { Hono } from 'hono';
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 
-import { Hono } from 'hono';
 import { geocodeRouter } from '../index.js';
 
 const origFetch = globalThis.fetch;

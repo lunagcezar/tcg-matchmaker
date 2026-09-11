@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
-import { createI18n } from 'vue-i18n';
 import { setActivePinia, createPinia } from 'pinia';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { createI18n } from 'vue-i18n';
 
 vi.mock('@/composables/usePageMeta', () => ({ usePageMeta: vi.fn() }));
 vi.mock('@/composables/useApi', () => ({

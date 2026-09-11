@@ -22,14 +22,15 @@
 </template>
 
 <script setup lang="ts">
+import { useQuasar } from 'quasar';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { usePageMeta } from '@/composables/usePageMeta';
+
 import AppCard from '@/components/molecules/AppCard.vue';
-import AuthForm from '@/components/molecules/AuthForm.vue';
 import AuthFooter from '@/components/molecules/AuthFooter.vue';
+import AuthForm from '@/components/molecules/AuthForm.vue';
+import { usePageMeta } from '@/composables/usePageMeta';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 usePageMeta({ titleKey: 'meta.signup', descKey: 'meta.signupDesc' });
 import TurnstileWidget from '@/components/molecules/TurnstileWidget.vue';

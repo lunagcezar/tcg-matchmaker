@@ -35,11 +35,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useStoreStore } from '@/stores/useStoreStore';
+
+import BaseList from '@/components/organisms/BaseList.vue';
+import EventMap from '@/components/organisms/home/EventMap.vue';
 import { usePageMeta } from '@/composables/usePageMeta';
 import MapListLayout from '@/layouts/MapListLayout.vue';
-import EventMap from '@/components/organisms/home/EventMap.vue';
-import BaseList from '@/components/organisms/BaseList.vue';
+import { useStoreStore } from '@/stores/useStoreStore';
 
 usePageMeta({ titleKey: 'meta.stores', descKey: 'meta.storesDesc' });
 

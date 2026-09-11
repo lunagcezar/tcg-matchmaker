@@ -1,6 +1,6 @@
-import { defineBoot } from '#q-app';
 import { createI18n } from 'vue-i18n';
 
+import { defineBoot } from '#q-app';
 import messages from '@/i18n';
 import { detectLocale, type MessageLanguages, type MessageSchema } from '@/lib/i18n';
 

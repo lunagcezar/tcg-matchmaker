@@ -1,5 +1,5 @@
-import { watch, type Ref } from 'vue';
 import * as d3 from 'd3';
+import { watch, type Ref } from 'vue';
 
 export interface BracketMatch {
   id: string;

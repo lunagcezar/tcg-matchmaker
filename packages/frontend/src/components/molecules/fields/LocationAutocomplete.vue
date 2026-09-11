@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+
 import { useGeocode, type GeocodeResult } from '@/composables/useGeocode';
 
 interface Props {

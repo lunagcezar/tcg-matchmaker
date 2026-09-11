@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
-import { authMiddleware } from '../middleware/auth.js';
-import { adminMiddleware } from '../middleware/admin.js';
+
 import { result, badRequest, notFound } from '../lib/responses.js';
+import { adminMiddleware } from '../middleware/admin.js';
+import { authMiddleware } from '../middleware/auth.js';
 import type { Bindings, Variables } from '../types/hono.js';
 import {
   listTcgs,

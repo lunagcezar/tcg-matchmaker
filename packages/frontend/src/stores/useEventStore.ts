@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+
 import { apiGet, apiPost } from '@/composables/useApi';
 import type { Event } from '@/types/domain';
 

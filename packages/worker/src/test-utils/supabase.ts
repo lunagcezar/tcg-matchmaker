@@ -1,5 +1,6 @@
-import { vi } from 'vitest';
 import { Hono } from 'hono';
+import { vi } from 'vitest';
+
 import { dbClientMiddleware } from '../middleware/db.js';
 import type { Bindings, Variables } from '../types/hono.js';
 

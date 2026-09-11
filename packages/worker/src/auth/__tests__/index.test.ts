@@ -4,8 +4,8 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { authRouter } from '../index.js';
 import { env, testUserId, chain, authMock, createTestApp } from '../../test-utils/supabase.js';
+import { authRouter } from '../index.js';
 
 describe('Auth routes', () => {
   beforeEach(() => {

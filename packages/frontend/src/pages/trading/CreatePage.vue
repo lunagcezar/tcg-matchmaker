@@ -54,10 +54,11 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { useEventStore } from '@/stores/useEventStore';
+
 import AppCard from '@/components/molecules/AppCard.vue';
 import DateTimePicker from '@/components/molecules/DateTimePicker.vue';
 import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
+import { useEventStore } from '@/stores/useEventStore';
 
 const store = useEventStore();
 const router = useRouter();

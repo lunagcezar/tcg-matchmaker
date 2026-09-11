@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Hono } from 'hono';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { rateLimitMiddleware } from '../rate-limit.js';
 
 const mockKv = {

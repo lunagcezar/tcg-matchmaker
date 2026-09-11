@@ -22,11 +22,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
+
+import AdminFormDialog from '@/components/molecules/AdminFormDialog.vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
-import AdminFormDialog from '@/components/molecules/AdminFormDialog.vue';
 import { apiGet, apiPost } from '@/composables/useApi';
 
 const { t } = useI18n({ useScope: 'global' });

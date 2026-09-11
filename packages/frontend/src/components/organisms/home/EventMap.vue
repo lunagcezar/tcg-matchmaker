@@ -3,9 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { useQuasar } from 'quasar';
 import L from 'leaflet';
+import { useQuasar } from 'quasar';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';

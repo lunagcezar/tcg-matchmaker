@@ -4,7 +4,6 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { reportRouter, adminRouter } from '../index.js';
 import {
   env,
   testUserId,
@@ -14,6 +13,7 @@ import {
   userChain,
   authMock,
 } from '../../test-utils/supabase.js';
+import { reportRouter, adminRouter } from '../index.js';
 
 const reportId = '00000000-0000-0000-0000-000000000100';
 const targetUserId = testUserId2;

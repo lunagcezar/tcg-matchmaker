@@ -18,6 +18,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
 
 export interface Participant {

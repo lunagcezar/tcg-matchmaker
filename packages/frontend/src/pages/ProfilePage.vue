@@ -21,12 +21,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { usePageMeta } from '@/composables/usePageMeta';
+
 import { apiGet } from '@/composables/useApi';
 import { useFormatDate } from '@/composables/useFormatDate';
+import { usePageMeta } from '@/composables/usePageMeta';
+import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 import { roleColor } from '@/lib/colors';
 import type { UserProfile } from '@/stores/useAuthStore';
-import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 
 usePageMeta({ titleKey: 'profile.title', descKey: 'profile.title' });
 

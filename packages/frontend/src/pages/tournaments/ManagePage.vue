@@ -14,17 +14,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useEventStore } from '@/stores/useEventStore';
-import { usePageMeta } from '@/composables/usePageMeta';
-import { apiGet, apiPost } from '@/composables/useApi';
-import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
-import TournamentManageHeader from '@/components/organisms/tournament/TournamentManageHeader.vue';
-import ParticipantListSection, {
-  type Participant,
-} from '@/components/organisms/tournament/ParticipantListSection.vue';
+
 import BracketMatchSection, {
   type BracketRow,
 } from '@/components/organisms/tournament/BracketMatchSection.vue';
+import ParticipantListSection, {
+  type Participant,
+} from '@/components/organisms/tournament/ParticipantListSection.vue';
+import TournamentManageHeader from '@/components/organisms/tournament/TournamentManageHeader.vue';
+import { apiGet, apiPost } from '@/composables/useApi';
+import { usePageMeta } from '@/composables/usePageMeta';
+import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
+import { useEventStore } from '@/stores/useEventStore';
 
 const route = useRoute();
 const store = useEventStore();

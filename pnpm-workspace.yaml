@@ -1,7 +1,20 @@
 packages:
   - 'packages/*'
+peerDependencyRules:
+  allowedVersions:
+    '@cloudflare/workers-types': '^4.x || ^5.x'
 allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   sharp: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@cloudflare/workerd-darwin-64@1.20260911.1'
+  - '@cloudflare/workerd-darwin-arm64@1.20260911.1'
+  - '@cloudflare/workerd-linux-64@1.20260911.1'
+  - '@cloudflare/workerd-linux-arm64@1.20260911.1'
+  - '@cloudflare/workerd-windows-64@1.20260911.1'
+  - '@cloudflare/workers-types@5.20260911.1'
+  - miniflare@5.20260911.0-alpha
+  - workerd@1.20260911.1
+  - wrangler@4.131.1

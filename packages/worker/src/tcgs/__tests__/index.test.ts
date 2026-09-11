@@ -4,8 +4,8 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),
 }));
 
-import { tcgRouter } from '../index.js';
 import { env, testUserId2, chain, createTestApp, authMock } from '../../test-utils/supabase.js';
+import { tcgRouter } from '../index.js';
 
 const tcgData = {
   id: '00000000-0000-0000-0000-000000000010',

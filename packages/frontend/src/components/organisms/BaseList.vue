@@ -16,6 +16,7 @@
 
 <script setup lang="ts" generic="T extends { id: string }">
 import { inject, computed } from 'vue';
+
 import { MapListScrollRefKey } from '@/lib/injectionKeys';
 
 interface Props {

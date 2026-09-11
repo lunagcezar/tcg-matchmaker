@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
+import { createPinia } from 'pinia';
+import { describe, it, expect, vi } from 'vitest';
 import { createI18n } from 'vue-i18n';
 import { createRouter, createWebHistory } from 'vue-router';
-import { createPinia } from 'pinia';
+
 import EventFeed from '../organisms/home/EventFeed.vue';
 
 const i18n = createI18n({

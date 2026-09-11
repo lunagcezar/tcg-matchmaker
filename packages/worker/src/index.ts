@@ -1,17 +1,18 @@
+import { sentry } from '@sentry/hono/cloudflare';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { sentry } from '@sentry/hono/cloudflare';
+
 import { authRouter } from './auth/index.js';
-import { tcgRouter, formatRouter } from './tcgs/index.js';
-import { storeRouter } from './stores/index.js';
 import { eventRouter } from './events/index.js';
-import { tournamentRouter, bracketMatchRouter } from './tournaments/index.js';
 import { geocodeRouter } from './geocoding/index.js';
-import { reportRouter, adminRouter } from './moderation/index.js';
-import { notificationRouter, pushSubscriptionRouter } from './notifications/index.js';
+import { dbClientMiddleware } from './middleware/db.js';
 import { createLogger } from './middleware/logger.js';
 import { createSentryTransport } from './middleware/sentry.js';
-import { dbClientMiddleware } from './middleware/db.js';
+import { reportRouter, adminRouter } from './moderation/index.js';
+import { notificationRouter, pushSubscriptionRouter } from './notifications/index.js';
+import { storeRouter } from './stores/index.js';
+import { tcgRouter, formatRouter } from './tcgs/index.js';
+import { tournamentRouter, bracketMatchRouter } from './tournaments/index.js';
 import type { Bindings, Variables } from './types/hono.js';
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();

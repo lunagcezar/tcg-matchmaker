@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+
 import { apiGet, apiPost, apiPatch } from '@/composables/useApi';
 import type { Store, StoreMembership } from '@/types/domain';
 

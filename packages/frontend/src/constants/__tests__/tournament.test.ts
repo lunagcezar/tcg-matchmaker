@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { BEST_OF_OPTIONS, BRACKET_OPTIONS } from '../tournament';
 
 describe('tournament constants', () => {

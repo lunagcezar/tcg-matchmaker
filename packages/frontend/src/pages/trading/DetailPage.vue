@@ -63,12 +63,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useEventStore } from '@/stores/useEventStore';
-import { useAuthStore } from '@/stores/useAuthStore';
+
 import { apiGet } from '@/composables/useApi';
 import { useFormatDate } from '@/composables/useFormatDate';
-import { badgeColor, statusColor } from '@/lib/colors';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
+import { badgeColor, statusColor } from '@/lib/colors';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useEventStore } from '@/stores/useEventStore';
 
 const route = useRoute();
 const { formatDate } = useFormatDate();

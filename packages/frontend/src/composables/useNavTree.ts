@@ -1,6 +1,7 @@
+import { ROLES } from '@tcg/shared';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { ROLES } from '@tcg/shared';
+
 import { navTree, type NavNode } from '@/router/navItems';
 import { useAuthStore } from '@/stores/useAuthStore';
 

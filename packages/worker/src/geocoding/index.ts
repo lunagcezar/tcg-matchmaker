@@ -1,9 +1,10 @@
-import { Hono } from 'hono';
 import { GeocodeQuerySchema, GeocodeResponseSchema, GeocodeResultSchema } from '@tcg/shared';
 import type { GeocodeResponse, GeocodeResult } from '@tcg/shared';
-import type { Bindings } from '../types/hono.js';
-import { validate } from '../lib/validation.js';
+import { Hono } from 'hono';
+
 import { ok, badRequest, serverError } from '../lib/responses.js';
+import { validate } from '../lib/validation.js';
+import type { Bindings } from '../types/hono.js';
 
 const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
 const CACHE_TTL = 86400; // 24 hours

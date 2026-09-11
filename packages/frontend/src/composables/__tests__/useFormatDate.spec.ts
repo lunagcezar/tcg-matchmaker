@@ -1,8 +1,10 @@
 process.env.TZ = 'UTC';
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import { useAppStore } from '@/stores/useAppStore';
+
 import { useFormatDate } from '../useFormatDate';
 
 describe('useFormatDate', () => {

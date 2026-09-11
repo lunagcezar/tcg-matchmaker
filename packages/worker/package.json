@@ -7,10 +7,11 @@
   "types": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
-    "build": "wrangler deploy --dry-run",
-    "deploy": "wrangler deploy",
+    "build": "wrangler deploy --dry-run --minify",
+    "deploy": "wrangler deploy --minify",
     "lint": "oxlint . && tsc --noEmit",
     "lint:fix": "oxlint . --fix && tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
@@ -21,10 +22,10 @@
     "hono": "^4.7.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250201.0",
+    "@cloudflare/workers-types": "^5.20260911.1",
     "oxlint": "^1.79.0",
-    "typescript": "^5.7.0",
+    "typescript": "^6.0.0",
     "vitest": "^3.0.0",
-    "wrangler": "^4.110.0"
+    "wrangler": "^4.131.1"
   }
 }

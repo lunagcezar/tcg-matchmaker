@@ -1,4 +1,5 @@
 import type { Context, Next } from 'hono';
+
 import { createSecretClient } from '../db/client.js';
 
 export async function dbClientMiddleware(c: Context, next: Next) {

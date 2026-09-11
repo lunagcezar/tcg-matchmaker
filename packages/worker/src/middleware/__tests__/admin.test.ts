@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
-import { adminMiddleware } from '../admin.js';
+import { describe, it, expect } from 'vitest';
+
 import { env } from '../../test-utils/supabase.js';
+import { adminMiddleware } from '../admin.js';
 
 function createTestApp(role: string) {
   const app = new Hono<{

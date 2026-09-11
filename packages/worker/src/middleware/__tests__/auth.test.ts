@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { env, makeUser, makeApp } from '../../test-utils/supabase.js';
 import { authMiddleware } from '../auth.js';
 import { dbClientMiddleware } from '../db.js';
-import { env, makeUser, makeApp } from '../../test-utils/supabase.js';
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(),

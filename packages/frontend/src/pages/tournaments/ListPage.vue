@@ -31,16 +31,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useEventStore } from '@/stores/useEventStore';
-import { usePageMeta } from '@/composables/usePageMeta';
-import { useFormatDate } from '@/composables/useFormatDate';
-import { eventRoute } from '@/lib/router';
-import MapListLayout from '@/layouts/MapListLayout.vue';
-import EventMap from '@/components/organisms/home/EventMap.vue';
-import BaseList from '@/components/organisms/BaseList.vue';
+
+import StatusBadge from '@/components/atoms/StatusBadge.vue';
 import EventRow from '@/components/molecules/EventRow.vue';
 import StatusFilterSegment from '@/components/molecules/StatusFilterSegment.vue';
-import StatusBadge from '@/components/atoms/StatusBadge.vue';
+import BaseList from '@/components/organisms/BaseList.vue';
+import EventMap from '@/components/organisms/home/EventMap.vue';
+import { useFormatDate } from '@/composables/useFormatDate';
+import { usePageMeta } from '@/composables/usePageMeta';
+import MapListLayout from '@/layouts/MapListLayout.vue';
+import { eventRoute } from '@/lib/router';
+import { useEventStore } from '@/stores/useEventStore';
 
 usePageMeta({ titleKey: 'nav.tournaments', descKey: 'meta.homeDesc' });
 

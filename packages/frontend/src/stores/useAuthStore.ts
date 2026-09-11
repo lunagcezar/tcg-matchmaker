@@ -1,9 +1,10 @@
+import type { User } from '@supabase/supabase-js';
+import type { Role } from '@tcg/shared';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import type { User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+
 import { apiGet } from '@/composables/useApi';
-import type { Role } from '@tcg/shared';
+import { supabase } from '@/lib/supabase';
 
 const REMEMBER_ME_KEY = 'tcg_remember_me';
 

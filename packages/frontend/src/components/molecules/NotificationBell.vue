@@ -12,8 +12,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue';
+
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
+
 import NotificationList from './NotificationList.vue';
 
 const authStore = useAuthStore();

@@ -1,6 +1,7 @@
-import { defineBoot } from '#q-app';
 import * as Sentry from '@sentry/vue';
 import type { Router } from 'vue-router';
+
+import { defineBoot } from '#q-app';
 
 export default defineBoot(({ app, router }) => {
   const dsn = import.meta.env.QCLI_SENTRY_DSN;

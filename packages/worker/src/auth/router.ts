@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
+
+import { result, badRequest, notFound, serverError } from '../lib/responses.js';
 import type { AuthUser } from '../middleware/auth.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { rateLimitMiddleware } from '../middleware/rate-limit.js';
-import { result, badRequest, notFound, serverError } from '../lib/responses.js';
 import type { Bindings } from '../types/hono.js';
 import {
   checkOnboarding,

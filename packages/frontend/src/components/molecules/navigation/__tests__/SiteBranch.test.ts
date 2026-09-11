@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { createI18n } from 'vue-i18n';
+import { describe, it, expect, vi } from 'vitest';
 import { ref } from 'vue';
+import { createI18n } from 'vue-i18n';
+
 import SiteBranch from '@/components/molecules/navigation/SiteBranch.vue';
 
 const mockRoutePath = ref('/');

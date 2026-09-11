@@ -30,9 +30,9 @@
 </template>
 
 <script setup lang="ts">
+import { useFormatDate } from '@/composables/useFormatDate';
 import { eventColor, statusColor } from '@/lib/colors';
 import { eventRoute } from '@/lib/router';
-import { useFormatDate } from '@/composables/useFormatDate';
 
 const { formatRelative } = useFormatDate();
 
