@@ -6,3 +6,7 @@ coverage/
 supabase/.branches
 supabase/.temp
 *.local
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
