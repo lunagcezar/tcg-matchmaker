@@ -12,5 +12,4 @@
  *   readonly MY_OTHER_VAR: string;
  * }
  */
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 interface ImportMetaEnv {}

@@ -205,8 +205,8 @@ any ──(cancel)──▶ cancelled
 - NFR-23: SOLID and DRY principles
 - NFR-24: Stateful logic extracted to composables (`useMatch`, `useAuth`, `useGeolocation`, `useFormatDate`, etc.)
 - NFR-25: Components organized with atomic design (atoms / molecules / organisms)
-- NFR-26: ESLint + Prettier for linting and formatting
-- NFR-27: Husky + lint-staged pre-commit hook runs ESLint and Prettier on staged files
+- NFR-26: Oxlint + Oxfmt for linting and formatting
+- NFR-27: Husky + lint-staged pre-commit hook runs Oxlint + Oxfmt on staged files
 - NFR-28: Tests use **Vitest** for all API endpoints, composables, and utility functions
 - NFR-28a: Page components must stay ≤ 200 lines; larger pages are split into organisms under `src/components/organisms/<feature>/`
 - NFR-28b: Reusable list components — all event feeds use `BaseList` + `EventRow`; no duplicated `.event-row` or `.q-infinite-scroll` wiring

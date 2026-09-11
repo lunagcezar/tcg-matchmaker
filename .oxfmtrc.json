@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "semi": true,
+  "arrowParens": "always",
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    ".agents/",
+    "dist/",
+    "node_modules/",
+    ".quasar/",
+    ".wrangler/",
+    ".supabase/",
+    "*.local",
+    "pnpm-lock.yaml"
+  ]
+}

@@ -222,23 +222,23 @@ Frontend env variables are provided at build time by Cloudflare Pages.
 
 ## Available commands
 
-| Command                         | Description                                                     |
-| ------------------------------- | --------------------------------------------------------------- |
-| `pnpm dev:frontend`             | Start the Quasar dev server                                     |
-| `pnpm dev:worker`               | Start the Worker dev server                                     |
-| `pnpm build:frontend`           | Build the frontend for production                               |
-| `pnpm build:worker`             | Build the Worker for production                                 |
-| `pnpm test`                     | Run all Vitest tests (worker + frontend)                        |
-| `pnpm test:e2e`                 | Run Playwright e2e tests (frontend)                             |
-| `pnpm lint`                     | Check Prettier formatting + run ESLint across all packages      |
-| `pnpm lint:fix`                 | Fix Prettier formatting + fix ESLint issues across all packages |
-| `pnpm format`                   | Run Prettier format across all packages                         |
-| `pnpm format:check`             | Run Prettier check across all packages                          |
-| `supabase start`                | Start the local Supabase stack                                  |
-| `supabase db diff`              | Generate a migration from schema changes                        |
-| `supabase gen types typescript` | Generate TypeScript types from the database                     |
-| `wrangler dev`                  | Start the Worker locally via Wrangler                           |
-| `wrangler deploy`               | Deploy the Worker to production                                 |
+| Command                         | Description                                                  |
+| ------------------------------- | ------------------------------------------------------------ |
+| `pnpm dev:frontend`             | Start the Quasar dev server                                  |
+| `pnpm dev:worker`               | Start the Worker dev server                                  |
+| `pnpm build:frontend`           | Build the frontend for production                            |
+| `pnpm build:worker`             | Build the Worker for production                              |
+| `pnpm test`                     | Run all Vitest tests (worker + frontend)                     |
+| `pnpm test:e2e`                 | Run Playwright e2e tests (frontend)                          |
+| `pnpm lint`                     | Check Oxfmt formatting + run Oxlint across all packages      |
+| `pnpm lint:fix`                 | Fix Oxfmt formatting + fix Oxlint issues across all packages |
+| `pnpm format`                   | Run Oxfmt format across all packages                         |
+| `pnpm format:check`             | Run Oxfmt check across all packages                          |
+| `supabase start`                | Start the local Supabase stack                               |
+| `supabase db diff`              | Generate a migration from schema changes                     |
+| `supabase gen types typescript` | Generate TypeScript types from the database                  |
+| `wrangler dev`                  | Start the Worker locally via Wrangler                        |
+| `wrangler deploy`               | Deploy the Worker to production                              |
 
 ## Architecture notes
 

@@ -9,8 +9,8 @@
     "dev": "wrangler dev",
     "build": "wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
-    "lint": "eslint --cache . && tsc --noEmit",
-    "lint:fix": "eslint --cache . --fix && tsc --noEmit",
+    "lint": "oxlint . && tsc --noEmit",
+    "lint:fix": "oxlint . --fix && tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250201.0",
-    "eslint": "^9.39.4",
+    "oxlint": "^1.79.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0",
     "wrangler": "^4.110.0"

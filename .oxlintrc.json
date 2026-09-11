@@ -1,0 +1,49 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "vue"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2026": true
+  },
+  "globals": {
+    "ga": "readonly",
+    "cordova": "readonly",
+    "Capacitor": "readonly",
+    "chrome": "readonly",
+    "browser": "readonly"
+  },
+  "rules": {
+    "typescript/consistent-type-imports": ["error", { "prefer": "type-imports" }],
+    "typescript/no-explicit-any": "error",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "prefer-promise-reject-errors": "off"
+  },
+  "ignorePatterns": [
+    "**/.agents/**",
+    "**/.husky/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/.quasar/**",
+    "**/.wrangler/**",
+    "**/.supabase/**",
+    "**/coverage/**",
+    "**/playwright-report/**",
+    "**/test-results/**",
+    "**/src-pwa/**",
+    "**/src-capacitor/**",
+    "**/src-cordova/**",
+    "quasar.config.*.temporary.compiled*"
+  ],
+  "overrides": [
+    {
+      "files": ["src-pwa/sw/**/*.ts"],
+      "env": {
+        "serviceworker": true
+      }
+    }
+  ]
+}

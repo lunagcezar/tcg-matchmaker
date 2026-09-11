@@ -8,14 +8,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint --cache . && tsc --noEmit",
-    "lint:fix": "eslint --cache . --fix && tsc --noEmit"
+    "lint": "oxlint . && tsc --noEmit",
+    "lint:fix": "oxlint . --fix && tsc --noEmit"
   },
   "dependencies": {
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "eslint": "^9.39.4",
+    "oxlint": "^1.79.0",
     "typescript": "^5.7.0"
   }
 }

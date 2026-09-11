@@ -1,5 +1,6 @@
 export type ValidationResult<T> =
-  { success: true; data: T } | { success: false; error: string; issues: string[] };
+  | { success: true; data: T }
+  | { success: false; error: string; issues: string[] };
 
 interface SafeParseIssue {
   message: string;

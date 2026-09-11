@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Tooling: migrated linting and formatting from ESLint + Prettier to Oxlint + Oxfmt.
+  - Added root `.oxlintrc.json` (built-in `eslint`, `typescript`, `vue` plugins; `consistent-type-imports`, `no-explicit-any`, `no-unused-vars` with `^_` args pattern) and `.oxfmtrc.json` (Prettier-compatible: single quotes, trailing commas, 100 print width).
+  - Removed `eslint.config.mjs`, per-package `eslint.config.js`, `.prettierrc`, `.prettierignore`, and the `eslint`/`prettier`/`eslint-plugin-*`/`typescript-eslint`/`globals` dev dependencies.
+  - Replaced package `lint`/`format` scripts and `lint-staged` hooks with `oxlint` and `oxfmt`; oxlint runs from the single root config regardless of package.
+  - Note: Oxlint's built-in `vue` plugin covers `<script>` blocks only; Vue template directives are type-checked by `vue-tsc` (the former `eslint-plugin-vue` template rules no longer run).
+  - VS Code: switched the default formatter to the Oxc extension (`oxc.oxc-vscode`), added `source.fixAll.oxlint`/`source.fixAll.oxfmt` code actions, and moved the ESLint/Prettier extensions to `unwantedRecommendations`.
+  - Formatted the tree to oxfmt conventions (3 files: `packages/shared/src/database.types.ts`, `packages/worker/src/lib/validation.ts`, `packages/worker/wrangler.jsonc`).
+  - Fixed a real bug surfaced by the migrated rules in `DateTimePicker.spec.ts` (`no-unsafe-optional-chaining` on `emitted(...)?.at(-1)` in test assertions that the frontend config previously ignored).
 - License: relicensed from MIT to GNU AGPL v3.0. Added `LICENSE` file with the full AGPL-3.0 text, updated the README License section (including the AGPL §13 source offer), and set `"license": "AGPL-3.0-or-later"` in all `package.json` files.
 
 ## [0.68.2] — 2026-07-24

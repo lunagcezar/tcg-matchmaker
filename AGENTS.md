@@ -133,16 +133,14 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 
 ### Code Quality
 
-- **ESLint v9 flat config** (`eslint.config.mjs`) at the workspace root, shared by all packages
-  - TypeScript rules via `typescript-eslint`
-  - Prettier formatting issues reported as ESLint errors via `eslint-plugin-prettier`
-  - All lint commands use `--cache` for incremental runs
-- **Frontend ESLint** (`packages/frontend/eslint.config.js`) extends the root base and layers on:
-  - Vue rules via `eslint-plugin-vue` (`flat/recommended`)
-  - Quasar-specific rules via `@quasar/app-vite/eslint`
-  - Vue SFC TypeScript parsing via `vue-eslint-parser` + `@typescript-eslint/parser`
-- **Prettier** for consistent formatting (single quotes, trailing commas, 100 print width); root `.prettierrc` is the single source of truth; `.prettierignore` skips agent skills and lockfiles
-- **Husky** + **lint-staged** — pre-commit hook runs ESLint + Prettier on staged files only; prevents broken commits
+- **Oxlint** for linting, configured at the workspace root in `.oxlintrc.json`
+  - Built-in `eslint`, `typescript`, and `vue` plugins; `no-unused-vars` warnings with `argsIgnorePattern: '^_'`; `typescript/consistent-type-imports` and `typescript/no-explicit-any` enforced
+  - Runs from a single root config regardless of package; `.gitignore` patterns are respected automatically
+  - Note: the built-in `vue` plugin covers `<script>` blocks only — Vue template directives are type-checked by `vue-tsc`, not linted
+- **Oxfmt** for formatting, configured at the workspace root in `.oxfmtrc.json`
+  - Prettier-compatible style (single quotes, trailing commas, 100 print width); migrated from the former `.prettierrc`
+  - Ignore patterns migrated from `.prettierignore` (agent skills, lockfiles, generated dirs)
+- **Husky** + **lint-staged** — pre-commit hook runs `oxlint --fix` + `oxfmt --write` on staged files only; prevents broken commits
 - **No `any` types** — never use `any` in production code. Use `unknown`, proper types, or Zod schemas instead. In tests, prefer `as Type` assertions over `as any`. Configure TypeScript with `strict: true` to enforce this.
 
 ### Frontend DRY & Quality Guidelines
@@ -447,10 +445,10 @@ Public detail pages (`/matches/:id`, `/tournaments/:id`, `/stores/:id`, `/profil
 | `pnpm dev:e2e`                  | Start Worker + frontend + run Playwright tests  |
 | `pnpm test`                     | Run all Vitest tests (worker unit + frontend)   |
 | `pnpm test:e2e`                 | Playwright auto-starts services, runs e2e tests |
-| `pnpm lint`                     | ESLint check across all packages                |
-| `pnpm lint:fix`                 | ESLint check with `--fix` across all packages   |
-| `pnpm format`                   | Prettier format across all packages             |
-| `pnpm format:check`             | Prettier check across all packages              |
+| `pnpm lint`                     | Oxlint check across all packages                |
+| `pnpm lint:fix`                 | Oxlint check with `--fix` across all packages   |
+| `pnpm format`                   | Oxfmt format across all packages                |
+| `pnpm format:check`             | Oxfmt check across all packages                 |
 | `supabase start`                | Start local Supabase stack (Docker)             |
 | `supabase stop`                 | Stop local Supabase                             |
 | `supabase db diff`              | Generate migration from schema changes          |

@@ -59,11 +59,11 @@ describe('DateTimePicker', () => {
     const inputs = wrapper.findAll('.q-input');
 
     await inputs[0].setValue('');
-    expect((wrapper.emitted('update:modelValue')?.at(-1) as [string])[0]).toBe('');
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['']);
 
     await inputs[0].setValue('2026-07-24');
     await inputs[1].setValue('');
-    expect((wrapper.emitted('update:modelValue')?.at(-1) as [string])[0]).toBe('');
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['']);
   });
 
   it('emits empty string for invalid date and time combinations', async () => {
@@ -73,6 +73,6 @@ describe('DateTimePicker', () => {
     await inputs[0].setValue('not-a-date');
     await inputs[1].setValue('14:30');
 
-    expect((wrapper.emitted('update:modelValue')?.at(-1) as [string])[0]).toBe('');
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['']);
   });
 });
