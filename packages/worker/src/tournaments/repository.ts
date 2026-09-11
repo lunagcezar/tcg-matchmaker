@@ -114,10 +114,7 @@ export async function updateParticipantByEvent(
   return data;
 }
 
-export async function findRoundsByEvent(
-  supabase: ReturnType<typeof createSecretClient>,
-  eventId: string,
-) {
+async function findRoundsByEvent(supabase: ReturnType<typeof createSecretClient>, eventId: string) {
   const { data } = await supabase
     .from('bracket_rounds')
     .select('*')
@@ -126,7 +123,7 @@ export async function findRoundsByEvent(
   return data ?? [];
 }
 
-export async function findMatchesByRound(
+async function findMatchesByRound(
   supabase: ReturnType<typeof createSecretClient>,
   roundId: string,
 ) {

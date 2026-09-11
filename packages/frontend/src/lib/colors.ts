@@ -14,7 +14,7 @@ export function statusColor(status: string | undefined): string {
   return 'grey';
 }
 
-import { ROLES, STORE_MEMBERSHIP_ROLES } from '@tcg/shared';
+import { ROLES } from '@tcg/shared';
 
 export function roleColor(role: string | undefined): string {
   if (role === ROLES[2]) return 'red';
@@ -26,19 +26,6 @@ export function eventColor(type: string | undefined): string {
   if (type === 'match') return 'primary';
   if (type === 'trading') return 'positive';
   return 'warning';
-}
-
-export function memberRoleColor(role: string): string {
-  if (role === STORE_MEMBERSHIP_ROLES[0]) return 'red';
-  if (role === STORE_MEMBERSHIP_ROLES[1]) return 'warning';
-  return 'primary';
-}
-
-export function matchStatusColor(status: string | undefined): string {
-  if (status === 'completed') return 'positive';
-  if (status === 'walkover') return 'warning';
-  if (status === 'in_progress') return 'info';
-  return 'grey';
 }
 
 export function notificationIcon(type: string): string {

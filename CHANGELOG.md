@@ -15,6 +15,17 @@ All notable changes to this project will be documented in this file.
   - Formatted the tree to oxfmt conventions (3 files: `packages/shared/src/database.types.ts`, `packages/worker/src/lib/validation.ts`, `packages/worker/wrangler.jsonc`).
   - Fixed a real bug surfaced by the migrated rules in `DateTimePicker.spec.ts` (`no-unsafe-optional-chaining` on `emitted(...)?.at(-1)` in test assertions that the frontend config previously ignored).
 - License: relicensed from MIT to GNU AGPL v3.0. Added `LICENSE` file with the full AGPL-3.0 text, updated the README License section (including the AGPL §13 source offer), and set `"license": "AGPL-3.0-or-later"` in all `package.json` files.
+- Tooling: CI, dependency alignment, and code-quality guardrails.
+  - Added GitHub Actions CI (`.github/workflows/ci.yml`): `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm -r typecheck` → `pnpm test` on pushes to `main` and pull requests.
+  - Worker builds and deploys are now minified (`wrangler deploy --dry-run --minify` / `wrangler deploy --minify`): upload drops from ~1571 KiB to ~549 KiB (gzip ~294 KiB → ~153 KiB).
+  - Bumped `@cloudflare/workers-types` to `^5.20260911.1` and `wrangler` to `^4.131.1`, added a `peerDependencyRules.allowedVersions` entry for the `@sentry/*` optional `^4.x` peer, and aligned TypeScript to `^6.0.0` across all packages.
+  - Enabled Oxfmt `sortImports` and `sortPackageJson`, enabled the Oxlint `import` plugin, and removed `**/src-pwa/**` from the Oxlint ignores (`register-sw.ts` is now linted).
+  - Added pnpm workspace catalogs for `typescript`, `oxlint`, `oxfmt`, `@cloudflare/workers-types`, `vitest`, and `wrangler`.
+  - Added `typecheck` scripts to the worker and shared packages plus a root `typecheck` script; added `lint:strict` (Oxlint `suspicious`/`perf` as warnings) and `knip` (dead code / unused dependencies) scripts.
+  - Added Vitest coverage via `@vitest/coverage-v8` with thresholds, run through `pnpm test:coverage`.
+  - Added a `.husky/pre-push` hook that runs `pnpm test`.
+  - Fixed the jsdom `localStorage` warning in frontend tests: Node 26's experimental global Web Storage shadows jsdom's, so a Vitest setup file (`packages/frontend/test/setup.ts`) installs an in-memory `Storage` and clears it before each test (which also fixed a latent locale-leak between tests).
+  - Dead-code removal surfaced by knip: deleted `EssentialLink.vue`, `src/lib/api.ts`, and `src/lib/format.ts`; removed unused exports from `src/lib/colors.ts` and `src/types/domain.ts`; un-exported the internal-only `findRoundsByEvent`/`findMatchesByRound` helpers; and removed the unused `@cloudflare/workers-types` dev dependency from the frontend.
 
 ## [0.68.2] — 2026-07-24
 

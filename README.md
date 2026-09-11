@@ -178,6 +178,7 @@ To disable seed entirely, set `enabled = false` in the `[db.seed]` section of `s
 
 ```bash
 pnpm test              # Worker unit tests (Vitest)
+pnpm test:coverage     # Frontend tests with coverage + thresholds
 pnpm test:e2e          # E2E tests (Playwright — auto-starts frontend + Worker)
 ```
 
@@ -222,23 +223,27 @@ Frontend env variables are provided at build time by Cloudflare Pages.
 
 ## Available commands
 
-| Command                         | Description                                                  |
-| ------------------------------- | ------------------------------------------------------------ |
-| `pnpm dev:frontend`             | Start the Quasar dev server                                  |
-| `pnpm dev:worker`               | Start the Worker dev server                                  |
-| `pnpm build:frontend`           | Build the frontend for production                            |
-| `pnpm build:worker`             | Build the Worker for production                              |
-| `pnpm test`                     | Run all Vitest tests (worker + frontend)                     |
-| `pnpm test:e2e`                 | Run Playwright e2e tests (frontend)                          |
-| `pnpm lint`                     | Check Oxfmt formatting + run Oxlint across all packages      |
-| `pnpm lint:fix`                 | Fix Oxfmt formatting + fix Oxlint issues across all packages |
-| `pnpm format`                   | Run Oxfmt format across all packages                         |
-| `pnpm format:check`             | Run Oxfmt check across all packages                          |
-| `supabase start`                | Start the local Supabase stack                               |
-| `supabase db diff`              | Generate a migration from schema changes                     |
-| `supabase gen types typescript` | Generate TypeScript types from the database                  |
-| `wrangler dev`                  | Start the Worker locally via Wrangler                        |
-| `wrangler deploy`               | Deploy the Worker to production                              |
+| Command                         | Description                                                         |
+| ------------------------------- | ------------------------------------------------------------------- |
+| `pnpm dev:frontend`             | Start the Quasar dev server                                         |
+| `pnpm dev:worker`               | Start the Worker dev server                                         |
+| `pnpm build:frontend`           | Build the frontend for production                                   |
+| `pnpm build:worker`             | Build the Worker for production                                     |
+| `pnpm test`                     | Run all Vitest tests (worker + frontend)                            |
+| `pnpm test:coverage`            | Run frontend tests with V8 coverage + thresholds                    |
+| `pnpm test:e2e`                 | Run Playwright e2e tests (frontend)                                 |
+| `pnpm lint`                     | Check Oxfmt formatting + run Oxlint across all packages             |
+| `pnpm lint:strict`              | Oxlint with `suspicious`/`perf` as warnings (progressive hardening) |
+| `pnpm lint:fix`                 | Fix Oxfmt formatting + fix Oxlint issues across all packages        |
+| `pnpm typecheck`                | Type-check all packages (`tsc`/`vue-tsc`)                           |
+| `pnpm knip`                     | Find dead code and unused dependencies                              |
+| `pnpm format`                   | Run Oxfmt format across all packages                                |
+| `pnpm format:check`             | Run Oxfmt check across all packages                                 |
+| `supabase start`                | Start the local Supabase stack                                      |
+| `supabase db diff`              | Generate a migration from schema changes                            |
+| `supabase gen types typescript` | Generate TypeScript types from the database                         |
+| `wrangler dev`                  | Start the Worker locally via Wrangler                               |
+| `wrangler deploy`               | Deploy the Worker to production                                     |
 
 ## Architecture notes
 
@@ -335,7 +340,7 @@ This must be run after every schema migration and requires `supabase start` to b
 pnpm -F @tcg/worker build
 ```
 
-This runs `wrangler deploy --dry-run` and verifies that the Worker bundles and its bindings are valid.
+This runs `wrangler deploy --dry-run --minify` and verifies that the Worker bundles and its bindings are valid.
 
 4. Set secrets with `wrangler secret put`:
 

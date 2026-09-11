@@ -11,7 +11,10 @@
     "test:coverage": "pnpm -F @tcg/frontend test:coverage",
     "test:e2e": "pnpm -F @tcg/frontend test:e2e",
     "lint": "pnpm format:check && pnpm -r lint",
+    "lint:strict": "oxlint . -W suspicious -W perf",
     "lint:fix": "pnpm format && pnpm -r lint:fix",
+    "typecheck": "pnpm -r typecheck",
+    "knip": "knip",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "prepare": "husky",
@@ -20,6 +23,7 @@
   "devDependencies": {
     "concurrently": "^9.2.4",
     "husky": "^9.1.7",
+    "knip": "^6.35.1",
     "lint-staged": "^17.5.1",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",

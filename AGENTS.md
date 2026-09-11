@@ -436,23 +436,27 @@ Public detail pages (`/matches/:id`, `/tournaments/:id`, `/stores/:id`, `/profil
 
 ## Available Commands
 
-| Command                         | Description                                     |
-| ------------------------------- | ----------------------------------------------- |
-| `quasar dev`                    | Start frontend dev server                       |
-| `quasar build`                  | Build frontend for production                   |
-| `quasar new store <name>`       | Scaffold a new Pinia store                      |
-| `pnpm dev`                      | Start both Worker + frontend concurrently       |
-| `pnpm dev:e2e`                  | Start Worker + frontend + run Playwright tests  |
-| `pnpm test`                     | Run all Vitest tests (worker unit + frontend)   |
-| `pnpm test:e2e`                 | Playwright auto-starts services, runs e2e tests |
-| `pnpm lint`                     | Oxlint check across all packages                |
-| `pnpm lint:fix`                 | Oxlint check with `--fix` across all packages   |
-| `pnpm format`                   | Oxfmt format across all packages                |
-| `pnpm format:check`             | Oxfmt check across all packages                 |
-| `supabase start`                | Start local Supabase stack (Docker)             |
-| `supabase stop`                 | Stop local Supabase                             |
-| `supabase db diff`              | Generate migration from schema changes          |
-| `supabase gen types typescript` | Generate TypeScript types from DB               |
-| `supabase db push`              | Push migrations to production                   |
-| `wrangler dev`                  | Start Worker locally                            |
-| `wrangler deploy`               | Deploy Worker to production                     |
+| Command                         | Description                                                         |
+| ------------------------------- | ------------------------------------------------------------------- |
+| `quasar dev`                    | Start frontend dev server                                           |
+| `quasar build`                  | Build frontend for production                                       |
+| `quasar new store <name>`       | Scaffold a new Pinia store                                          |
+| `pnpm dev`                      | Start both Worker + frontend concurrently                           |
+| `pnpm dev:e2e`                  | Start Worker + frontend + run Playwright tests                      |
+| `pnpm test`                     | Run all Vitest tests (worker unit + frontend)                       |
+| `pnpm test:coverage`            | Run frontend tests with V8 coverage + thresholds                    |
+| `pnpm test:e2e`                 | Playwright auto-starts services, runs e2e tests                     |
+| `pnpm lint`                     | Oxlint check across all packages                                    |
+| `pnpm lint:strict`              | Oxlint with `suspicious`/`perf` as warnings (progressive hardening) |
+| `pnpm lint:fix`                 | Oxlint check with `--fix` across all packages                       |
+| `pnpm typecheck`                | `tsc`/`vue-tsc` across all packages                                 |
+| `pnpm knip`                     | Find dead code / unused deps (see `knip.json`)                      |
+| `pnpm format`                   | Oxfmt format across all packages                                    |
+| `pnpm format:check`             | Oxfmt check across all packages                                     |
+| `supabase start`                | Start local Supabase stack (Docker)                                 |
+| `supabase stop`                 | Stop local Supabase                                                 |
+| `supabase db diff`              | Generate migration from schema changes                              |
+| `supabase gen types typescript` | Generate TypeScript types from DB                                   |
+| `supabase db push`              | Push migrations to production                                       |
+| `wrangler dev`                  | Start Worker locally                                                |
+| `wrangler deploy`               | Deploy Worker to production                                         |

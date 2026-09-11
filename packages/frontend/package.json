@@ -47,7 +47,6 @@
     "vue-router": "^5.0.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "catalog:",
     "@intlify/unplugin-vue-i18n": "^11.0.0",
     "@playwright/test": "^1.61.1",
     "@quasar/app-vite": "^3.0.0",

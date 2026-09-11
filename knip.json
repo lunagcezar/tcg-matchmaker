@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "packages/frontend": {
+      "entry": ["src/boot/**/*.ts", "src/router/**/*.ts", "functions/**/*.ts", "postcss.config.js"]
+    }
+  },
+  "ignore": [".agents/**", "packages/shared/src/database.types.ts"],
+  "ignoreDependencies": [
+    "@fontsource-variable/bitter",
+    "@fontsource-variable/cascadia-code",
+    "@intlify/unplugin-vue-i18n",
+    "@quasar/extras",
+    "@tcg/worker",
+    "@vueuse/core",
+    "hono",
+    "vite-plugin-checker"
+  ],
+  "ignoreBinaries": ["supabase"],
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "ignoreIssues": {
+    "packages/worker/src/lib/responses.ts": ["exports"],
+    "packages/shared/src/schemas/event.ts": ["duplicates"],
+    "packages/frontend/src/layouts/AdminLayout.vue": ["files"]
+  }
+}
