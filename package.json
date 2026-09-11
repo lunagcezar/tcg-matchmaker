@@ -2,7 +2,7 @@
   "name": "tcg-matchmaker",
   "private": true,
   "license": "AGPL-3.0-or-later",
-  "packageManager": "pnpm@11.13.0",
+  "packageManager": "pnpm@11.24.0",
   "scripts": {
     "dev": "concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
     "dev:restart": "lsof -ti :8787 | xargs -r kill -9 2>/dev/null; lsof -ti :9000 | xargs -r kill -9 2>/dev/null; sleep 1; concurrently \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\"",
@@ -27,16 +27,16 @@
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
-    "concurrently": "^9.1.0",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.0.0",
-    "eslint-plugin-prettier": "^5.2.0",
-    "globals": "^17.4.0",
+    "@eslint/js": "^9.39.5",
+    "concurrently": "^9.2.4",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.12.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.8",
-    "prettier": "^3.4.0",
-    "typescript": "^5.7.0",
-    "typescript-eslint": "^8.0.0"
+    "lint-staged": "^17.5.1",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0"
   }
 }
