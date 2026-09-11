@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-073-inline-card-molecule.md`; extracted a shared inline card molecule `AppPanelCard` (`src/components/molecules/cards/AppPanelCard.vue`) and refactored `EventHeaderCard`, `ParticipantListCard`, `TournamentManageHeader`, `BracketMatchSection`, `ParticipantListSection`, `AdminFormDialog`, the `tournaments/DetailPage` bracket card, and the `admin/StoreManageDetailPage` inline cards onto it, removing duplicated `q-card`/`q-card-section`/`q-card-actions` boilerplate.
+- Spec: `spec/spec-074-appcard-to-layouts.md`; moved the page-shell panel from `src/components/molecules/AppCard.vue` to `src/layouts/AppCardLayout.vue` and updated all importing pages/tests, clarifying the layout vs. molecule boundary now that `AppPanelCard` covers inline content cards.
 - Tooling: migrated linting and formatting from ESLint + Prettier to Oxlint + Oxfmt.
   - Added root `.oxlintrc.json` (built-in `eslint`, `typescript`, `vue` plugins; `consistent-type-imports`, `no-explicit-any`, `no-unused-vars` with `^_` args pattern) and `.oxfmtrc.json` (Prettier-compatible: single quotes, trailing commas, 100 print width).
   - Removed `eslint.config.mjs`, per-package `eslint.config.js`, `.prettierrc`, `.prettierignore`, and the `eslint`/`prettier`/`eslint-plugin-*`/`typescript-eslint`/`globals` dev dependencies.
