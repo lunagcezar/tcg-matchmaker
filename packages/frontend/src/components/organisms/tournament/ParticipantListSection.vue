@@ -1,7 +1,7 @@
 <template>
   <q-card class="q-mt-md">
     <q-card-section>
-      <h6>{{ $t('tournament.checkIn') }}</h6>
+      <h6 class="q-my-none">{{ $t('tournament.checkIn') }}</h6>
     </q-card-section>
     <q-card-section class="row q-col-gutter-sm">
       <q-input v-model="userId" label="User ID" outlined dense class="col" />

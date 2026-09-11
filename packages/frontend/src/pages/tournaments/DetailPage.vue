@@ -23,7 +23,7 @@
       class="q-mt-md"
     >
       <q-card-section
-        ><h6>{{ $t('tournament.bracket') }}</h6></q-card-section
+        ><h6 class="q-my-none">{{ $t('tournament.bracket') }}</h6></q-card-section
       >
       <div ref="bracketRef" class="bracket-container"></div>
     </q-card>

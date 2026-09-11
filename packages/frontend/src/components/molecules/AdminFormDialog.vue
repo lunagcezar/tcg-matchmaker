@@ -2,7 +2,7 @@
   <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)">
     <q-card style="min-width: 400px">
       <q-card-section
-        ><h6>{{ title }}</h6></q-card-section
+        ><h6 class="q-my-none">{{ title }}</h6></q-card-section
       >
       <q-card-section class="q-gutter-md">
         <slot />

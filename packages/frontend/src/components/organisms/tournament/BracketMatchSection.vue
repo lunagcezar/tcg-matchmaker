@@ -1,7 +1,7 @@
 <template>
   <q-card v-if="matches.length > 0" class="q-mt-md">
     <q-card-section>
-      <h6>{{ $t('tournament.bracket') }}</h6>
+      <h6 class="q-my-none">{{ $t('tournament.bracket') }}</h6>
     </q-card-section>
     <q-list>
       <q-item v-for="(m, idx) in matches" :key="m.id || idx" class="column items-start q-py-sm">

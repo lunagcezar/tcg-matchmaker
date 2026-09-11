@@ -1,7 +1,7 @@
 <template>
   <q-card class="q-mt-md">
     <q-card-section>
-      <h6>{{ title }}</h6>
+      <h6 class="q-my-none">{{ title }}</h6>
     </q-card-section>
     <q-card-section v-if="participants.length === 0 && emptyText" class="text-grey">
       {{ emptyText }}
