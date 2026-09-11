@@ -1,5 +1,12 @@
 packages:
   - 'packages/*'
+catalog:
+  '@cloudflare/workers-types': ^5.20260911.1
+  oxfmt: ^0.64.0
+  oxlint: ^1.79.0
+  typescript: ^6.0.0
+  vitest: ^3.2.7
+  wrangler: ^4.131.1
 peerDependencyRules:
   allowedVersions:
     '@cloudflare/workers-types': '^4.x || ^5.x'

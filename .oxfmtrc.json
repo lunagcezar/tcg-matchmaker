@@ -10,6 +10,7 @@
   "ignorePatterns": [
     ".agents/",
     "dist/",
+    "coverage/",
     "node_modules/",
     ".quasar/",
     ".wrangler/",

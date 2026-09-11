@@ -8,6 +8,7 @@
     "dev:e2e": "concurrently -k \"pnpm -F @tcg/worker dev\" \"pnpm -F @tcg/frontend dev\" \"pnpm -F @tcg/frontend test:e2e\"",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "test:coverage": "pnpm -F @tcg/frontend test:coverage",
     "test:e2e": "pnpm -F @tcg/frontend test:e2e",
     "lint": "pnpm format:check && pnpm -r lint",
     "lint:fix": "pnpm format && pnpm -r lint:fix",
@@ -20,9 +21,9 @@
     "concurrently": "^9.2.4",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
-    "oxfmt": "^0.64.0",
-    "oxlint": "^1.79.0",
-    "typescript": "^6.0.0"
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "typescript": "catalog:"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,ts,tsx,vue}": [

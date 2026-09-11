@@ -33,7 +33,6 @@
     "**/coverage/**",
     "**/playwright-report/**",
     "**/test-results/**",
-    "**/src-pwa/**",
     "**/src-capacitor/**",
     "**/src-cordova/**",
     "quasar.config.*.temporary.compiled*"
