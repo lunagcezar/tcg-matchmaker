@@ -1,3 +1,4 @@
+import { ROLES } from '@tcg/shared';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@supabase/supabase-js', () => ({
@@ -158,6 +159,169 @@ describe('Store routes', () => {
         env,
       );
       expect(res.status).toBe(403);
+    });
+  });
+
+  describe('GET /api/stores/:id', () => {
+    it('returns the store with viewer_role null for anonymous callers', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const sChain = chain({ single: vi.fn().mockResolvedValue({ data: storeData, error: null }) });
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        auth: { getUser: vi.fn() },
+        from: vi.fn().mockReturnValue(sChain),
+      });
+
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}`,
+        {},
+        env,
+      );
+      const body = (await res.json()) as { data: { name: string; viewer_role: string | null } };
+      expect(res.status).toBe(200);
+      expect(body.data.name).toBe('Test Store');
+      expect(body.data.viewer_role).toBeNull();
+    });
+
+    it('sets viewer_role to the membership role for a store member', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const sChain = chain({ single: vi.fn().mockResolvedValue({ data: storeData, error: null }) });
+      const mChain = chain({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: { store_id: storeId, user_id: testUserId, role: 'manager' },
+          error: null,
+        }),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return userChain();
+          if (t === 'game_stores') return sChain;
+          if (t === 'store_memberships') return mChain;
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}`,
+        { headers: { Authorization: 'Bearer t' } },
+        env,
+      );
+      const body = (await res.json()) as { data: { viewer_role: string | null } };
+      expect(res.status).toBe(200);
+      expect(body.data.viewer_role).toBe('manager');
+    });
+
+    it('sets viewer_role to "admin" for an admin viewer', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const sChain = chain({ single: vi.fn().mockResolvedValue({ data: storeData, error: null }) });
+      const adminChain = chain({
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: testUserId2,
+            email: 'admin@test.com',
+            username: 'admin',
+            role: ROLES[2],
+            banned_at: null,
+            deleted_at: null,
+          },
+          error: null,
+        }),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(testUserId2),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return adminChain;
+          if (t === 'game_stores') return sChain;
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}`,
+        { headers: { Authorization: 'Bearer t' } },
+        env,
+      );
+      const body = (await res.json()) as { data: { viewer_role: string | null } };
+      expect(res.status).toBe(200);
+      expect(body.data.viewer_role).toBe(ROLES[2]);
+    });
+
+    it('sets viewer_role to null for an authenticated non-member', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const sChain = chain({ single: vi.fn().mockResolvedValue({ data: storeData, error: null }) });
+      const mChain = chain({ maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }) });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return userChain();
+          if (t === 'game_stores') return sChain;
+          if (t === 'store_memberships') return mChain;
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}`,
+        { headers: { Authorization: 'Bearer t' } },
+        env,
+      );
+      const body = (await res.json()) as { data: { viewer_role: string | null } };
+      expect(res.status).toBe(200);
+      expect(body.data.viewer_role).toBeNull();
+    });
+  });
+
+  describe('GET /api/stores/:id/members', () => {
+    it('returns 200 with members for an admin regardless of membership', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      const adminChain = chain({
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: testUserId2,
+            email: 'admin@test.com',
+            username: 'admin',
+            role: ROLES[2],
+            banned_at: null,
+            deleted_at: null,
+          },
+          error: null,
+        }),
+      });
+      const mChain = chain({
+        order: vi.fn().mockResolvedValue({
+          data: [
+            {
+              id: 'm1',
+              store_id: storeId,
+              user_id: testUserId,
+              role: 'owner',
+              users: { username: 'owner' },
+            },
+          ],
+          error: null,
+        }),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(testUserId2),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return adminChain;
+          if (t === 'store_memberships') return mChain;
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/stores', storeRouter).request(
+        `/api/stores/${storeId}/members`,
+        { headers: { Authorization: 'Bearer t' } },
+        env,
+      );
+      const body = (await res.json()) as { data: Array<{ username: string }> };
+      expect(res.status).toBe(200);
+      expect(body.data[0].username).toBe('owner');
     });
   });
 

@@ -46,6 +46,7 @@
 - FR-20: Admin can verify a store (`is_verified`) to give it a legitimacy badge
 - FR-21: Admin can suspend a store (with reason) — hides it and blocks new events
 - FR-22: Admin can soft-delete a store
+- FR-23: The store member roster is private — only store members (owner/manager/staff) and admins can list it; the public store detail page exposes a `viewer_role` field so the frontend can hide the members card from non-members
 
 ### 2.4 Events — Matches, Tournaments & Trading Sessions
 

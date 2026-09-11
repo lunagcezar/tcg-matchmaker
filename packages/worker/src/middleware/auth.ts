@@ -11,10 +11,16 @@ export type AuthUser = {
   role: Role;
 };
 
-export async function authMiddleware(c: Context, next: Next) {
+type ResolveResult =
+  | { status: 'ok'; user: AuthUser }
+  | { status: 'unauthorized' }
+  | { status: 'deleted' }
+  | { status: 'banned' };
+
+async function resolveUser(c: Context): Promise<ResolveResult> {
   const authHeader = c.req.header('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    return unauthorized(c);
+    return { status: 'unauthorized' };
   }
 
   const token = authHeader.slice(7);
@@ -23,7 +29,7 @@ export async function authMiddleware(c: Context, next: Next) {
 
   const { data: authData, error: authError } = await authClient.auth.getUser(token);
   if (authError || !authData.user) {
-    return unauthorized(c);
+    return { status: 'unauthorized' };
   }
 
   const { data: userRecord, error: dbError } = await dbClient
@@ -33,23 +39,48 @@ export async function authMiddleware(c: Context, next: Next) {
     .single();
 
   if (dbError || !userRecord) {
-    return unauthorized(c);
+    return { status: 'unauthorized' };
   }
 
   if (userRecord.deleted_at) {
-    return notFound(c, 'Account not found');
+    return { status: 'deleted' };
   }
 
   if (userRecord.banned_at) {
-    return forbidden(c, 'Account is banned');
+    return { status: 'banned' };
   }
 
-  c.set('user', {
-    id: userRecord.id,
-    email: userRecord.email,
-    username: userRecord.username,
-    role: userRecord.role as Role,
-  } satisfies AuthUser);
+  return {
+    status: 'ok',
+    user: {
+      id: userRecord.id,
+      email: userRecord.email,
+      username: userRecord.username,
+      role: userRecord.role as Role,
+    } satisfies AuthUser,
+  };
+}
 
+export async function authMiddleware(c: Context, next: Next) {
+  const result = await resolveUser(c);
+  if (result.status === 'ok') {
+    c.set('user', result.user);
+    await next();
+    return;
+  }
+  if (result.status === 'deleted') {
+    return notFound(c, 'Account not found');
+  }
+  if (result.status === 'banned') {
+    return forbidden(c, 'Account is banned');
+  }
+  return unauthorized(c);
+}
+
+export async function optionalAuthMiddleware(c: Context, next: Next) {
+  const result = await resolveUser(c);
+  if (result.status === 'ok') {
+    c.set('user', result.user);
+  }
   await next();
 }

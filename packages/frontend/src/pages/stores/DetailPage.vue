@@ -6,6 +6,7 @@
       </div>
       <StoreCard :store="store" />
       <ParticipantListCard
+        v-if="isStoreTeam"
         :title="$t('store.members')"
         :participants="members"
         badge-key="role"
@@ -28,6 +29,7 @@ import ParticipantListCard, {
 import StoreCard from '@/components/molecules/cards/StoreCard.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 import { useStoreStore } from '@/stores/useStoreStore';
+import type { Store } from '@/types/domain';
 
 const route = useRoute();
 
@@ -35,14 +37,15 @@ const storeStore = useStoreStore();
 const members = ref<Participant[]>([]);
 
 const store = computed(() => storeStore.current);
+const isStoreTeam = computed(() =>
+  Boolean((store.value as (Store & { viewer_role?: string | null }) | null)?.viewer_role),
+);
 const storeId = route.params.id as string;
 
 onMounted(async () => {
   await storeStore.get(storeId);
-  try {
+  if (isStoreTeam.value) {
     members.value = ((await storeStore.getMembers(storeId)) ?? []) as Participant[];
-  } catch {
-    /* ignore */
   }
 });
 </script>

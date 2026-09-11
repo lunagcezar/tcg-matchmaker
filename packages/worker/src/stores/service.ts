@@ -3,11 +3,13 @@ import {
   StoreSchema,
   StoreMembershipSchema,
   STORE_MEMBERSHIP_ROLES,
+  ROLES,
 } from '@tcg/shared';
 import type { StoreMembershipRole } from '@tcg/shared';
 
 import type { createSecretClient } from '../db/client.js';
 import { validate } from '../lib/validation.js';
+import type { AuthUser } from '../middleware/auth.js';
 import {
   findStoresPaginated,
   findStoreById,
@@ -63,10 +65,29 @@ export async function listStores(
   };
 }
 
-export async function getStore(supabase: ReturnType<typeof createSecretClient>, id: string) {
+export async function getStore(
+  supabase: ReturnType<typeof createSecretClient>,
+  id: string,
+  viewer?: AuthUser | null,
+) {
   const data = await findStoreById(supabase, id);
   if (!data) return { data: null, error: 'Store not found', meta: null };
-  return { data: StoreSchema.parse(data), error: null, meta: null };
+
+  let viewerRole: string | null = null;
+  if (viewer) {
+    if (viewer.role === ROLES[2]) {
+      viewerRole = ROLES[2];
+    } else {
+      const membership = await findStoreMembership(supabase, id, viewer.id);
+      viewerRole = membership?.role ?? null;
+    }
+  }
+
+  return {
+    data: { ...StoreSchema.parse(data), viewer_role: viewerRole },
+    error: null,
+    meta: null,
+  };
 }
 
 export async function createStore(
@@ -163,11 +184,13 @@ export async function suspendStore(
 
 export async function getMembers(
   supabase: ReturnType<typeof createSecretClient>,
-  userId: string,
+  user: AuthUser,
   storeId: string,
 ) {
-  const membership = await findStoreMembership(supabase, storeId, userId);
-  if (!membership) return { data: null, error: 'Forbidden', meta: null };
+  if (user.role !== ROLES[2]) {
+    const membership = await findStoreMembership(supabase, storeId, user.id);
+    if (!membership) return { data: null, error: 'Forbidden', meta: null };
+  }
   const data = await findStoreMembers(supabase, storeId);
   return { data, error: null, meta: null };
 }

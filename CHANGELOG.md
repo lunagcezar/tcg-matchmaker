@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-076-store-detail-forbidden.md`; fixed the 403 Forbidden on store detail pages without exposing the member roster publicly.
+  - Added `optionalAuthMiddleware` (shared `resolveUser` helper with `authMiddleware`) so `GET /api/stores/:id` returns a `viewer_role` field (`'admin'`, the viewer's membership role, or `null`) describing the requesting viewer.
+  - `GET /api/stores/:id/members` stays member-only but now allows admins to read any store's roster (fixes the empty members list on `/admin/stores/:id`).
+  - `stores/DetailPage.vue` renders the members card and fetches members only when `viewer_role` is set, so non-members/anonymous viewers never hit the protected endpoint.
 - Spec: `spec/spec-075-browser-warnings-cleanup.md`; removed browser console warnings.
   - Rewrote the Vue Router navigation guard (`src/router/guards.ts`, wired from `src/router/index.ts`) to return redirect values instead of the deprecated `next()` callback, eliminating the two `[Vue Router warn]: The next() callback in navigation guards is deprecated` messages.
   - Made `useNotificationStore` reuse the shared Supabase client from `src/lib/supabase.ts` instead of calling `createClient` again, eliminating the "Multiple GoTrueClient instances detected" warning. A source-invariant regression test now guarantees `createClient(` appears in exactly one frontend source file.

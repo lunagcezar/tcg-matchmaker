@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 import { result, badRequest, notFound, forbidden } from '../lib/responses.js';
 import { adminMiddleware } from '../middleware/admin.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth.js';
 import type { Bindings, Variables } from '../types/hono.js';
 import {
   listStores,
@@ -23,8 +23,8 @@ storeRouter.get('/', async (c) => {
   return result(c, await listStores(c.var.db, c.req.query('limit'), c.req.query('cursor')));
 });
 
-storeRouter.get('/:id', async (c) => {
-  const svcResult = await getStore(c.var.db, c.req.param('id')!);
+storeRouter.get('/:id', optionalAuthMiddleware, async (c) => {
+  const svcResult = await getStore(c.var.db, c.req.param('id')!, c.var.user);
   if (!svcResult.data) return notFound(c, svcResult.error ?? undefined);
   return result(c, svcResult);
 });
@@ -67,7 +67,7 @@ storeRouter.post('/:id/suspend', authMiddleware, adminMiddleware, async (c) => {
 });
 
 storeRouter.get('/:id/members', authMiddleware, async (c) => {
-  const svcResult = await getMembers(c.var.db, c.var.user.id, c.req.param('id')!);
+  const svcResult = await getMembers(c.var.db, c.var.user, c.req.param('id')!);
   if (!svcResult.data) return forbidden(c, svcResult.error ?? undefined);
   return result(c, svcResult);
 });

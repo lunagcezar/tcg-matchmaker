@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { env, makeUser, makeApp } from '../../test-utils/supabase.js';
-import { authMiddleware } from '../auth.js';
+import { authMiddleware, optionalAuthMiddleware } from '../auth.js';
 import { dbClientMiddleware } from '../db.js';
 
 vi.mock('@supabase/supabase-js', () => ({
@@ -129,5 +129,97 @@ describe('authMiddleware', () => {
       env,
     );
     expect(res.status).toBe(200);
+  });
+});
+
+function createOptionalTestApp() {
+  return makeApp()
+    .use('*', dbClientMiddleware)
+    .get('/test', optionalAuthMiddleware, (c) =>
+      c.json({ data: c.var.user ?? null, error: null, meta: null }),
+    );
+}
+
+describe('optionalAuthMiddleware', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('continues for anonymous requests and sets no user', async () => {
+    const res = await createOptionalTestApp().request('/test', {}, env);
+    const body = (await res.json()) as { data: unknown };
+    expect(res.status).toBe(200);
+    expect(body.data).toBeNull();
+  });
+
+  it('continues for an invalid token and sets no user', async () => {
+    const { createClient } = await import('@supabase/supabase-js');
+    (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: { message: 'Invalid' } }),
+      },
+    });
+
+    const res = await createOptionalTestApp().request(
+      '/test',
+      { headers: { Authorization: 'Bearer bad' } },
+      env,
+    );
+    const body = (await res.json()) as { data: unknown };
+    expect(res.status).toBe(200);
+    expect(body.data).toBeNull();
+  });
+
+  it('sets the user for a valid token', async () => {
+    const { createClient } = await import('@supabase/supabase-js');
+    (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: authUser.id } }, error: null }),
+      },
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+          data: { ...authUser, banned_at: null, deleted_at: null },
+          error: null,
+        }),
+      }),
+    });
+
+    const res = await createOptionalTestApp().request(
+      '/test',
+      { headers: { Authorization: 'Bearer t' } },
+      env,
+    );
+    const body = (await res.json()) as { data: { id: string; role: string } };
+    expect(res.status).toBe(200);
+    expect(body.data.id).toBe(authUser.id);
+    expect(body.data.role).toBe(authUser.role);
+  });
+
+  it('treats a banned user as anonymous', async () => {
+    const { createClient } = await import('@supabase/supabase-js');
+    (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: bannedUser.id } }, error: null }),
+      },
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+          data: { ...bannedUser, banned_at: '2026-01-01T00:00:00.000Z', deleted_at: null },
+          error: null,
+        }),
+      }),
+    });
+
+    const res = await createOptionalTestApp().request(
+      '/test',
+      { headers: { Authorization: 'Bearer t' } },
+      env,
+    );
+    const body = (await res.json()) as { data: unknown };
+    expect(res.status).toBe(200);
+    expect(body.data).toBeNull();
   });
 });
