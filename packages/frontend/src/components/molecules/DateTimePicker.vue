@@ -41,16 +41,21 @@ const emit = defineEmits<{
 const date = ref('');
 const time = ref('');
 
-function parseModelValue(value: string) {
-  if (!value) {
-    date.value = '';
-    time.value = '';
-    return;
-  }
+function toLocalParts(value: string): { date: string; time: string } {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return { date: '', time: '' };
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getDate()).padStart(2, '0');
+  const hours = String(parsed.getHours()).padStart(2, '0');
+  const minutes = String(parsed.getMinutes()).padStart(2, '0');
+  return { date: `${year}-${month}-${day}`, time: `${hours}:${minutes}` };
+}
 
-  const [datePart, timePart] = value.split('T');
-  date.value = datePart ?? '';
-  time.value = timePart ? timePart.slice(0, 5) : '';
+function toIso(datePart: string, timePart: string): string {
+  const combined = new Date(`${datePart}T${timePart}`);
+  if (Number.isNaN(combined.getTime())) return '';
+  return combined.toISOString();
 }
 
 function updateModelValue() {
@@ -59,19 +64,21 @@ function updateModelValue() {
     return;
   }
 
-  const combined = new Date(`${date.value}T${time.value}`);
-  if (Number.isNaN(combined.getTime())) {
-    emit('update:modelValue', '');
-    return;
-  }
-
-  const iso = combined.toISOString();
-  if (iso !== props.modelValue) {
+  const iso = toIso(date.value, time.value);
+  if (iso && iso.slice(0, 16) !== props.modelValue.slice(0, 16)) {
     emit('update:modelValue', iso);
   }
 }
 
-watch(() => props.modelValue, parseModelValue, { immediate: true });
-watch(date, updateModelValue);
-watch(time, updateModelValue);
+watch(
+  () => props.modelValue,
+  (value) => {
+    const parts = toLocalParts(value);
+    date.value = parts.date;
+    time.value = parts.time;
+  },
+  { immediate: true },
+);
+
+watch([date, time], updateModelValue);
 </script>

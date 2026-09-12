@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-079-datetime-picker-timezone-loop.md`; fixed the `DateTimePicker` timezone round-trip bug and the resulting recursive-update loop in create forms.
+  - Reading `modelValue` now converts the UTC ISO instant to **local** date/time components (was slicing the raw UTC time into the local inputs), so displayed values are correct in non-UTC timezones.
+  - Writing now converts local input to UTC ISO and emits only when the minute-level value changed, breaking the `parse → emit → v-model → parse` loop that produced `Maximum recursive updates exceeded in <QForm>` and corrupted the scheduled date/time when any other form field was edited.
+  - Regression tests pin `process.env.TZ = 'America/Fortaleza'` (the offset bug is invisible at UTC) and cover local display plus a `setProps` round-trip that previously reproduced the loop.
+
 - Spec: `spec/spec-078-event-name-standardization.md`; standardized the event name field across create forms.
   - `matches/CreatePage.vue` now starts with a required **Name** field (was missing entirely); the payload sends `name`.
   - `trading/CreatePage.vue` and `tournaments/CreatePage.vue` use the shared `event.name` label ("Name"/"Nome") instead of the misleading `event.type` and the one-off `tournament.name` keys (both removed).

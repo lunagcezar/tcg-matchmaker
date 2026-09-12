@@ -1,3 +1,5 @@
+process.env.TZ = 'America/Fortaleza';
+
 import { mount } from '@vue/test-utils';
 import { describe, it, expect } from 'vitest';
 
@@ -38,7 +40,35 @@ describe('DateTimePicker', () => {
 
     const inputs = wrapper.findAll('.q-input');
     expect(inputs[0].element.value).toBe('2026-07-24');
+    expect(inputs[1].element.value).toBe('11:30');
+  });
+
+  it('displays the local date and time for a UTC modelValue', async () => {
+    const wrapper = createWrapper({ modelValue: '2026-07-24T17:30:00.000Z' });
+    await wrapper.vm.$nextTick();
+
+    const inputs = wrapper.findAll('.q-input');
+    expect(inputs[0].element.value).toBe('2026-07-24');
     expect(inputs[1].element.value).toBe('14:30');
+  });
+
+  it('round-trips through local time without recursive emission', async () => {
+    const wrapper = createWrapper({ modelValue: '2026-07-24T17:30:00.000Z' });
+    await wrapper.vm.$nextTick();
+
+    const inputs = wrapper.findAll('.q-input');
+    await inputs[1].setValue('16:45');
+
+    const emitted = wrapper.emitted('update:modelValue');
+    const iso = emitted?.at(-1)?.[0] as string;
+    expect(iso).toBe(new Date('2026-07-24T16:45').toISOString());
+    const countAfterEdit = emitted?.length ?? 0;
+
+    await wrapper.setProps({ modelValue: iso });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.findAll('.q-input')[1].element.value).toBe('16:45');
+    expect(wrapper.emitted('update:modelValue')?.length).toBe(countAfterEdit);
   });
 
   it('emits combined ISO string when date and time change', async () => {
