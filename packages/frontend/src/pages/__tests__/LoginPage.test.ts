@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, flushPromises } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createI18n } from 'vue-i18n';
@@ -32,6 +32,8 @@ const i18n = createI18n({
         noAccount: "Don't have an account?",
         signUp: 'Sign Up',
         emailOrUsername: 'Email or Username',
+        banned: 'Your account has been banned',
+        deleted: 'This account no longer exists',
       },
       nav: { login: 'Login' },
     },
@@ -136,5 +138,50 @@ describe('LoginPage', () => {
 
     await vm.handleLogin({ identifier: 'test@test.com', password: 'correct' });
     expect(vm.error).toBe('');
+  });
+
+  it('shows the localized ban message when signIn rejects as banned', async () => {
+    mockAuthStore.signIn.mockRejectedValueOnce(new Error('Account is banned'));
+
+    const LoginPage = (await import('../auth/LoginPage.vue')).default;
+    const wrapper = shallowMount(LoginPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: { template: '<div />' },
+        },
+      },
+    });
+
+    const vm = wrapper.vm as unknown as {
+      handleLogin: (data: { identifier: string; password: string }) => Promise<void>;
+      error: string;
+    };
+    await vm.handleLogin({ identifier: 'banned@test.com', password: 'wrong' });
+    expect(vm.error).toBe('Your account has been banned');
+  });
+
+  it('shows the localized ban message when redirected with reason=banned and clears the param', async () => {
+    await router.replace({ name: 'login', query: { reason: 'banned' } });
+
+    const LoginPage = (await import('../auth/LoginPage.vue')).default;
+    const wrapper = shallowMount(LoginPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          AppCard: { template: '<div><slot /></div>' },
+          AuthForm: { template: '<div />' },
+        },
+      },
+    });
+    await wrapper.vm.$nextTick();
+    await flushPromises();
+
+    const vm = wrapper.vm as unknown as { error: string };
+    expect(vm.error).toBe('Your account has been banned');
+    expect(router.currentRoute.value.query.reason).toBeUndefined();
   });
 });

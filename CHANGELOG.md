@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-080-reject-banned-at-login.md`; banned (and deleted) accounts are now rejected at login and during active sessions.
+  - `useAuthStore.signIn` verifies the new session against `GET /api/auth/me` after Supabase sign-in and, when the account is rejected, signs the session out and throws the Worker's message.
+  - A session-rejection hook in `useApi` (`setSessionRejectedHandler`) observes any API response carrying `'Account is banned'`/`'Account not found'`; `boot/auth.ts` registers a handler that signs out and redirects to `/login?reason=banned|deleted`.
+  - `LoginPage` localizes the ban/deleted messages (`auth.banned` / `auth.deleted`, en-US + pt-BR) for both the interactive login error and the `?reason=` redirect, clearing the query param.
+  - `useAuthStore.handleRejectedSession()` centralizes session sign-out; message constants live in `src/lib/authMessages.ts`.
+  - No Worker changes (middleware already rejects banned/deleted accounts; tests lock the 403/404 behavior).
+
 - Spec: `spec/spec-079-datetime-picker-timezone-loop.md`; fixed the `DateTimePicker` timezone round-trip bug and the resulting recursive-update loop in create forms.
   - Reading `modelValue` now converts the UTC ISO instant to **local** date/time components (was slicing the raw UTC time into the local inputs), so displayed values are correct in non-UTC timezones.
   - Writing now converts local input to UTC ISO and emits only when the minute-level value changed, breaking the `parse → emit → v-model → parse` loop that produced `Maximum recursive updates exceeded in <QForm>` and corrupted the scheduled date/time when any other form field was edited.

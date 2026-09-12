@@ -45,10 +45,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function fetchProfile() {
+  async function fetchProfile(): Promise<{ data: UserProfile | null; error: string | null }> {
     if (!supabase || !user.value) {
       profile.value = null;
-      return;
+      return { data: null, error: null };
     }
     try {
       const json = (await apiGet('/api/auth/me')) as {
@@ -56,8 +56,10 @@ export const useAuthStore = defineStore('auth', () => {
         error: string | null;
       };
       profile.value = json.data ?? null;
+      return json;
     } catch {
       profile.value = null;
+      return { data: null, error: null };
     }
   }
 
@@ -81,11 +83,23 @@ export const useAuthStore = defineStore('auth', () => {
       if (error) throw error;
       localStorage.setItem(REMEMBER_ME_KEY, rememberMe ? 'true' : 'false');
       user.value = data.user;
-      await fetchProfile();
+      const profileResult = await fetchProfile();
+      if (profileResult.error) {
+        await supabase.auth.signOut();
+        user.value = null;
+        profile.value = null;
+        throw new Error(profileResult.error);
+      }
       return data;
     } finally {
       loading.value = false;
     }
+  }
+
+  async function handleRejectedSession() {
+    await supabase?.auth.signOut();
+    user.value = null;
+    profile.value = null;
   }
 
   async function signOut() {
@@ -143,6 +157,7 @@ export const useAuthStore = defineStore('auth', () => {
     fetchProfile,
     signUp,
     signIn,
+    handleRejectedSession,
     signOut,
     resolveIdentifier,
     updatePassword,

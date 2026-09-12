@@ -40,6 +40,8 @@ export default {
     passwordsDontMatch: 'Senhas não conferem',
     emailOrUsername: 'Email ou Usuário',
     rememberMe: 'Lembrar de mim',
+    banned: 'Sua conta foi banida',
+    deleted: 'Esta conta não existe mais',
   },
   common: {
     loading: 'Carregando...',

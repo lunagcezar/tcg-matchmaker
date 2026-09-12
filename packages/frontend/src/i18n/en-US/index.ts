@@ -40,6 +40,8 @@ export default {
     passwordsDontMatch: 'Passwords do not match',
     emailOrUsername: 'Email or Username',
     rememberMe: 'Remember me',
+    banned: 'Your account has been banned',
+    deleted: 'This account no longer exists',
   },
   common: {
     loading: 'Loading...',
