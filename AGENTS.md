@@ -461,5 +461,6 @@ Public detail pages (`/matches/:id`, `/tournaments/:id`, `/stores/:id`, `/profil
 | `supabase db diff`              | Generate migration from schema changes                              |
 | `supabase gen types typescript` | Generate TypeScript types from DB                                   |
 | `supabase db push`              | Push migrations to production                                       |
+| `pnpm db:setup`                 | Reset local DB (migrations + seed) and create dev auth users        |
 | `wrangler dev`                  | Start Worker locally                                                |
 | `wrangler deploy`               | Deploy Worker to production                                         |

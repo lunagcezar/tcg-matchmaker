@@ -18,7 +18,8 @@
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "prepare": "husky",
-    "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts"
+    "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts",
+    "db:setup": "bash scripts/setup-dev.sh"
   },
   "devDependencies": {
     "concurrently": "^9.2.4",
