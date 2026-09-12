@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
@@ -61,6 +61,7 @@ import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog.vue';
 import { apiGet, apiPost } from '@/composables/useApi';
+import { useLoadable } from '@/composables/useLoadable';
 import { roleColor } from '@/lib/colors';
 
 const { t } = useI18n({ useScope: 'global' });
@@ -73,8 +74,14 @@ interface UserRow {
   banned_at: string | null;
 }
 
-const users = ref<UserRow[]>([]);
-const loading = ref(false);
+const {
+  data: users,
+  loading,
+  load,
+} = useLoadable(
+  () => apiGet('/api/admin/users').then((b) => (b.data ?? []) as UserRow[]),
+  [] as UserRow[],
+);
 const showDialog = ref(false);
 const dialogTitle = ref('');
 const dialogMessage = ref('');
@@ -90,16 +97,6 @@ const columns = [
   { name: 'status', label: t('event.status'), field: 'banned_at' as const },
   { name: 'actions', label: t('admin.columns.actions'), field: 'actions' as const },
 ];
-
-async function fetchUsers() {
-  loading.value = true;
-  try {
-    const b = await apiGet('/api/admin/users');
-    users.value = (b.data ?? []) as UserRow[];
-  } finally {
-    loading.value = false;
-  }
-}
 
 function openDialog(action: 'ban' | 'unban' | 'promote', row: UserRow) {
   selectedAction.value = action;
@@ -129,8 +126,6 @@ async function runAction() {
   showDialog.value = false;
   selectedId.value = null;
   selectedAction.value = null;
-  await fetchUsers();
+  await load();
 }
-
-onMounted(fetchUsers);
 </script>

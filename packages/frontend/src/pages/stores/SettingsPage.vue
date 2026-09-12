@@ -21,16 +21,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
+import { useFormSubmit } from '@/composables/useFormSubmit';
 import AppCard from '@/layouts/AppCardLayout.vue';
 import { useStoreStore } from '@/stores/useStoreStore';
 
 const route = useRoute();
 const storeStore = useStoreStore();
-const saving = ref(false);
-const error = ref('');
 const storeId = route.params.id as string;
 const form = reactive({ name: '', address: '', phone: '' });
 
@@ -43,12 +42,9 @@ onMounted(async () => {
   }
 });
 
-async function save() {
-  saving.value = true;
-  try {
+const { saving, error, save } = useFormSubmit({
+  submit: async () => {
     await storeStore.update(storeId, form);
-  } finally {
-    saving.value = false;
-  }
-}
+  },
+});
 </script>

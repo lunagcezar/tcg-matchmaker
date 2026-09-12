@@ -63,6 +63,7 @@ items.value = (j.data ?? []) as Record<string, unknown>[];
 - All frontend API calls must use the typed fetch wrappers from `@/composables/useApi` (`apiGet`, `apiPost`, `apiPatch`, `apiDelete`).
 - Do not use raw `fetch()` directly in stores, pages, or composables.
 - Do not use the Hono RPC client (`hono/client`) in the frontend; the monorepo Worker type bindings do not resolve correctly across packages.
+- **Composable DRY**: reuse the generic data-flow composables (`useCrudResource`, `useFormSubmit`, `useLoadable`, `useParticipants`, `useStoreList`, `useTournamentBracket`) for paginated CRUD, form submission, fetch-on-mount, participant, list, and bracket loading. Do not re-implement `save()`/`loadMore`/`loadData` inline; extract repeated logic into `src/composables/` as a first-class step.
 
 ---
 
@@ -117,13 +118,26 @@ API calls are organized in two layers:
 
 ### Pinia Stores (shared global state)
 
-| Store                  | State                                     | Methods                                                                                                             |
-| ---------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `useEventStore`        | `items`, `loading`, `current`             | `list`, `get`, `create`, `join`, `confirm`, `decline`                                                               |
-| `useStoreStore`        | `items`, `loading`, `current`             | `list`, `get`, `create`, `update`, `getMembers`                                                                     |
-| `useAuthStore`         | `user`, `loading`                         | `signUp`, `signIn`, `signOut`, `restoreSession`, `checkOnboarding`                                                  |
-| `useAppStore`          | `locale`, `darkMode`                      | `setLocale`, `toggleDarkMode`                                                                                       |
-| `useNotificationStore` | `notifications`, `unreadCount`, `loading` | `fetchNotifications`, `fetchUnreadCount`, `markAsRead`, `markAllAsRead`, `subscribeRealtime`, `unsubscribeRealtime` |
+| Store                  | State                                                                 | Methods                                                                                                             |
+| ---------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `useEventStore`        | `items`, `loading`, `loadingMore`, `current`, `hasMore`, `nextCursor` | `list`, `loadMore`, `get`, `create`, `reset`, `join`, `confirm`, `decline` (built on `useCrudResource`)             |
+| `useStoreStore`        | `items`, `loading`, `loadingMore`, `current`, `hasMore`, `nextCursor` | `list`, `loadMore`, `get`, `create`, `update`, `reset`, `getMembers` (built on `useCrudResource`)                   |
+| `useAuthStore`         | `user`, `loading`                                                     | `signUp`, `signIn`, `signOut`, `restoreSession`, `checkOnboarding`                                                  |
+| `useAppStore`          | `locale`, `darkMode`                                                  | `setLocale`, `toggleDarkMode`                                                                                       |
+| `useNotificationStore` | `notifications`, `unreadCount`, `loading`                             | `fetchNotifications`, `fetchUnreadCount`, `markAsRead`, `markAllAsRead`, `subscribeRealtime`, `unsubscribeRealtime` |
+
+### Generic Data Composables (DRY priority)
+
+Reusable data-flow composables from `spec-077`. Reuse these before inlining `save`/`loadMore`/`loadData` in pages.
+
+| Composable             | Purpose                                                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useCrudResource`      | Shared paginated CRUD state (`items`/`loading`/`hasMore`/`current`) + `list`/`loadMore`/`get`/`create`/`update`/`reset`; consumed by Pinia stores |
+| `useFormSubmit`        | Form `save()` boilerplate (validation gate, `saving`/`error`, `onSuccess`)                                                                        |
+| `useLoadable`          | Fetch-on-mount pattern (`data`/`loading`/`load`) for list/detail pages                                                                            |
+| `useParticipants`      | Loads `GET /api/events/:id/participants` for detail/manage pages                                                                                  |
+| `useStoreList`         | List-page `loadMore(index, done)` + `onMounted(list)` wiring                                                                                      |
+| `useTournamentBracket` | Loads and normalizes `GET /api/tournaments/:id/bracket`                                                                                           |
 
 ### Stateless Composables (no shared state)
 

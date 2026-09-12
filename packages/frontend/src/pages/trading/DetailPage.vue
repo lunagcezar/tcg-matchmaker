@@ -33,11 +33,9 @@ import { useRoute } from 'vue-router';
 import EventHeaderCard, {
   type Participation,
 } from '@/components/molecules/cards/EventHeaderCard.vue';
-import ParticipantListCard, {
-  type Participant,
-} from '@/components/molecules/cards/ParticipantListCard.vue';
-import { apiGet } from '@/composables/useApi';
+import ParticipantListCard from '@/components/molecules/cards/ParticipantListCard.vue';
 import { useFormatDate } from '@/composables/useFormatDate';
+import { useParticipants } from '@/composables/useParticipants';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useEventStore } from '@/stores/useEventStore';
@@ -47,7 +45,6 @@ const { formatDate } = useFormatDate();
 
 const store = useEventStore();
 const authStore = useAuthStore();
-const participants = ref<Participant[]>([]);
 const rsvping = ref(false);
 const confirming = ref(false);
 const declining = ref(false);
@@ -55,6 +52,7 @@ const sessionId = route.params.id as string;
 
 const session = computed(() => store.current);
 const loading = computed(() => store.loading);
+const { participants, loadParticipants } = useParticipants(sessionId);
 
 const myParticipation = computed<Participation | null>(() => {
   if (!authStore.user) return null;
@@ -96,12 +94,7 @@ async function declineAttendance() {
 
 async function loadData() {
   await store.get(sessionId);
-  try {
-    const j = await apiGet(`/api/events/${sessionId}/participants`);
-    participants.value = (j.data ?? []) as Participant[];
-  } catch {
-    /* ignore */
-  }
+  await loadParticipants();
 }
 
 onMounted(loadData);

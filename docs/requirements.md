@@ -204,7 +204,7 @@ any ──(cancel)──▶ cancelled
 ### 3.5 Code Quality
 
 - NFR-23: SOLID and DRY principles
-- NFR-24: Stateful logic extracted to composables (`useMatch`, `useAuth`, `useGeolocation`, `useFormatDate`, etc.)
+- NFR-24: Stateful logic extracted to composables (`useMatch`, `useAuth`, `useGeolocation`, `useFormatDate`, etc.); DRY is a first-class requirement — logic repeated across two or more pages/components is extracted into `src/composables/` proactively, before duplication lands in pages
 - NFR-25: Components organized with atomic design (atoms / molecules / organisms)
 - NFR-26: Oxlint + Oxfmt for linting and formatting
 - NFR-27: Husky + lint-staged pre-commit hook runs Oxlint + Oxfmt on staged files
@@ -217,6 +217,7 @@ any ──(cancel)──▶ cancelled
 - NFR-28f: Worker routes use `c.var.db` (created by `dbClientMiddleware`), response helpers from `src/lib/responses.ts`, and validation via `validate()` from `src/lib/validation.ts` with shared Zod schemas
 - NFR-28g: Shared Zod schemas and constants live in `@tcg/shared` and are used by both frontend forms and Worker validation
 - NFR-28h: Environment-specific globals (`localStorage`, `navigator`, `window`) are guarded against `undefined` for SSR/test compatibility
+- NFR-28i: Reusable data-flow logic lives in composables — pages must reuse the generic composables from `spec-077` (`useCrudResource`, `useFormSubmit`, `useLoadable`, `useParticipants`, `useStoreList`, `useTournamentBracket`) and must not re-implement `save()`/`loadMore`/`loadData`/CRUD-pagination inline; reactive helpers belong in `src/composables/`, never in `src/lib/` (pure functions only) or a `src/services/` folder
 
 ### Backend DRY / Worker Quality (P0)
 

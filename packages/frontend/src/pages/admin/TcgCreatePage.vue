@@ -26,31 +26,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { apiPost } from '@/composables/useApi';
+import { useFormSubmit } from '@/composables/useFormSubmit';
 import AppCard from '@/layouts/AppCardLayout.vue';
 
 const router = useRouter();
-const saving = ref(false);
-const error = ref('');
 const form = reactive({ name: '', slug: '' });
 
-async function save() {
-  if (!form.name || !form.slug) {
-    error.value = 'Name and slug are required';
-    return;
-  }
-  saving.value = true;
-  error.value = '';
-  try {
+const { saving, error, save } = useFormSubmit({
+  submit: async () => {
+    if (!form.name || !form.slug) throw new Error('Name and slug are required');
     await apiPost('/api/tcgs', { ...form });
-    void router.push('/admin/tcgs');
-  } catch {
-    error.value = 'Failed to create TCG';
-  } finally {
-    saving.value = false;
-  }
-}
+  },
+  onSuccess: () => void router.push('/admin/tcgs'),
+});
 </script>

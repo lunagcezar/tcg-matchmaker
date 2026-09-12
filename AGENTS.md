@@ -74,7 +74,7 @@ A community TCG (Trading Card Game) matchmaker platform. Users find and schedule
 - Single Responsibility: each composable, component, and service does one thing
 - Open/Closed: extend behavior via composables and middleware, not modification
 - Dependency Inversion: composables accept their dependencies
-- DRY: extract repeated logic into composables and utility functions
+- DRY is a first-class requirement: repeated logic is extracted into composables (`src/composables/`) or `lib/` utilities **before** it is duplicated across pages and components — extraction happens proactively, not as a follow-up
 
 ### Composables (Vue 3 Composition API)
 
@@ -83,6 +83,8 @@ A community TCG (Trading Card Game) matchmaker platform. Users find and schedule
 - Return plain refs (not reactive objects) for destructuring
 - Accept refs/getters when input should be reactive
 - Clean up side effects in `onUnmounted`
+- **DRY priority**: any logic repeated across two or more pages/components is extracted into a shared composable first — do not inline `save`, `loadMore`, `loadData`, or CRUD/pagination state in pages. Reuse the generic composables from `spec-077` (`useCrudResource`, `useFormSubmit`, `useLoadable`, `useParticipants`, `useStoreList`, `useTournamentBracket`) before writing new ones.
+- Reusable stateful logic lives in `src/composables/` — not in `src/lib/` (pure functions only) and not in a `src/services/` folder
 - See: https://vuejs.org/guide/reusability/composables.html
 
 ### Pinia Stores
@@ -148,6 +150,7 @@ Atom naming: prefix with `App` (AppButton, AppCard). Molecule/organism names are
 These rules were introduced by the P1 audit remediation (`spec-070`) and are enforced by code review.
 
 - **Page size ceiling**: Pages must stay ≤ 200 lines. If a page grows past ~150 lines, split the remaining markup into organisms under `src/components/organisms/<feature>/`.
+- **Composable DRY**: Reuse the generic data-flow composables from `spec-077` (`useCrudResource`, `useFormSubmit`, `useLoadable`, `useParticipants`, `useStoreList`, `useTournamentBracket`) instead of re-implementing `save`/`loadMore`/`loadData`/pagination inline in pages. Repeated stateful logic is extracted into `src/composables/` as a first-class step (see the Composables section), never left duplicated.
 - **Reusable list components**: All event feeds must use `BaseList` + `EventRow`. Do not re-create `.event-row` markup or `.q-infinite-scroll` wiring in individual pages.
 - **Reusable filter components**: Use `StatusFilterSegment` for any status filter bar; do not duplicate inline filter segments.
 - **Status display**: Use the `StatusBadge` atom for all status labels (events, admin tables, users). Keep the atom's color/status map up to date when adding a new status.

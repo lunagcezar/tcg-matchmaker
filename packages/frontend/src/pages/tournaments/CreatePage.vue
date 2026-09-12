@@ -67,12 +67,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 import DateTimePicker from '@/components/molecules/DateTimePicker.vue';
 import LocationAutocomplete from '@/components/molecules/fields/LocationAutocomplete.vue';
+import { useFormSubmit } from '@/composables/useFormSubmit';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { BRACKET_OPTIONS, BEST_OF_OPTIONS } from '@/constants/tournament';
 import AppCard from '@/layouts/AppCardLayout.vue';
@@ -84,8 +85,6 @@ const { t } = useI18n();
 const store = useEventStore();
 const router = useRouter();
 const formRef = ref<{ validate: () => Promise<boolean> } | null>(null);
-const saving = ref(false);
-const error = ref('');
 const form = reactive({
   name: '',
   scheduled_at: '',
@@ -111,22 +110,15 @@ const bestOfOptions = computed(() =>
   })),
 );
 
-async function save() {
-  const valid = formRef.value ? await formRef.value.validate() : true;
-  if (!valid) return;
-  saving.value = true;
-  error.value = '';
-  try {
+const { saving, error, save } = useFormSubmit({
+  validate: () => formRef.value?.validate() ?? true,
+  submit: async () => {
     await store.create({
       type: 'tournament',
       ...form,
       max_participants: Number(form.max_participants),
     });
-    void router.push('/tournaments');
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to create tournament';
-  } finally {
-    saving.value = false;
-  }
-}
+  },
+  onSuccess: () => void router.push('/tournaments'),
+});
 </script>

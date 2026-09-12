@@ -85,11 +85,10 @@ function geolocate() {
 }
 
 function loadMore(_index: number, done: (stop?: boolean) => void) {
-  void eventStore.loadMore(filterParams()).then(() => done(!eventStore.hasMore));
+  void eventStore.loadMore().then(() => done(!eventStore.hasMore));
 }
 
 watch(selectedType, () => {
-  eventStore.reset();
   void eventStore.list(filterParams());
 });
 

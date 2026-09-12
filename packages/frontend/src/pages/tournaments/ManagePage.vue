@@ -22,8 +22,10 @@ import ParticipantListSection, {
   type Participant,
 } from '@/components/organisms/tournament/ParticipantListSection.vue';
 import TournamentManageHeader from '@/components/organisms/tournament/TournamentManageHeader.vue';
-import { apiGet, apiPost } from '@/composables/useApi';
+import { apiPost } from '@/composables/useApi';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { useParticipants } from '@/composables/useParticipants';
+import { useTournamentBracket } from '@/composables/useTournamentBracket';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 import { useEventStore } from '@/stores/useEventStore';
 
@@ -32,10 +34,25 @@ const store = useEventStore();
 const tournamentId = route.params.id as string;
 
 const busy = ref(false);
-const participants = ref<Participant[]>([]);
-const bracketMatches = ref<BracketRow[]>([]);
-
 const tournament = computed(() => store.current as Record<string, string> | null);
+const { participants, loadParticipants } = useParticipants(tournamentId);
+const { matches, loadBracket } = useTournamentBracket(tournamentId);
+
+const bracketMatches = computed<BracketRow[]>(() =>
+  matches.value.map(
+    (m) =>
+      ({
+        id: m.id,
+        player1: m.player1 ?? undefined,
+        player2: m.player2 ?? undefined,
+        winner: m.winner ?? undefined,
+        status: m.status ?? undefined,
+        score1: m.score1,
+        score2: m.score2,
+      }) as BracketRow,
+  ),
+);
+
 usePageMeta({ title: `Manage: ${tournament.value?.name || ''}` });
 
 async function publish() {
@@ -79,35 +96,6 @@ async function walkover(matchId: string, winnerId: string) {
   if (!winnerId) return;
   await apiPost(`/api/bracket-matches/${matchId}/walkover`, { winner_id: winnerId });
   await loadBracket();
-}
-
-async function loadParticipants() {
-  try {
-    const j = await apiGet(`/api/events/${tournamentId}/participants`);
-    participants.value = (j.data ?? []) as Participant[];
-  } catch {
-    console.warn('failed to load participants');
-  }
-}
-
-async function loadBracket() {
-  try {
-    const j = await apiGet(`/api/tournaments/${tournamentId}/bracket`);
-    const bracketData = j.data as Record<string, unknown> | null;
-    bracketMatches.value = ((bracketData?.matches ?? []) as Record<string, unknown>[]).map(
-      (m: Record<string, unknown>) => ({
-        id: m.id as string,
-        player1: m.player1_id as string | undefined,
-        player2: m.player2_id as string | undefined,
-        winner: m.winner_id as string | undefined,
-        status: m.status as string | undefined,
-        score1: (m.score_player1 as number) ?? 0,
-        score2: (m.score_player2 as number) ?? 0,
-      }),
-    ) as BracketRow[];
-  } catch {
-    console.warn('failed to load bracket');
-  }
 }
 
 onMounted(async () => {

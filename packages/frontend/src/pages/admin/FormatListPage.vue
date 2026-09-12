@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
@@ -29,13 +29,21 @@ import AdminFormDialog from '@/components/molecules/AdminFormDialog.vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import { apiGet, apiPost } from '@/composables/useApi';
+import { useLoadable } from '@/composables/useLoadable';
 
 const { t } = useI18n({ useScope: 'global' });
 
 const route = useRoute();
 const tcgId = route.params.id as string;
-const formats = ref<Array<Record<string, unknown>>>([]);
-const loading = ref(false);
+const {
+  data: formats,
+  loading,
+  load,
+} = useLoadable(
+  () =>
+    apiGet(`/api/tcgs/${tcgId}/formats`).then((b) => (b.data ?? []) as Record<string, unknown>[]),
+  [] as Record<string, unknown>[],
+);
 const saving = ref(false);
 const showDialog = ref(false);
 const form = ref({ name: '', slug: '' });
@@ -44,27 +52,15 @@ const columns = [
   { name: 'slug', label: t('admin.columns.slug'), field: 'slug' as const },
 ];
 
-async function fetchFormats() {
-  loading.value = true;
-  try {
-    const b = await apiGet(`/api/tcgs/${tcgId}/formats`);
-    formats.value = (b.data ?? []) as Record<string, unknown>[];
-  } finally {
-    loading.value = false;
-  }
-}
-
 async function createFormat() {
   saving.value = true;
   try {
     await apiPost(`/api/tcgs/${tcgId}/formats`, { ...form.value, tcg_id: tcgId });
     showDialog.value = false;
     form.value = { name: '', slug: '' };
-    await fetchFormats();
+    await load();
   } finally {
     saving.value = false;
   }
 }
-
-onMounted(fetchFormats);
 </script>

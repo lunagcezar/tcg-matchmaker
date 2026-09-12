@@ -31,13 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog.vue';
 import { apiGet, apiDelete } from '@/composables/useApi';
+import { useLoadable } from '@/composables/useLoadable';
 
 const { t } = useI18n({ useScope: 'global' });
 
@@ -47,8 +48,11 @@ interface TcgRow {
   slug: string;
 }
 
-const tcgs = ref<TcgRow[]>([]);
-const loading = ref(false);
+const {
+  data: tcgs,
+  loading,
+  load,
+} = useLoadable(() => apiGet('/api/tcgs').then((b) => (b.data ?? []) as TcgRow[]), [] as TcgRow[]);
 const showDialog = ref(false);
 const deleteMessage = ref('');
 const selectedId = ref<string | null>(null);
@@ -58,16 +62,6 @@ const columns = [
   { name: 'slug', label: t('admin.columns.slug'), field: 'slug' as const },
   { name: 'actions', label: t('admin.columns.actions'), field: 'actions' as const },
 ];
-
-async function fetchTcgs() {
-  loading.value = true;
-  try {
-    const b = await apiGet('/api/tcgs');
-    tcgs.value = (b.data ?? []) as TcgRow[];
-  } finally {
-    loading.value = false;
-  }
-}
 
 function openDelete(row: TcgRow) {
   deleteMessage.value = t('admin.deleteConfirm', { name: row.name });
@@ -80,8 +74,6 @@ async function deleteSelected() {
   await apiDelete(`/api/tcgs/${selectedId.value}`);
   showDialog.value = false;
   selectedId.value = null;
-  await fetchTcgs();
+  await load();
 }
-
-onMounted(fetchTcgs);
 </script>

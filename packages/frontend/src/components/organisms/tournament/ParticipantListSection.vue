@@ -7,7 +7,7 @@
     <q-list>
       <q-item v-for="p in participants" :key="p.id">
         <q-item-section>{{ p.username || p.user_id?.slice(0, 8) }}</q-item-section>
-        <q-item-section side><StatusBadge :status="p.status" /></q-item-section>
+        <q-item-section side><StatusBadge :status="p.status || ''" /></q-item-section>
       </q-item>
     </q-list>
   </AppPanelCard>
@@ -18,13 +18,9 @@ import { ref } from 'vue';
 
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
 import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
+import type { Participant } from '@/types/domain';
 
-export interface Participant {
-  id: string;
-  user_id?: string;
-  username?: string;
-  status: string;
-}
+export type { Participant };
 
 interface Props {
   participants: Participant[];

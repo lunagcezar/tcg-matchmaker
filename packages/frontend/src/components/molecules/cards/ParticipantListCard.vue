@@ -17,16 +17,11 @@
 
 <script setup lang="ts">
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
+import type { Participant } from '@/types/domain';
 
 import AppPanelCard from './AppPanelCard.vue';
 
-export interface Participant {
-  id: string;
-  user_id?: string;
-  username?: string;
-  status?: string;
-  role?: string;
-}
+export type { Participant };
 
 interface Props {
   title: string;

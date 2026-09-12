@@ -8,7 +8,7 @@
       <q-btn color="primary" icon="add" :label="$t('store.create')" to="/stores/new" />
     </template>
     <template #items>
-      <BaseList :items="stores" :loading="loading" @load-more="onLoad">
+      <BaseList :items="stores" :loading="loading" @load-more="loadMore">
         <template #item="{ item }">
           <div class="col-12 col-sm-6 col-md-4">
             <router-link :to="`/stores/${item.id}`" class="store-card row items-center">
@@ -34,11 +34,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 
 import BaseList from '@/components/organisms/BaseList.vue';
 import EventMap from '@/components/organisms/home/EventMap.vue';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { useStoreList } from '@/composables/useStoreList';
 import MapListLayout from '@/layouts/MapListLayout.vue';
 import { useStoreStore } from '@/stores/useStoreStore';
 
@@ -46,6 +47,8 @@ usePageMeta({ titleKey: 'meta.stores', descKey: 'meta.storesDesc' });
 
 const storeStore = useStoreStore();
 const search = ref('');
+
+const { loadMore } = useStoreList(storeStore);
 
 const stores = computed(() => {
   const items = storeStore.items;
@@ -57,13 +60,6 @@ const stores = computed(() => {
 });
 
 const loading = computed(() => storeStore.loading);
-
-async function onLoad(_index: number, done: (stop?: boolean) => void) {
-  await storeStore.loadMore();
-  done(!storeStore.hasMore);
-}
-
-onMounted(() => storeStore.list());
 </script>
 
 <style scoped>

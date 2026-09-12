@@ -39,13 +39,13 @@ import { useRoute } from 'vue-router';
 
 import AppPanelCard from '@/components/molecules/cards/AppPanelCard.vue';
 import EventHeaderCard from '@/components/molecules/cards/EventHeaderCard.vue';
-import ParticipantListCard, {
-  type Participant,
-} from '@/components/molecules/cards/ParticipantListCard.vue';
-import { apiGet, apiPost } from '@/composables/useApi';
+import ParticipantListCard from '@/components/molecules/cards/ParticipantListCard.vue';
+import { apiPost } from '@/composables/useApi';
 import { useBracketD3, type BracketMatch } from '@/composables/useBracketD3';
 import { useFormatDate } from '@/composables/useFormatDate';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { useParticipants } from '@/composables/useParticipants';
+import { useTournamentBracket } from '@/composables/useTournamentBracket';
 import AppDetailLayout from '@/layouts/AppDetailLayout.vue';
 import { useEventStore } from '@/stores/useEventStore';
 
@@ -54,13 +54,23 @@ const { formatDate } = useFormatDate();
 const store = useEventStore();
 const tournamentId = route.params.id as string;
 
-const participants = ref<Participant[]>([]);
 const registering = ref(false);
 const bracketRef = ref<HTMLElement | null>(null);
-const bracketMatches = ref<BracketMatch[]>([]);
 
 const tournament = computed(() => store.current);
 const loading = computed(() => store.loading);
+const { participants, loadParticipants } = useParticipants(tournamentId);
+const { matches, loadBracket } = useTournamentBracket(tournamentId);
+
+const bracketMatches = computed<BracketMatch[]>(() =>
+  matches.value.map((m) => ({
+    id: m.id,
+    round: m.round,
+    player1: m.player1?.slice(0, 8) ?? null,
+    player2: m.player2?.slice(0, 8) ?? null,
+    winner: m.winner?.slice(0, 8) ?? null,
+  })),
+);
 
 usePageMeta({ title: tournament.value?.name || 'Tournament' });
 useBracketD3(bracketRef, bracketMatches);
@@ -75,34 +85,9 @@ async function register() {
   }
 }
 
-async function loadBracket() {
-  try {
-    const j = await apiGet(`/api/tournaments/${tournamentId}/bracket`);
-    const bracketData = j.data as Record<string, unknown> | null;
-    if (bracketData?.matches) {
-      bracketMatches.value = (bracketData.matches as Record<string, unknown>[]).map(
-        (m: Record<string, unknown>) => ({
-          id: m.id as string,
-          round: (m.round_number as number) || 1,
-          player1: (m.player1_id as string)?.slice(0, 8) || null,
-          player2: (m.player2_id as string)?.slice(0, 8) || null,
-          winner: (m.winner_id as string)?.slice(0, 8) || null,
-        }),
-      );
-    }
-  } catch {
-    console.warn('bracket load failed');
-  }
-}
-
 onMounted(async () => {
   await store.get(tournamentId);
-  try {
-    const j = await apiGet(`/api/events/${tournamentId}/participants`);
-    participants.value = (j.data ?? []) as Participant[];
-  } catch {
-    console.warn('failed to load participants');
-  }
+  await loadParticipants();
   if (tournament.value?.status === 'in_progress' || tournament.value?.status === 'completed') {
     await loadBracket();
   }

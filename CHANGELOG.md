@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-077-frontend-page-refactor.md`; extracted generic page-level composables and a shared CRUD resource to DRY repeated list/form/detail logic.
+  - `useCrudResource` (`src/composables/useCrudResource.ts`) centralizes paginated `list`/`loadMore`/`get`/`create`/`update` + `items`/`loading`/`hasMore`/`current` state; `useEventStore` and `useStoreStore` are now thin Pinia wrappers with identical public APIs (existing tests pass unchanged). New `useStoreStore.test.ts` added.
+  - `useFormSubmit` (`src/composables/useFormSubmit.ts`) replaces the `saving`/`error`/validate/`save()` boilerplate in the match, tournament, trading, and store create pages, `admin/TcgCreatePage`, and `stores/SettingsPage`.
+  - `useLoadable` (`src/composables/useLoadable.ts`) DRYs the `fetch-on-mount` pattern across the six admin list pages (`StoreManageList`, `TcgList`, `UserList`, `ReportList`, `FormatList`, `AuditLog`).
+  - `useParticipants` (`src/composables/useParticipants.ts`) centralizes participant loading for `matches/DetailPage`, `trading/DetailPage`, `tournaments/DetailPage`, and `tournaments/ManagePage`; the duplicated `Participant` interface moved to `src/types/domain.ts`.
+  - `useStoreList` (`src/composables/useStoreList.ts`) and `useTournamentBracket` (`src/composables/useTournamentBracket.ts`) DRY the `loadMore`/`onMounted` list wiring and the bracket fetch+mapping in the tournament detail/manage pages.
+  - No new `src/services/` folder; reactivity-bearing helpers live in `src/composables/` per AGENTS.md conventions.
+
 - Spec: `spec/spec-076-store-detail-forbidden.md`; fixed the 403 Forbidden on store detail pages without exposing the member roster publicly.
   - Added `optionalAuthMiddleware` (shared `resolveUser` helper with `authMiddleware`) so `GET /api/stores/:id` returns a `viewer_role` field (`'admin'`, the viewer's membership role, or `null`) describing the requesting viewer.
   - `GET /api/stores/:id/members` stays member-only but now allows admins to read any store's roster (fixes the empty members list on `/admin/stores/:id`).

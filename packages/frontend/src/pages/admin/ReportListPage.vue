@@ -30,18 +30,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import StatusBadge from '@/components/atoms/StatusBadge.vue';
 import AdminPageHeader from '@/components/molecules/AdminPageHeader.vue';
 import AdminTable from '@/components/molecules/AdminTable.vue';
 import { apiGet, apiPatch } from '@/composables/useApi';
+import { useLoadable } from '@/composables/useLoadable';
 
 const { t } = useI18n({ useScope: 'global' });
 
-const reports = ref<Array<Record<string, unknown>>>([]);
-const loading = ref(false);
+const {
+  data: reports,
+  loading,
+  load,
+} = useLoadable(
+  () => apiGet('/api/reports').then((b) => (b.data ?? []) as Record<string, unknown>[]),
+  [] as Record<string, unknown>[],
+);
 const columns = [
   { name: 'target_type', label: t('admin.columns.type'), field: 'target_type' as const },
   { name: 'reason', label: t('admin.columns.reason'), field: 'reason' as const },
@@ -50,25 +56,13 @@ const columns = [
   { name: 'actions', label: t('admin.columns.actions'), field: 'actions' as const },
 ];
 
-async function fetchReports() {
-  loading.value = true;
-  try {
-    const b = await apiGet('/api/reports');
-    reports.value = (b.data ?? []) as Record<string, unknown>[];
-  } finally {
-    loading.value = false;
-  }
-}
-
 async function resolveReport(id: string) {
   await apiPatch(`/api/reports/${id}`, { status: 'resolved' });
-  await fetchReports();
+  await load();
 }
 
 async function dismissReport(id: string) {
   await apiPatch(`/api/reports/${id}`, { status: 'dismissed' });
-  await fetchReports();
+  await load();
 }
-
-onMounted(fetchReports);
 </script>
