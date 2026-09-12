@@ -1,7 +1,7 @@
 <template>
   <AppDetailLayout :item="match" :loading="loading" width="600px">
     <EventHeaderCard
-      :title="$t('event.matchDetails')"
+      :title="(match as unknown as MatchDetails).name || $t('event.matchDetails')"
       :status="match!.status"
       :participation="myParticipation"
       :confirming="confirming"

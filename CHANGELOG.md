@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-078-event-name-standardization.md`; standardized the event name field across create forms.
+  - `matches/CreatePage.vue` now starts with a required **Name** field (was missing entirely); the payload sends `name`.
+  - `trading/CreatePage.vue` and `tournaments/CreatePage.vue` use the shared `event.name` label ("Name"/"Nome") instead of the misleading `event.type` and the one-off `tournament.name` keys (both removed).
+  - `matches/ListPage.vue` rows and `matches/DetailPage.vue` header now display the match name, falling back to TCG name / `event.anyTcg` and `event.matchDetails` respectively.
+  - No backend/schema change; `events.name` stays nullable.
+
 - Spec: `spec/spec-077-frontend-page-refactor.md`; extracted generic page-level composables and a shared CRUD resource to DRY repeated list/form/detail logic.
   - `useCrudResource` (`src/composables/useCrudResource.ts`) centralizes paginated `list`/`loadMore`/`get`/`create`/`update` + `items`/`loading`/`hasMore`/`current` state; `useEventStore` and `useStoreStore` are now thin Pinia wrappers with identical public APIs (existing tests pass unchanged). New `useStoreStore.test.ts` added.
   - `useFormSubmit` (`src/composables/useFormSubmit.ts`) replaces the `saving`/`error`/validate/`save()` boilerplate in the match, tournament, trading, and store create pages, `admin/TcgCreatePage`, and `stores/SettingsPage`.

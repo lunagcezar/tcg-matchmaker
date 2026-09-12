@@ -12,6 +12,7 @@ const mockEventStore = vi.hoisted(() => ({
     status: 'open' as const,
     scheduled_at: '2026-07-20T10:00:00Z',
     max_participants: 2,
+    name: undefined as string | undefined,
   },
   list: vi.fn(),
   get: vi.fn().mockResolvedValue({}),
@@ -103,5 +104,34 @@ describe('MatchDetailPage', () => {
       },
     });
     expect(mockEventStore.get).toHaveBeenCalledWith('1');
+  });
+
+  it('uses the match name as the header title when present', async () => {
+    mockEventStore.current = { ...mockEventStore.current, name: 'Test Match' };
+    const MatchDetailPage = (await import('../matches/DetailPage.vue')).default;
+    const wrapper = shallowMount(MatchDetailPage, {
+      global: {
+        plugins: [i18n, createPinia()],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          'q-card': { template: '<div><slot /></div>' },
+          'q-card-section': { template: '<div><slot /></div>' },
+          'q-card-actions': { template: '<div><slot /></div>' },
+          'q-badge': { template: '<span><slot /></span>' },
+          'q-btn': { template: '<button><slot /></button>' },
+          'q-list': { template: '<div><slot /></div>' },
+          'q-item': { template: '<div><slot /></div>' },
+          'q-item-section': { template: '<div><slot /></div>' },
+          'q-spinner': { template: '<div />' },
+          AppDetailLayout: { template: '<div><slot /></div>' },
+          EventHeaderCard: {
+            template: '<h1 class="header-title">{{ title }}</h1>',
+            props: ['title'],
+          },
+        },
+      },
+    });
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('.header-title').text()).toBe('Test Match');
   });
 });

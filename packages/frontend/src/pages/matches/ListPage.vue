@@ -13,7 +13,7 @@
         <template #item="{ item }">
           <EventRow :to="eventRoute(item)">
             <StatusBadge :status="item.status" class="q-mr-sm" />
-            <div class="text-body2">{{ item.tcg_name || $t('event.anyTcg') }}</div>
+            <div class="text-body2">{{ item.name || item.tcg_name || $t('event.anyTcg') }}</div>
             <q-space />
             <div class="text-caption text-grey">{{ formatDate(item.scheduled_at) }}</div>
           </EventRow>

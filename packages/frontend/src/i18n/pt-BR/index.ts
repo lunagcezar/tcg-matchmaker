@@ -105,7 +105,7 @@ export default {
   },
   event: {
     create: 'Criar Evento',
-    type: 'Tipo',
+    name: 'Nome',
     match: 'Partida',
     trading: 'Sessão de Negociação',
     tournament: 'Torneio',
@@ -210,7 +210,6 @@ export default {
     noParticipants: 'Nenhum participante ainda',
     publishSuccess: 'Torneio publicado!',
     startSuccess: 'Torneio iniciado!',
-    name: 'Nome do Torneio',
     bracketType: 'Tipo de Chaveamento',
     bestOf: 'Melhor de',
     bracketOptions: {

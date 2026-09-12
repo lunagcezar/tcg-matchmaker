@@ -10,7 +10,7 @@
     <q-form ref="formRef" class="q-gutter-sm" @submit.prevent="save">
       <q-input
         v-model="form.name"
-        :label="$t('tournament.name')"
+        :label="$t('event.name')"
         outlined
         :rules="[(v) => !!v || 'Name is required']"
       />

@@ -105,7 +105,7 @@ export default {
   },
   event: {
     create: 'Create Event',
-    type: 'Type',
+    name: 'Name',
     match: 'Match',
     trading: 'Trading Session',
     tournament: 'Tournament',
@@ -210,7 +210,6 @@ export default {
     noParticipants: 'No participants yet',
     publishSuccess: 'Tournament published!',
     startSuccess: 'Tournament started!',
-    name: 'Tournament Name',
     bracketType: 'Bracket Type',
     bestOf: 'Best Of',
     bracketOptions: {

@@ -39,16 +39,15 @@ const i18n = createI18n({
         createMatch: 'Create Match',
         createTrading: 'Create Trading Session',
         createTournament: 'Create Tournament',
+        name: 'Name',
         scheduledAt: 'Date & Time',
         maxParticipants: 'Max Participants',
         location: 'Location',
         details: 'Details',
-        type: 'Type',
         defaultParticipantHint: 'Default: {default}',
       },
       tournament: {
         create: 'Create Tournament',
-        name: 'Tournament Name',
         bracketType: 'Bracket Type',
         bestOf: 'Best Of',
         bracketOptions: {
@@ -85,6 +84,7 @@ function commonStubs() {
     'q-page': { template: '<div><slot /></div>' },
     'q-card': { template: '<div><slot /></div>' },
     'q-card-section': { template: '<div><slot /></div>' },
+    'q-form': { template: '<form><slot /></form>', methods: { validate: () => true } },
     'q-input': { template: '<input />' },
     'q-btn': { template: '<button><slot /></button>' },
     'q-select': { template: '<div class="q-select" />', props: ['options', 'modelValue'] },
@@ -109,6 +109,38 @@ describe('CreatePages', () => {
       },
     });
     expect(wrapper.exists()).toBe(true);
+  });
+
+  it('renders a required Name field as the first input on the match create page', async () => {
+    const Page = (await import('../matches/CreatePage.vue')).default;
+    const wrapper = shallowMount(Page, {
+      global: {
+        plugins: [i18n, createPinia()],
+        stubs: commonStubs(),
+      },
+    });
+
+    const inputs = wrapper.findAll('input');
+    expect(inputs.length).toBeGreaterThan(0);
+    expect(inputs[0].attributes('label')).toBe('Name');
+  });
+
+  it('includes the name in the match create payload', async () => {
+    const Page = (await import('../matches/CreatePage.vue')).default;
+    const wrapper = shallowMount(Page, {
+      global: {
+        plugins: [i18n, createPinia()],
+        stubs: commonStubs(),
+      },
+    });
+
+    const vm = wrapper.vm as unknown as { form: { name: string }; save: () => Promise<void> };
+    vm.form.name = 'Sunday Night FNM';
+    await vm.save();
+
+    expect(mockEventStore.create).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Sunday Night FNM', type: 'match' }),
+    );
   });
 
   it('renders trading create page', async () => {

@@ -8,6 +8,12 @@
     :error="error"
   >
     <q-form ref="formRef" class="q-gutter-sm" @submit.prevent="save">
+      <q-input
+        v-model="form.name"
+        :label="$t('event.name')"
+        outlined
+        :rules="[(v) => !!v || 'Name is required']"
+      />
       <DateTimePicker
         v-model="form.scheduled_at"
         :label="$t('event.scheduledAt')"
@@ -58,6 +64,7 @@ const store = useEventStore();
 const router = useRouter();
 const formRef = ref<{ validate: () => Promise<boolean> } | null>(null);
 const form = reactive({
+  name: '',
   scheduled_at: '',
   lat: 0,
   lng: 0,

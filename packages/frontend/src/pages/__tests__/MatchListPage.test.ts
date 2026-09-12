@@ -22,6 +22,14 @@ const mockEventStore = vi.hoisted(() => ({
       tcg_name: 'Pokémon',
       scheduled_at: '2026-07-10T10:00:00Z',
     },
+    {
+      id: '3',
+      type: 'match' as const,
+      status: 'open' as const,
+      name: null,
+      tcg_name: 'Yu-Gi-Oh',
+      scheduled_at: '2026-07-25T10:00:00Z',
+    },
   ],
   loading: false,
   current: null,
@@ -72,7 +80,10 @@ function stubs() {
       template: '<div><slot name="map" /><slot name="filters" /><slot name="items" /></div>',
     },
     EventMap: { template: '<div class="event-map-stub" />' },
-    BaseList: { template: '<div><slot /><slot name="item" :item="{}" /></div>' },
+    BaseList: {
+      template: '<div><slot /><slot v-for="item in items" name="item" :item="item" /></div>',
+      props: ['items'],
+    },
     EventRow: { template: '<a class="event-row"><slot /></a>' },
     StatusFilterSegment: { template: '<div class="filter-segment"><slot /></div>' },
     StatusBadge: { template: '<span class="status-badge"><slot /></span>' },
@@ -112,5 +123,32 @@ describe('MatchListPage', () => {
 
     const vm = wrapper.vm as unknown as { statusFilter: string };
     expect(vm.statusFilter).toBe('');
+  });
+
+  it('renders the match name on list rows', async () => {
+    const MatchListPage = (await import('../matches/ListPage.vue')).default;
+    const wrapper = shallowMount(MatchListPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: stubs(),
+      },
+    });
+
+    const rows = wrapper.findAll('.event-row');
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows[0].text()).toContain('Test Match');
+  });
+
+  it('falls back to the TCG name when the match has no name', async () => {
+    const MatchListPage = (await import('../matches/ListPage.vue')).default;
+    const wrapper = shallowMount(MatchListPage, {
+      global: {
+        plugins: [i18n, router, createPinia()],
+        stubs: stubs(),
+      },
+    });
+
+    const rows = wrapper.findAll('.event-row');
+    expect(rows[rows.length - 1].text()).toContain('Yu-Gi-Oh');
   });
 });
