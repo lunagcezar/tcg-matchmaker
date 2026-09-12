@@ -1,28 +1,48 @@
 import { z } from 'zod';
 
-export const CreateEventSchema = z.object({
-  type: z.enum(['match', 'tournament', 'trading']),
-  organizer_user_id: z.string().uuid().optional(),
-  organizer_store_id: z.string().uuid().optional(),
-  country: z.string().default('Brasil'),
-  state: z.string().default('Ceará'),
-  city: z.string().default('Fortaleza'),
-  custom_location_name: z.string().optional(),
-  lat: z.number(),
-  lng: z.number(),
-  name: z.string().optional(),
-  description: z.string().optional(),
-  details: z.string().optional(),
-  scheduled_at: z.string().min(1, 'Scheduled date is required'),
-  end_at: z.string().optional(),
-  tcg_id: z.string().uuid().optional(),
-  format_id: z.string().uuid().optional(),
-  max_participants: z.number().int().min(2).optional(),
-  bracket_type: z
-    .enum(['single_elimination', 'double_elimination', 'round_robin', 'swiss', 'pool_play'])
-    .optional(),
-  best_of: z.number().int().positive().max(5).default(1).optional(),
-});
+import { MAX_EVENT_HORIZON_MS } from '../constants.js';
+
+export const CreateEventSchema = z
+  .object({
+    type: z.enum(['match', 'tournament', 'trading']),
+    organizer_user_id: z.string().uuid().optional(),
+    organizer_store_id: z.string().uuid().optional(),
+    country: z.string().default('Brasil'),
+    state: z.string().default('Ceará'),
+    city: z.string().default('Fortaleza'),
+    custom_location_name: z.string().optional(),
+    lat: z.number(),
+    lng: z.number(),
+    name: z.string().optional(),
+    description: z.string().optional(),
+    details: z.string().optional(),
+    scheduled_at: z.string().min(1, 'Scheduled date is required'),
+    end_at: z.string().optional(),
+    tcg_id: z.string().uuid().optional(),
+    format_id: z.string().uuid().optional(),
+    max_participants: z.number().int().min(2).optional(),
+    bracket_type: z
+      .enum(['single_elimination', 'double_elimination', 'round_robin', 'swiss', 'pool_play'])
+      .optional(),
+    best_of: z.number().int().positive().max(5).default(1).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const timestamp = new Date(data.scheduled_at).getTime();
+    if (Number.isNaN(timestamp)) return;
+    if (timestamp <= Date.now()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Event date must be in the future',
+        path: ['scheduled_at'],
+      });
+    } else if (timestamp > Date.now() + MAX_EVENT_HORIZON_MS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Event date must be within 1 year',
+        path: ['scheduled_at'],
+      });
+    }
+  });
 
 export const EventSchema = z.object({
   id: z.string().uuid(),

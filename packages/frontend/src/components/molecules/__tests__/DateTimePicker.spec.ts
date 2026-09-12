@@ -2,8 +2,25 @@ process.env.TZ = 'America/Fortaleza';
 
 import { mount } from '@vue/test-utils';
 import { describe, it, expect } from 'vitest';
+import { createI18n } from 'vue-i18n';
 
 import DateTimePicker from '../DateTimePicker.vue';
+
+const i18n = createI18n({
+  legacy: false,
+  locale: 'en-US',
+  fallbackLocale: 'en-US',
+  messages: {
+    'en-US': {
+      event: {
+        date: 'event.date',
+        time: 'event.time',
+        inFuture: 'event.inFuture',
+        tooFar: 'event.tooFar',
+      },
+    },
+  },
+});
 
 const createWrapper = (props: {
   modelValue: string;
@@ -13,12 +30,21 @@ const createWrapper = (props: {
   mount(DateTimePicker, {
     props,
     global: {
-      mocks: { $t: (key: string) => key },
+      plugins: [i18n],
       stubs: {
         'q-input': {
           template:
-            '<input class="q-input" :type="type" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-          props: ['type', 'modelValue'],
+            '<input class="q-input" :type="type" :value="modelValue" :data-error="ruleResult" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+          props: ['type', 'modelValue', 'rules'],
+          computed: {
+            ruleResult() {
+              if (!this.rules || !this.modelValue) return '';
+              const failed = this.rules
+                .map((rule: (v: string) => true | string) => rule(this.modelValue))
+                .filter((result: true | string) => result !== true);
+              return failed[0] ?? '';
+            },
+          },
         },
       },
     },
@@ -27,7 +53,7 @@ const createWrapper = (props: {
 describe('DateTimePicker', () => {
   it('renders date and time inputs', () => {
     const wrapper = createWrapper({ modelValue: '' });
-    const inputs = wrapper.findAll('.q-input');
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
 
     expect(inputs).toHaveLength(2);
     expect(inputs[0].attributes('type')).toBe('date');
@@ -38,7 +64,7 @@ describe('DateTimePicker', () => {
     const wrapper = createWrapper({ modelValue: '2026-07-24T14:30:00.000Z' });
     await wrapper.vm.$nextTick();
 
-    const inputs = wrapper.findAll('.q-input');
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
     expect(inputs[0].element.value).toBe('2026-07-24');
     expect(inputs[1].element.value).toBe('11:30');
   });
@@ -47,7 +73,7 @@ describe('DateTimePicker', () => {
     const wrapper = createWrapper({ modelValue: '2026-07-24T17:30:00.000Z' });
     await wrapper.vm.$nextTick();
 
-    const inputs = wrapper.findAll('.q-input');
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
     expect(inputs[0].element.value).toBe('2026-07-24');
     expect(inputs[1].element.value).toBe('14:30');
   });
@@ -56,7 +82,7 @@ describe('DateTimePicker', () => {
     const wrapper = createWrapper({ modelValue: '2026-07-24T17:30:00.000Z' });
     await wrapper.vm.$nextTick();
 
-    const inputs = wrapper.findAll('.q-input');
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
     await inputs[1].setValue('16:45');
 
     const emitted = wrapper.emitted('update:modelValue');
@@ -67,13 +93,13 @@ describe('DateTimePicker', () => {
     await wrapper.setProps({ modelValue: iso });
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.findAll('.q-input')[1].element.value).toBe('16:45');
+    expect(wrapper.findAll<HTMLInputElement>('.q-input')[1].element.value).toBe('16:45');
     expect(wrapper.emitted('update:modelValue')?.length).toBe(countAfterEdit);
   });
 
   it('emits combined ISO string when date and time change', async () => {
     const wrapper = createWrapper({ modelValue: '' });
-    const inputs = wrapper.findAll('.q-input');
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
 
     await inputs[0].setValue('2026-07-24');
     await inputs[1].setValue('14:30');
@@ -87,7 +113,7 @@ describe('DateTimePicker', () => {
 
   it('emits empty string when date or time is cleared', async () => {
     const wrapper = createWrapper({ modelValue: '2026-07-24T14:30:00.000Z' });
-    const inputs = wrapper.findAll('.q-input');
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
 
     await inputs[0].setValue('');
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['']);
@@ -99,11 +125,51 @@ describe('DateTimePicker', () => {
 
   it('emits empty string for invalid date and time combinations', async () => {
     const wrapper = createWrapper({ modelValue: '' });
-    const inputs = wrapper.findAll('.q-input');
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
 
     await inputs[0].setValue('not-a-date');
     await inputs[1].setValue('14:30');
 
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['']);
+  });
+
+  it('defaults the date to today and leaves the time empty when modelValue is empty', async () => {
+    const wrapper = createWrapper({ modelValue: '' });
+    await wrapper.vm.$nextTick();
+
+    const now = new Date();
+    const expectedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      now.getDate(),
+    ).padStart(2, '0')}`;
+
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
+    expect(inputs[0].element.value).toBe(expectedDate);
+    expect(inputs[1].element.value).toBe('');
+  });
+
+  it('shows a rule error when the combined date is in the past', async () => {
+    const wrapper = createWrapper({ modelValue: '2026-07-24T17:30:00.000Z' });
+    await wrapper.vm.$nextTick();
+
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
+    expect(inputs[1].attributes('data-error')).toBe('event.inFuture');
+  });
+
+  it('shows a rule error when the combined date is beyond one year', async () => {
+    const beyond = new Date(Date.now() + 366 * 24 * 60 * 60 * 1000).toISOString();
+    const wrapper = createWrapper({ modelValue: beyond });
+    await wrapper.vm.$nextTick();
+
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
+    expect(inputs[1].attributes('data-error')).toBe('event.tooFar');
+  });
+
+  it('shows no rule error for a valid future date', async () => {
+    const future = new Date(Date.now() + 86_400_000).toISOString();
+    const wrapper = createWrapper({ modelValue: future });
+    await wrapper.vm.$nextTick();
+
+    const inputs = wrapper.findAll<HTMLInputElement>('.q-input');
+    expect(inputs[1].attributes('data-error')).toBe('');
   });
 });

@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Spec: `spec/spec-081-future-event-scheduling-window.md`; events can only be scheduled in the future and within 1 year.
+  - Shared `MAX_EVENT_HORIZON_MS` in `@tcg/shared`; `CreateEventSchema` (`superRefine`) rejects `scheduled_at` in the past or beyond the horizon (covers matches, tournaments, and trading sessions).
+  - Worker `updateEventById` applies the same checks on reschedule; the PATCH route now maps validation errors to 400 (only `'Event not found'` stays 404).
+  - Frontend: `scheduledAtError` in `src/lib/eventSchedule.ts`; `DateTimePicker` appends a localized combined rule (`event.inFuture` / `event.tooFar`, en-US + pt-BR) and defaults the date field to today when `modelValue` is empty, leaving the time blank.
+  - Worker create tests now use dynamic future dates.
+
 - Spec: `spec/spec-080-reject-banned-at-login.md`; banned (and deleted) accounts are now rejected at login and during active sessions.
   - `useAuthStore.signIn` verifies the new session against `GET /api/auth/me` after Supabase sign-in and, when the account is rejected, signs the session out and throws the Worker's message.
   - A session-rejection hook in `useApi` (`setSessionRejectedHandler`) observes any API response carrying `'Account is banned'`/`'Account not found'`; `boot/auth.ts` registers a handler that signs out and redirects to `/login?reason=banned|deleted`.

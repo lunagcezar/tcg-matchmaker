@@ -1,4 +1,9 @@
-import { CreateEventSchema, EventSchema, EventParticipantSchema } from '@tcg/shared';
+import {
+  CreateEventSchema,
+  EventSchema,
+  EventParticipantSchema,
+  MAX_EVENT_HORIZON_MS,
+} from '@tcg/shared';
 
 import type { createSecretClient } from '../db/client.js';
 import { validate } from '../lib/validation.js';
@@ -118,6 +123,19 @@ export async function updateEventById(
   if (!existing) return { data: null, error: 'Event not found', meta: null };
   if (existing.created_by_user_id !== userId) {
     return { data: null, error: 'Forbidden', meta: null };
+  }
+
+  if (body.scheduled_at !== undefined) {
+    const timestamp = new Date(body.scheduled_at as string).getTime();
+    if (Number.isNaN(timestamp)) {
+      return { data: null, error: 'Invalid scheduled date', meta: null };
+    }
+    if (timestamp <= Date.now()) {
+      return { data: null, error: 'Event date must be in the future', meta: null };
+    }
+    if (timestamp > Date.now() + MAX_EVENT_HORIZON_MS) {
+      return { data: null, error: 'Event date must be within 1 year', meta: null };
+    }
   }
 
   const allowed: Record<string, unknown> = {};

@@ -81,7 +81,7 @@ describe('Tournament routes', () => {
             type: 'tournament',
             name: 'Test Tournament',
             bracket_type: 'single_elimination',
-            scheduled_at: '2026-08-01T10:00:00.000Z',
+            scheduled_at: new Date(Date.now() + 86_400_000).toISOString(),
             lat: -3.7,
             lng: -38.5,
             max_participants: 8,
@@ -90,6 +90,39 @@ describe('Tournament routes', () => {
         env,
       );
       expect(res.status).toBe(201);
+    });
+
+    it('rejects a past scheduled_at with 400', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(organizerId),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return userChain(organizerId);
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/tournaments', tournamentRouter).request(
+        '/api/tournaments',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'tournament',
+            name: 'Past Tournament',
+            bracket_type: 'single_elimination',
+            scheduled_at: new Date(Date.now() - 86_400_000).toISOString(),
+            lat: -3.7,
+            lng: -38.5,
+            max_participants: 8,
+          }),
+        },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toContain('must be in the future');
     });
   });
 

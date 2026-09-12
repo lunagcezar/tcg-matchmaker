@@ -139,6 +139,8 @@ export default {
     anyTcg: 'Any TCG',
     attendee: 'Attendee',
     defaultParticipantHint: 'Default: {default}',
+    inFuture: 'Event date must be in the future',
+    tooFar: 'Event date must be within 1 year',
   },
   admin: {
     dashboard: 'Dashboard',

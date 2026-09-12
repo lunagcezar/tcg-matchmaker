@@ -47,9 +47,9 @@ eventRouter.patch('/:id', authMiddleware, async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
   const svcResult = await updateEventById(c.var.db, c.var.user.id, c.req.param('id')!, body);
   if (!svcResult.data) {
-    return svcResult.error === 'Forbidden'
-      ? forbidden(c)
-      : notFound(c, svcResult.error ?? undefined);
+    if (svcResult.error === 'Forbidden') return forbidden(c);
+    if (svcResult.error === 'Event not found') return notFound(c, svcResult.error);
+    return badRequest(c, svcResult.error ?? 'Bad request');
   }
   return result(c, svcResult);
 });

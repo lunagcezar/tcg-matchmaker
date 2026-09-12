@@ -5,7 +5,7 @@
         v-model="date"
         type="date"
         :label="$t('event.date')"
-        :rules="rules"
+        :rules="inputRules"
         outlined
         class="date-time-picker__date"
       />
@@ -15,7 +15,7 @@
         v-model="time"
         type="time"
         :label="$t('event.time')"
-        :rules="rules"
+        :rules="inputRules"
         outlined
         class="date-time-picker__time"
       />
@@ -25,6 +25,9 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+import { scheduledAtError } from '@/lib/eventSchedule';
 
 export interface DateTimePickerProps {
   modelValue: string;
@@ -40,6 +43,24 @@ const emit = defineEmits<{
 
 const date = ref('');
 const time = ref('');
+const { t } = useI18n();
+
+function todayLocalDate(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const combinedRule = (_value: string): true | string => {
+  const err = scheduledAtError(toIso(date.value, time.value));
+  if (err === 'in_past') return t('event.inFuture');
+  if (err === 'too_far') return t('event.tooFar');
+  return true;
+};
+
+const inputRules = [...(props.rules ?? []), combinedRule];
 
 function toLocalParts(value: string): { date: string; time: string } {
   const parsed = new Date(value);
@@ -73,6 +94,11 @@ function updateModelValue() {
 watch(
   () => props.modelValue,
   (value) => {
+    if (!value) {
+      date.value = todayLocalDate();
+      time.value = '';
+      return;
+    }
     const parts = toLocalParts(value);
     date.value = parts.date;
     time.value = parts.time;

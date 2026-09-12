@@ -1,3 +1,4 @@
+import { MAX_EVENT_HORIZON_MS } from '@tcg/shared';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@supabase/supabase-js', () => ({
@@ -102,6 +103,9 @@ describe('Event routes', () => {
   });
 
   describe('POST /api/events', () => {
+    const futureDate = () => new Date(Date.now() + 86_400_000).toISOString();
+    const tooFarDate = () => new Date(Date.now() + MAX_EVENT_HORIZON_MS + 86_400_000).toISOString();
+
     it('returns 401 when not authenticated', async () => {
       const { createClient } = await import('@supabase/supabase-js');
       (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -144,7 +148,7 @@ describe('Event routes', () => {
           headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
           body: JSON.stringify({
             type: 'match',
-            scheduled_at: '2026-07-20T14:00:00.000Z',
+            scheduled_at: futureDate(),
             lat: -3.7,
             lng: -38.5,
           }),
@@ -152,6 +156,118 @@ describe('Event routes', () => {
         env,
       );
       expect(res.status).toBe(201);
+    });
+
+    it('rejects a past scheduled_at with 400', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return userChain();
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/events', eventRouter).request(
+        '/api/events',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'match',
+            scheduled_at: new Date(Date.now() - 86_400_000).toISOString(),
+            lat: -3.7,
+            lng: -38.5,
+          }),
+        },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toContain('must be in the future');
+    });
+
+    it('rejects a scheduled_at beyond 1 year with 400', async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return userChain();
+          return chain();
+        }),
+      });
+
+      const res = await createTestApp('/api/events', eventRouter).request(
+        '/api/events',
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'match',
+            scheduled_at: tooFarDate(),
+            lat: -3.7,
+            lng: -38.5,
+          }),
+        },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toContain('within 1 year');
+    });
+  });
+
+  describe('PATCH /api/events/:id', () => {
+    async function patchRequest(body: Record<string, unknown>) {
+      const { createClient } = await import('@supabase/supabase-js');
+      const eChain = chain({
+        single: vi.fn().mockResolvedValue({
+          data: { id: eventId, created_by_user_id: testUserId },
+          error: null,
+        }),
+        update: vi.fn().mockReturnThis(),
+      });
+
+      (createClient as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...authMock(),
+        from: vi.fn().mockImplementation((t: string) => {
+          if (t === 'users') return userChain();
+          if (t === 'events') return eChain;
+          return chain();
+        }),
+      });
+
+      return createTestApp('/api/events', eventRouter).request(
+        `/api/events/${eventId}`,
+        {
+          method: 'PATCH',
+          headers: { Authorization: 'Bearer t', 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        },
+        env,
+      );
+    }
+
+    it('rejects a past scheduled_at with 400', async () => {
+      const res = await patchRequest({
+        scheduled_at: new Date(Date.now() - 86_400_000).toISOString(),
+      });
+
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toContain('must be in the future');
+    });
+
+    it('rejects a scheduled_at beyond 1 year with 400', async () => {
+      const res = await patchRequest({
+        scheduled_at: new Date(Date.now() + MAX_EVENT_HORIZON_MS + 86_400_000).toISOString(),
+      });
+
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toContain('within 1 year');
     });
   });
 
